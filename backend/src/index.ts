@@ -2,17 +2,20 @@ import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import * as database from "./config/database.config";
+import routerAppVer1ForAdmin from "./routes/admin/index";
 dotenv.config();
 database.connect();
 
 const app: Express = express();
 const PORT: number = Number(process.env.PORT) || 3000;
 
+// Middleware
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Hello World!");
-});
+// Routes
+routerAppVer1ForAdmin(app);
 
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
