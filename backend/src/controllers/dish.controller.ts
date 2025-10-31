@@ -90,3 +90,12 @@ export const changeMulti = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Internal server error", error });
   }
 };
+export const deleteDish = async (req: Request, res: Response) => {
+  try {
+    const dishId = req.params.id;
+    await Dish.updateOne({ _id: dishId }, { deleted: true });
+    res.json({ message: "Dish deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error", error });
+  }
+};
