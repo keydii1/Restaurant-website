@@ -106,3 +106,14 @@ export const create = async (req: Request, res: Response) => {
   await newDish.save();
   res.json({ message: "Dish created successfully", data: newDish });
 };
+
+export const edit = async (req: Request, res: Response) => {
+  try {
+    req.body.price = parseFloat(req.body.price);
+    req.body.rating = parseFloat(req.body.rating);
+    await Dish.updateOne({ _id: req.params.id }, req.body);
+    res.json({ message: "Dish updated successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error", error });
+  }
+};
