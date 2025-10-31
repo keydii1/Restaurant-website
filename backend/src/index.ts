@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import * as database from "./config/database.config";
 import routerAppVer1ForAdmin from "./routes/admin/index";
+import routerAppVer1ForClient from "./routes/client/index";
 dotenv.config();
 database.connect();
 
@@ -16,6 +17,7 @@ app.use(express.json());
 
 // Routes
 routerAppVer1ForAdmin(app);
+routerAppVer1ForClient(app);
 
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
