@@ -4,4 +4,5 @@ const router = express.Router();
 
 router.get("/", controller.getDishes);
 router.patch("/change-status/:id/:status", controller.changeStatus);
+router.patch("/change-multi", controller.changeMulti);
 export default router;

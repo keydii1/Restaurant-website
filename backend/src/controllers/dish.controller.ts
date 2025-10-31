@@ -65,3 +65,28 @@ export const changeStatus = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Internal server error", error });
   }
 };
+
+export const changeMulti = async (req: Request, res: Response) => {
+  try {
+    const type = req.body.type;
+    const ids = req.body.ids.split(",");
+    switch (type) {
+      case "delete":
+        await Dish.updateMany({ _id: { $in: ids } }, { deleted: true });
+        res.json({ message: "Dishes deleted successfully" });
+        break;
+      case "active":
+        await Dish.updateMany({ _id: { $in: ids } }, { status: "active" });
+        res.json({ message: "Dishes activated successfully" });
+        break;
+      case "inactive":
+        await Dish.updateMany({ _id: { $in: ids } }, { status: "inactive" });
+        res.json({ message: "Dishes deactivated successfully" });
+        break;
+      default:
+        return res.status(400).json({ message: "Invalid type parameter" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error", error });
+  }
+};
