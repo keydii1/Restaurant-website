@@ -1,12 +1,12 @@
 import { Schema, model, Document } from "mongoose";
 
 interface IDish extends Document {
-  title: string;
+  name: string;
   description: string;
   price: number;
   discount: number;
   images: string[];
-  categoryId: string;
+  category: string;
   status: string;
   finalPrice: number;
   rating: number;
@@ -16,7 +16,7 @@ interface IDish extends Document {
 
 const dishSchema = new Schema<IDish>(
   {
-    title: { type: String, required: true },
+    name: { type: String, required: true },
     description: {
       type: String,
       default: "",
@@ -33,7 +33,7 @@ const dishSchema = new Schema<IDish>(
       type: [String],
       default: [],
     },
-    categoryId: { type: String, required: true },
+    category: { type: String, required: true },
     status: { type: String, required: true },
     finalPrice: { type: Number, required: true },
     rating: { type: Number, default: 0 },
@@ -43,4 +43,3 @@ const dishSchema = new Schema<IDish>(
 
 const Dish = model<IDish>("Dish", dishSchema);
 export default Dish;
-

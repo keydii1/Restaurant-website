@@ -99,3 +99,10 @@ export const deleteDish = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Internal server error", error });
   }
 };
+export const create = async (req: Request, res: Response) => {
+  req.body.price = parseFloat(req.body.price);
+  req.body.rating = parseFloat(req.body.rating);
+  const newDish = new Dish(req.body);
+  await newDish.save();
+  res.json({ message: "Dish created successfully", data: newDish });
+};

@@ -6,4 +6,5 @@ router.get("/", controller.getDishes);
 router.patch("/change-status/:id/:status", controller.changeStatus);
 router.patch("/change-multi", controller.changeMulti);
 router.delete("/delete/:id", controller.deleteDish);
+router.post("/create", controller.create);
 export default router;
