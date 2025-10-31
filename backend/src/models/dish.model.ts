@@ -43,3 +43,4 @@ const dishSchema = new Schema<IDish>(
 
 const Dish = model<IDish>("Dish", dishSchema);
 export default Dish;
+
