@@ -8,4 +8,5 @@ router.patch("/change-multi", controller.changeMulti);
 router.delete("/delete/:id", controller.deleteDish);
 router.post("/create", controller.create);
 router.patch("/edit/:id", controller.edit);
+router.get("/detail/:id", controller.getDishDetail);
 export default router;

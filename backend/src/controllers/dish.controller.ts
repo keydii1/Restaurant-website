@@ -117,3 +117,15 @@ export const edit = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Internal server error", error });
   }
 };
+export const getDishDetail = async (req: Request, res: Response) => {
+  try {
+    const dishId = req.params.id;
+    const dish = await Dish.findOne({ _id: dishId });
+    if (!dish) {
+      return res.status(404).json({ message: "Dish not found" });
+    }
+    res.json({ message: "Dish fetched successfully", data: dish });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error", error });
+  }
+};
