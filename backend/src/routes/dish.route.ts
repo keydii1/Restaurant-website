@@ -3,5 +3,5 @@ import * as controller from "../controllers/dish.controller";
 const router = express.Router();
 
 router.get("/", controller.getDishes);
-
+router.patch("/change-status/:id/:status", controller.changeStatus);
 export default router;

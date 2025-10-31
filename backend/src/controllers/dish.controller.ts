@@ -36,7 +36,6 @@ export const getDishes = async (req: Request, res: Response) => {
     }
     // end sort
     // start pagination
-
     const countDishes = await Dish.countDocuments(findCondition);
     let objectPagination = paginationHelper(
       {
@@ -52,6 +51,16 @@ export const getDishes = async (req: Request, res: Response) => {
       .skip(objectPagination.skip)
       .limit(objectPagination.limit);
     res.json({ message: "Dishes fetched successfully", data: dishes });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error", error });
+  }
+};
+export const changeStatus = async (req: Request, res: Response) => {
+  try {
+    const dishId = req.params.id;
+    const status = req.params.status;
+    await Dish.updateOne({ _id: dishId }, { status: status });
+    res.json({ message: "Dish status updated successfully" });
   } catch (error) {
     res.status(500).json({ message: "Internal server error", error });
   }
