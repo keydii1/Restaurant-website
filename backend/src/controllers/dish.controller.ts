@@ -1,6 +1,7 @@
 import express, { Express, Request, Response } from "express";
 import Dish from "../models/dish.model";
 import dotenv from "dotenv";
+import paginationHelper from "../helpers/pagination.helper";
 dotenv.config();
 
 export const getDishes = async (req: Request, res: Response) => {
@@ -28,12 +29,28 @@ export const getDishes = async (req: Request, res: Response) => {
     }
     // end keyword
     // sort
-    let sortCondition = {};
+
+    let sortCondition: any = {};
     if (sortKey && sortValue) {
       sortCondition[sortKey] = sortValue;
     }
+    // end sort
+    // start pagination
 
-    const dishes = await Dish.find(findCondition).sort(sortCondition);
+    const countDishes = await Dish.countDocuments(findCondition);
+    let objectPagination = paginationHelper(
+      {
+        currentPage: 1,
+        limit: 10,
+      },
+      req,
+      countDishes
+    );
+    // end pagination
+    const dishes = await Dish.find(findCondition)
+      .sort(sortCondition)
+      .skip(objectPagination.skip)
+      .limit(objectPagination.limit);
     res.json({ message: "Dishes fetched successfully", data: dishes });
   } catch (error) {
     res.status(500).json({ message: "Internal server error", error });
