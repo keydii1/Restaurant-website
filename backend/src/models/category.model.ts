@@ -13,7 +13,7 @@ const categorySchema = new Schema<ICategory>(
     name: { type: String, required: true },
     description: { type: String, default: "" },
     deleted: { type: Boolean, default: false },
-    status: { type: String, required: true },
+    status: { type: String },
     position: { type: Number, default: 0 },
     images: { type: String, default: "" },
   },

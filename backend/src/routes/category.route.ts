@@ -4,5 +4,6 @@ const router = Router();
 
 router.get("/", controller.getCategories);
 router.post("/create", controller.create);
-router.put("/edit/:id", controller.edit);
+router.patch("/edit/:id", controller.edit);
+router.delete("/delete/:id", controller.Delete);
 export default router;

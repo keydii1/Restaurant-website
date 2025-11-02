@@ -34,3 +34,12 @@ export const edit = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Internal server error", error });
   }
 };
+export const Delete = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    await Category.deleteOne({ _id: id }, { deleted: true });
+    res.json({ message: "Category deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error", error });
+  }
+};
