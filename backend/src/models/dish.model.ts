@@ -10,8 +10,7 @@ interface IDish extends Document {
   status: string;
   finalPrice: number;
   rating: number;
-  createdAt: Date;
-  updatedAt: Date;
+  position?: number;
 }
 
 const dishSchema = new Schema<IDish>(
