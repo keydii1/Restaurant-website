@@ -1,5 +1,5 @@
-import express, { Express, Request, Response } from "express";
-const router = express.Router();
+import { Router } from "express";
+const router = Router();
 
 import * as controller from "../controllers/dish.controller";
 import multer from "multer";
