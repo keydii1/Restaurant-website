@@ -1,9 +1,9 @@
-import { changeMulti } from "./../controllers/dish.controller";
-import express, { Router } from "express";
+import { Router } from "express";
 import * as controller from "../controllers/category.controller";
+import * as validator from "../validates/category.validate";
 const router = Router();
 
-router.get("/", controller.getCategories);
+router.get("/", validator.test, controller.getCategories);
 router.post("/create", controller.create);
 router.patch("/edit/:id", controller.edit);
 router.delete("/delete/:id", controller.Delete);
