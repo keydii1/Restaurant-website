@@ -17,3 +17,12 @@ export const getUsers = async (req: Request, res: Response) => {
     });
   }
 };
+export const createUser = async (req: Request, res: Response) => {
+  try {
+    const newUser = new User(req.body);
+    await newUser.save();
+    res.json({ message: "User created successfully", data: newUser });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error", error });
+  }
+};

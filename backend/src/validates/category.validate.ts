@@ -5,7 +5,18 @@ export const titleNotEmpty = (req: Request, res: Response, next: Function) => {
   }
   next();
 };
-
+export const tittleNotMoreThan30Chars = (
+  req: Request,
+  res: Response,
+  next: Function
+) => {
+  if (req.body.title && req.body.title.length > 30) {
+    return res
+      .status(400)
+      .json({ message: "Title must not exceed 30 characters" });
+  }
+  next();
+};
 export const statusValid = (req: Request, res: Response, next: Function) => {
   const validStatuses = ["active", "inactive"];
   if (req.body.status && !validStatuses.includes(req.body.status)) {
