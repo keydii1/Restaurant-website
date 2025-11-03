@@ -26,3 +26,13 @@ export const editRole = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Internal server error", error });
   }
 };
+
+export const deleteRole = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    await Role.updateOne({ _id: id }, { deleted: true });
+    res.json({ message: "Role deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error", error });
+  }
+};
