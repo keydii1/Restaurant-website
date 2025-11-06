@@ -25,7 +25,7 @@ export const uploadImage = async (
     if (!file) return next();
 
     const result = await cloudinary.uploader.upload(file.path, {
-      folder: "test_upload",
+      folder: "dishes_images",
     });
 
     // Log uploaded URL for debugging
