@@ -100,8 +100,13 @@ export const deleteDish = async (req: Request, res: Response) => {
   }
 };
 export const create = async (req: Request, res: Response) => {
-  req.body.price = parseFloat(req.body.price);
-  req.body.rating = parseFloat(req.body.rating);
+  // If middleware provided `image` (singular), map it to the model field `images`.
+  if ((req as any).body) {
+    (req as any).body.images =
+      (req as any).body.image || (req as any).body.images || "";
+  }
+  req.body.price = parseFloat(req.body.price) || 0;
+  req.body.rating = parseFloat(req.body.rating) || 0;
   const newDish = new Dish(req.body);
   await newDish.save();
   res.json({ message: "Dish created successfully", data: newDish });
@@ -109,8 +114,13 @@ export const create = async (req: Request, res: Response) => {
 
 export const edit = async (req: Request, res: Response) => {
   try {
-    req.body.price = parseFloat(req.body.price);
-    req.body.rating = parseFloat(req.body.rating);
+    // map singular image to images field if present
+    if ((req as any).body) {
+      (req as any).body.images =
+        (req as any).body.image || (req as any).body.images || "";
+    }
+    req.body.price = parseFloat(req.body.price) || 0;
+    req.body.rating = parseFloat(req.body.rating) || 0;
     await Dish.updateOne({ _id: req.params.id }, req.body);
     res.json({ message: "Dish updated successfully" });
   } catch (error) {

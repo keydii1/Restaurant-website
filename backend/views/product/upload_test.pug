@@ -1,0 +1,47 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="utf-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    title Dish upload test
+    style.
+      body { font-family: Arial, Helvetica, sans-serif; padding: 24px; }
+      label { display:block; margin-top:12px; }
+      input, textarea, select { width: 100%; padding:8px; box-sizing: border-box; }
+      .preview { margin-top:12px; max-width:320px; }
+  body
+    h1 Dish upload test
+    p Use this form to test uploading an image to Cloudinary and creating a Dish.
+    form(method="POST", action= "/restaurant/api/v1/dishes/create", enctype="multipart/form-data")
+      label(for="name") Name
+      input(type="text" name="name" id="name" required)
+
+      label(for="category") Category
+      input(type="text" name="category" id="category" value="Appetizer")
+
+      label(for="price") Price
+      input(type="number" name="price" id="price" step="0.01" value="10000")
+
+      label(for="rating") Rating
+      input(type="number" name="rating" id="rating" step="0.1" value="4.5")
+
+      label(for="description") Description
+      textarea(name="description" id="description" rows="4") A sample dish description.
+
+      label(for="image") Image (choose a file)
+      input(type="file" name="image" id="image" accept="image/*")
+
+      img.preview(id="preview" style="display:none;" )
+
+      br
+      button(type="submit") Upload & Create Dish
+    script.
+      const input = document.getElementById('image');
+      const preview = document.getElementById('preview');
+      input && input.addEventListener('change', function(e){
+        const f = e.target.files && e.target.files[0];
+        if(!f) { preview.style.display = 'none'; return; }
+        const url = URL.createObjectURL(f);
+        preview.src = url;
+        preview.style.display = 'block';
+      });

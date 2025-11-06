@@ -12,6 +12,9 @@ router.patch("/change-status/:id/:status", controller.changeStatus);
 router.patch("/change-multi", controller.changeMulti);
 router.delete("/delete/:id", controller.deleteDish);
 router.post("/create", upload.single("image"), uploadImage, controller.create);
+router.get("/create", (req, res) => {
+  res.render("product/upload_test.pug");
+});
 router.patch("/edit/:id", upload.single("image"), uploadImage, controller.edit);
 router.get("/detail/:id", controller.getDishDetail);
 export default router;

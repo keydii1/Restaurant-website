@@ -5,7 +5,7 @@ interface IDish extends Document {
   description: string;
   price: number;
   discount: number;
-  images: string[];
+  images: string;
   category: string;
   status: string;
   finalPrice: number;
@@ -29,12 +29,12 @@ const dishSchema = new Schema<IDish>(
       default: 0,
     },
     images: {
-      type: [String],
-      default: [],
+      type: String,
+      default: "",
     },
-    category: { type: String, required: true },
-    status: { type: String, required: true },
-    finalPrice: { type: Number, required: true },
+    category: { type: String, default: "" },
+    status: { type: String, default: "inactive" },
+    finalPrice: { type: Number, default: 0 },
     rating: { type: Number, default: 0 },
   },
   { collection: "dishes", timestamps: true }
