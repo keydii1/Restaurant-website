@@ -4,14 +4,7 @@ import * as validator from "../validates/user.validate";
 const router = Router();
 
 router.get("/", controller.getUsers);
-router.post(
-  "/",
-  validator.usernameNotEmpty,
-  validator.passwordRequirements,
-  validator.emailValid,
-  validator.emailExistCheck,
-  validator.roleValid,
-  controller.createUser
-);
+router.post("/register", controller.register);
+router.post("/login", controller.login);
 
 export default router;

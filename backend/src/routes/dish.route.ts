@@ -7,7 +7,8 @@ import multer from "multer";
 const upload = multer({ dest: "uploads/" });
 // Cloudinary upload middleware (ES Module import)
 import { uploadImage } from "../middlewares/uploadCloud.middleware";
-router.get("/", controller.getDishes);
+import { authUser, authAdmin } from "../auth/checkAuth.auth";
+router.get("/", authUser, controller.getDishes);
 router.patch("/change-status/:id/:status", controller.changeStatus);
 router.patch("/change-multi", controller.changeMulti);
 router.delete("/delete/:id", controller.deleteDish);
