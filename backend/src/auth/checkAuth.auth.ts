@@ -17,16 +17,13 @@ const asyncHandler = (
 const authUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     // Try to get token from cookies first, then from Authorization header
-    let token = req.cookies?.token;
-
-    if (!token) {
-      const authHeader = req.headers.authorization;
+    const authHeader = req.headers.authorization;
+    let token;
+    if (authHeader) {
       if (authHeader && authHeader.startsWith("Bearer ")) {
         token = authHeader.substring(7); // Remove "Bearer " prefix
       }
-    }
-
-    if (!token) {
+    } else {
       return res.status(401).json({
         code: 401,
         message: "Vui lòng đăng nhập",
