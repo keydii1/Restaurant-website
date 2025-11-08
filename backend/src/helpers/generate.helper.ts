@@ -17,3 +17,8 @@ export const generateRandomNumber = (length: number): string => {
   }
   return result;
 };
+export const generateOTP = (): string => {
+  const length = 6;
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  return otp.padStart(length, "0");
+};

@@ -1,5 +1,8 @@
 import { Request, Response } from "express";
 import User from "../models/user.model";
+import OTP from "../models/otp.model";
+import * as GenerateHelper from "../helpers/generate.helper";
+import { sendMail } from "../utils/SendMail/sendMailForgotPasswords";
 import bcrypt from "bcrypt";
 import {
   createToken,
@@ -117,6 +120,102 @@ export const login = async (req: Request, res: Response) => {
           isAdmin: user.isAdmin,
         },
       },
+    });
+  } catch (error) {
+    res.status(500).json({
+      code: 500,
+      message: "Internal server error",
+      error: (error as any).message,
+    });
+  }
+};
+
+export const forgotPassword = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    // Check if user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({
+        code: 404,
+        message: "User with this email does not exist",
+      });
+    }
+
+    // Generate OTP
+    const otpCode = GenerateHelper.generateOTP();
+
+    // Save OTP to database
+    const otpEntry = new OTP({
+      userId: user._id,
+      code: otpCode,
+      createdAt: new Date(),
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000), // Expires in 5 minutes
+    });
+    await otpEntry.save();
+    //sent OTP to user's email (omitted for brevity)
+    const subject = "Password Reset OTP";
+    const text = `Your OTP for password reset is: ${otpCode}. It is valid for 5 minutes.`;
+    await sendMail(email, subject, text);
+
+    res.json({
+      code: 200,
+      message: "OTP sent to email successfully",
+    });
+    // after that, page will redirect to reset password page
+  } catch (error) {
+    res.status(500).json({
+      code: 500,
+      message: "Internal server error",
+      error: (error as any).message,
+    });
+  }
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+
+    // Find user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({
+        code: 404,
+        message: "User with this email does not exist",
+      });
+    }
+
+    // Find OTP entry
+    const otpEntry = await OTP.findOne({ userId: user._id, code: otp });
+    if (!otpEntry) {
+      return res.status(400).json({
+        code: 400,
+        message: "Invalid OTP",
+      });
+    }
+
+    // Check if OTP is expired
+    if (otpEntry.expiresAt < new Date()) {
+      return res.status(400).json({
+        code: 400,
+        message: "OTP has expired",
+      });
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update user's password
+    user.password = hashedPassword;
+    await user.save();
+
+    // Delete OTP entry
+    await OTP.deleteOne({ _id: otpEntry._id });
+
+    res.json({
+      code: 200,
+      message: "Password reset successfully",
     });
   } catch (error) {
     res.status(500).json({
