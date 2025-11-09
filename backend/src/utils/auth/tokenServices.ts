@@ -9,6 +9,11 @@ export const createApiKey = async (userId: string): Promise<IApiKey> => {
   const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", {
     modulusLength: 2048,
   });
+
+  // sau khi gọi hàm createKeyPairSync, ta sẽ nhận được 2 object key
+  // nó là một object phức tạp, không thể lưu trực tiếp vào database được
+  // vì vậy mục tiêu cảu export này là để chuyển đổi định dạng key sang chuỗi text, bời vì
+  // mình không thể lưu trữ trực tiếp object key vào database được
   const privateKeyString = privateKey.export({
     type: "pkcs8",
     format: "pem",

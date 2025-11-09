@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import User from "../models/user.model";
 import OTP from "../models/otp.model";
 import * as GenerateHelper from "../helpers/generate.helper";
-import { sendMail } from "../utils/SendMail/sendMailForgotPasswords";
+import SendMailForgotPassword from "../utils/SendMail/sendMailForgotPasswords";
 import bcrypt from "bcrypt";
 import {
   createToken,
@@ -132,7 +132,7 @@ export const login = async (req: Request, res: Response) => {
 
 export const forgotPassword = async (req: Request, res: Response) => {
   try {
-    const { email } = req.body;
+    const email = req.body.email;
 
     // Check if user exists
     const user = await User.findOne({ email });
@@ -157,7 +157,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
     //sent OTP to user's email (omitted for brevity)
     const subject = "Password Reset OTP";
     const text = `Your OTP for password reset is: ${otpCode}. It is valid for 5 minutes.`;
-    await sendMail(email, subject, text);
+    await SendMailForgotPassword(email, otpCode);
 
     res.json({
       code: 200,

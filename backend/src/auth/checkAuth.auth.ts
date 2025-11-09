@@ -1,11 +1,6 @@
-import {
-  BadUserRequestError,
-  BadUser2RequestError,
-} from "../../core/error.response";
 import { verifyToken } from "../utils/auth/tokenServices";
 import modelUser from "../models/user.model";
 import { Request, Response, NextFunction } from "express";
-
 const asyncHandler = (
   fn: (req: Request, res: Response, next: NextFunction) => Promise<void>
 ) => {
