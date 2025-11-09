@@ -105,6 +105,7 @@ export const login = async (req: Request, res: Response) => {
     };
 
     const token = await createToken(payload);
+    console.log("Generated token:", token);
     const refreshToken = await createRefreshToken(payload);
 
     res.json({
@@ -151,12 +152,12 @@ export const forgotPassword = async (req: Request, res: Response) => {
       userId: user._id,
       code: otpCode,
       createdAt: new Date(),
-      expiresAt: new Date(Date.now() + 1 * 60 * 1000), // Expires in 1 minutes
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000), // Expires in 5 minutes
     });
     await otpEntry.save();
     //sent OTP to user's email (omitted for brevity)
     const subject = "Password Reset OTP";
-    const text = `Your OTP for password reset is: ${otpCode}. It is valid for 1 minutes.`;
+    const text = `Your OTP for password reset is: ${otpCode}. It is valid for 5 minutes.`;
     await SendMailForgotPassword(email, otpCode);
 
     res.json({
