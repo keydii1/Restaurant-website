@@ -14,5 +14,9 @@ const otpSchema = new Schema<IOTP>(
   },
   { collection: "otps", timestamps: true }
 );
+
+// TTL index: MongoDB automatically deletes document when current time exceeds expiresAt
+otpSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+
 const OTP = model<IOTP>("OTP", otpSchema);
 export default OTP;

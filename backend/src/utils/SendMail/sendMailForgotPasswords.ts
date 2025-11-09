@@ -165,18 +165,18 @@ export default async function sendMailForgotPassword(
             <div class="subtle">Fine French Dining • Authentic flavours</div>
           </div>
           <div class="content">
-            <div class="lead">Xin chào,</div>
-            <div class="instruction">Chúng tôi nhận thấy có yêu cầu đặt lại mật khẩu cho tài khoản liên kết với địa chỉ email này. Vui lòng sử dụng mã bên dưới để xác thực và đặt lại mật khẩu của bạn.</div>
+            <div class="lead">Hello,</div>
+            <div class="instruction">We have received a request to reset the password for the account associated with this email address. Please use the code below to verify and reset your password.</div>
 
             <span class="otp-card">
-              <div style="font-size:12px;color:#b79a7a;text-transform:uppercase;">Mã xác thực</div>
+              <div style="font-size:12px;color:#b79a7a;text-transform:uppercase;">Verification Code</div>
               <div class="otp">${otp}</div>
             </span>
 
-            <div class="note">Mã chỉ có hiệu lực trong thời gian ngắn. Nếu bạn không yêu cầu, hãy bỏ qua email này hoặc liên hệ với chúng tôi nếu cần hỗ trợ.</div>
+            <div class="note">The code is only valid for a short period. If you did not request this, please ignore this email or contact us if you need assistance.</div>
           </div>
           <div class="footer">
-            Trân trọng,<br/>
+            Regards,<br/>
             <strong>Maison Blanche</strong>
             <div style="margin-top:6px;font-size:12px;color:#a89280;">Rue de la Table • Paris</div>
           </div>

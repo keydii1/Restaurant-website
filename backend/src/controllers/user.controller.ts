@@ -151,12 +151,12 @@ export const forgotPassword = async (req: Request, res: Response) => {
       userId: user._id,
       code: otpCode,
       createdAt: new Date(),
-      expiresAt: new Date(Date.now() + 5 * 60 * 1000), // Expires in 5 minutes
+      expiresAt: new Date(Date.now() + 1 * 60 * 1000), // Expires in 1 minutes
     });
     await otpEntry.save();
     //sent OTP to user's email (omitted for brevity)
     const subject = "Password Reset OTP";
-    const text = `Your OTP for password reset is: ${otpCode}. It is valid for 5 minutes.`;
+    const text = `Your OTP for password reset is: ${otpCode}. It is valid for 1 minutes.`;
     await SendMailForgotPassword(email, otpCode);
 
     res.json({
@@ -172,7 +172,53 @@ export const forgotPassword = async (req: Request, res: Response) => {
     });
   }
 };
+export const verifyOtp = async (req: Request, res: Response) => {
+  try {
+    const { email, otp } = req.body;
 
+    // Find user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({
+        code: 404,
+        message: "User with this email does not exist",
+      });
+    }
+
+    // Find OTP entry
+    const otpEntry = await OTP.findOne({ userId: user._id, code: otp });
+    if (!otpEntry) {
+      return res.status(400).json({
+        code: 400,
+        message: "Invalid OTP",
+      });
+    }
+
+    // Check if OTP is expired
+    if (otpEntry.expiresAt < new Date()) {
+      // Delete expired OTP
+      await OTP.deleteOne({ _id: otpEntry._id });
+      return res.status(400).json({
+        code: 400,
+        message: "OTP has expired",
+      });
+    }
+
+    // Mark OTP as used and delete it immediately after verification
+    await OTP.deleteOne({ _id: otpEntry._id });
+
+    res.json({
+      code: 200,
+      message: "OTP verified successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      code: 500,
+      message: "Internal server error",
+      error: (error as any).message,
+    });
+  }
+};
 export const resetPassword = async (req: Request, res: Response) => {
   try {
     const { email, otp, newPassword } = req.body;
@@ -197,6 +243,8 @@ export const resetPassword = async (req: Request, res: Response) => {
 
     // Check if OTP is expired
     if (otpEntry.expiresAt < new Date()) {
+      // Delete expired OTP
+      await OTP.deleteOne({ _id: otpEntry._id });
       return res.status(400).json({
         code: 400,
         message: "OTP has expired",
@@ -210,7 +258,7 @@ export const resetPassword = async (req: Request, res: Response) => {
     user.password = hashedPassword;
     await user.save();
 
-    // Delete OTP entry
+    // Delete OTP entry after successful password reset
     await OTP.deleteOne({ _id: otpEntry._id });
 
     res.json({
