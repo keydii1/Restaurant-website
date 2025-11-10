@@ -7,6 +7,7 @@ import dishRoutes from "./dish.route";
 import roleRoutes from "./role.route";
 import userRoutes from "./user.route";
 import accountRoutes from "./account.route";
+import paymentRoutes from "./payment.route";
 
 export const routerAppVer1 = (app: Express): void => {
   const version1 = process.env.PREFIX;
@@ -15,6 +16,7 @@ export const routerAppVer1 = (app: Express): void => {
   app.use(version1 + "/users", userRoutes);
   app.use(version1 + "/roles", roleRoutes);
   app.use(version1 + "/accounts", accountRoutes);
+  app.use(version1 + "/payments", paymentRoutes);
 };
 
 export default routerAppVer1;
