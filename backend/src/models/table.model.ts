@@ -4,6 +4,7 @@ interface ITable extends Document {
   maximumCapacity: number;
   status: "available" | "occupied" | "reserved";
   position: string;
+  deleted: boolean;
 }
 const tableSchema: Schema = new Schema(
   {
@@ -15,6 +16,7 @@ const tableSchema: Schema = new Schema(
       required: true,
     },
     position: { type: String, required: true },
+    deleted: { type: Boolean, default: false },
   },
   {
     timestamps: true,
