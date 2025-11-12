@@ -31,3 +31,13 @@ export const deleteTable = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Internal Server Error", error });
   }
 };
+
+export const editTable = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    await Table.updateOne({ _id: id }, { $set: req.body });
+    return res.json({ message: "Table updated successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal Server Error", error });
+  }
+};

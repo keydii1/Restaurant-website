@@ -5,4 +5,5 @@ const router = Router();
 router.get("/", controllers.getAllTables);
 router.post("/create", controllers.createTable);
 router.delete("/delete/:id", controllers.deleteTable);
+router.patch("/edit/:id", controllers.editTable);
 export default router;
