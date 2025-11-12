@@ -6,4 +6,5 @@ router.get("/", controllers.getAllTables);
 router.post("/create", controllers.createTable);
 router.delete("/delete/:id", controllers.deleteTable);
 router.patch("/edit/:id", controllers.editTable);
+router.patch("/change-status/:id/:status", controllers.changeTableStatus);
 export default router;

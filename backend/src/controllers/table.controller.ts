@@ -41,3 +41,16 @@ export const editTable = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Internal Server Error", error });
   }
 };
+
+export const changeTableStatus = async (req: Request, res: Response) => {
+  try {
+    const { id, status } = req.params;
+    if (!["available", "occupied", "reserved"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status value" });
+    }
+    await Table.updateOne({ _id: id }, { $set: { status: status } });
+    return res.json({ message: "Table status updated successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal Server Error", error });
+  }
+};
