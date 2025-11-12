@@ -11,6 +11,9 @@ interface IDish extends Document {
   finalPrice: number;
   rating: number;
   position?: number;
+  bestSeller?: boolean;
+  ingredients?: string[];
+  prepareTime?: number;
 }
 
 const dishSchema = new Schema<IDish>(
@@ -36,6 +39,10 @@ const dishSchema = new Schema<IDish>(
     status: { type: String, default: "inactive" },
     finalPrice: { type: Number, default: 0 },
     rating: { type: Number, default: 0 },
+    position: { type: Number, default: 0 },
+    bestSeller: { type: Boolean, default: false },
+    prepareTime: { type: Number, default: 10 },
+    ingredients: { type: [String], default: [] },
   },
   { collection: "dishes", timestamps: true }
 );
