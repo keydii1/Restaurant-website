@@ -1,56 +1,117 @@
 import { Request, Response } from "express";
 import Table from "../models/table.model";
+import * as errorResponse from "../../core/error.response.js";
+import * as successResponse from "../../core/success.response.js";
+
+const statusCodes = require("../../core/statusCodes");
+const reasonPhrases = require("../../core/reasonPhrases");
+
 export const getAllTables = async (req: Request, res: Response) => {
-  const tables = await Table.find({
-    deleted: false,
-  });
-  return res.json(tables);
+  try {
+    const tables = await Table.find({
+      deleted: false,
+    });
+    return new successResponse.OK({
+      message: "Tables fetched successfully",
+      metadata: tables,
+    }).send(res);
+  } catch (error) {
+    return new errorResponse.BadRequestError().send(res);
+  }
 };
+
 export const createTable = async (req: Request, res: Response) => {
   try {
     const newTable = new Table(req.body);
     const savedTable = await newTable.save();
-    return res.status(201).json({
+    return new successResponse.Created({
       message: "Table created successfully",
-      table: savedTable,
-    });
+      metadata: savedTable,
+    }).send(res);
   } catch (error) {
-    return res.status(500).json({ message: "Internal Server Error", error });
+    return new errorResponse.BadRequestError().send(res);
   }
 };
+
 export const deleteTable = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const deletedTable = await Table.findOne({ _id: id });
     if (!deletedTable) {
-      return res.status(404).json({ message: "Table not found" });
+      return new errorResponse.BadRequestError(
+        reasonPhrases.NOT_FOUND,
+        statusCodes.NOT_FOUND,
+        reasonPhrases.NOT_FOUND
+      ).send(res);
     }
     await Table.updateOne({ _id: id }, { $set: { deleted: true } });
-    return res.json({ message: "Table deleted successfully" });
+    return new successResponse.OK({
+      message: "Table deleted successfully",
+      metadata: deletedTable,
+    }).send(res);
   } catch (error) {
-    return res.status(500).json({ message: "Internal Server Error", error });
+    return new errorResponse.BadRequestError().send(res);
   }
 };
 
 export const editTable = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    await Table.updateOne({ _id: id }, { $set: req.body });
-    return res.json({ message: "Table updated successfully" });
+    const updatedTable = await Table.findByIdAndUpdate(
+      id,
+      { $set: req.body },
+      { new: true }
+    );
+
+    if (!updatedTable) {
+      return new errorResponse.BadRequestError(
+        reasonPhrases.NOT_FOUND,
+        statusCodes.NOT_FOUND,
+        reasonPhrases.NOT_FOUND
+      ).send(res);
+    }
+
+    return new successResponse.OK({
+      message: "Table updated successfully",
+      metadata: updatedTable,
+    }).send(res);
   } catch (error) {
-    return res.status(500).json({ message: "Internal Server Error", error });
+    return new errorResponse.BadRequestError().send(res);
   }
 };
 
 export const changeTableStatus = async (req: Request, res: Response) => {
   try {
     const { id, status } = req.params;
-    if (!["available", "occupied", "reserved"].includes(status)) {
-      return res.status(400).json({ message: "Invalid status value" });
+    const validStatuses = ["available", "occupied", "reserved"];
+
+    if (!validStatuses.includes(status)) {
+      return new errorResponse.BadRequestError(
+        "Invalid status value. Valid values: " + validStatuses.join(", "),
+        statusCodes.BAD_REQUEST,
+        reasonPhrases.BAD_REQUEST
+      ).send(res);
     }
-    await Table.updateOne({ _id: id }, { $set: { status: status } });
-    return res.json({ message: "Table status updated successfully" });
+
+    const updatedTable = await Table.findByIdAndUpdate(
+      id,
+      { $set: { status: status } },
+      { new: true }
+    );
+
+    if (!updatedTable) {
+      return new errorResponse.BadRequestError(
+        reasonPhrases.NOT_FOUND,
+        statusCodes.NOT_FOUND,
+        reasonPhrases.NOT_FOUND
+      ).send(res);
+    }
+
+    return new successResponse.OK({
+      message: "Table status updated successfully",
+      metadata: updatedTable,
+    }).send(res);
   } catch (error) {
-    return res.status(500).json({ message: "Internal Server Error", error });
+    return new errorResponse.BadRequestError().send(res);
   }
 };

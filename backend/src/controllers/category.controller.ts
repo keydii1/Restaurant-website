@@ -1,46 +1,51 @@
 import { Request, Response } from "express";
 import Category from "../models/category.model";
+import * as errorResponse from "../../core/error.response.js";
+import { OK } from "../../core/success.response.js";
 export const getCategories = async (req: Request, res: Response) => {
   try {
     const categories = await Category.find();
-    res.json({
-      code: 200,
-      message: "Success",
-      data: categories,
-    });
+    return new OK({
+      message: "Categories fetched successfully",
+      metadata: categories,
+    }).send(res);
   } catch (error) {
-    res.status(500).json({
-      code: 500,
-      message: "Internal server error",
-      error: error,
-    });
+    return new errorResponse.BadRequestError().send(res);
   }
 };
+
 export const create = async (req: Request, res: Response) => {
   try {
     const newCategory = new Category(req.body);
     await newCategory.save();
-    res.json({ message: "Category created successfully", data: newCategory });
+    return new OK({
+      message: "Category created successfully",
+      metadata: newCategory,
+    }).send(res);
   } catch (error) {
-    res.status(500).json({ message: "Internal server error", error });
+    return new errorResponse.BadRequestError().send(res);
   }
 };
 export const edit = async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
     await Category.updateOne({ _id: id }, req.body);
-    res.json({ message: "Category updated successfully" });
+    return new OK({
+      message: "Category updated successfully",
+    }).send(res);
   } catch (error) {
-    res.status(500).json({ message: "Internal server error", error });
+    return new errorResponse.BadRequestError().send(res);
   }
 };
 export const Delete = async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
     await Category.deleteOne({ _id: id }, { deleted: true });
-    res.json({ message: "Category deleted successfully" });
+    return new OK({
+      message: "Category deleted successfully",
+    }).send(res);
   } catch (error) {
-    res.status(500).json({ message: "Internal server error", error });
+    return new errorResponse.BadRequestError().send(res);
   }
 };
 
@@ -55,20 +60,24 @@ export const changeMulti = async (req: Request, res: Response) => {
         break;
       case "active":
         await Category.updateMany({ _id: { $in: ids } }, { status: "active" });
-        res.json({ message: "Categories activated successfully" });
+        return new OK({
+          message: "Categories activated successfully",
+        }).send(res);
         break;
       case "inactive":
         await Category.updateMany(
           { _id: { $in: ids } },
           { status: "inactive" }
         );
-        res.json({ message: "Categories deactivated successfully" });
+        return new OK({
+          message: "Categories deactivated successfully",
+        }).send(res);
         break;
       default:
         return res.status(400).json({ message: "Invalid type parameter" });
     }
   } catch (error) {
-    res.status(500).json({ message: "Internal server error", error });
+    return new errorResponse.BadRequestError().send(res);
   }
 };
 export const changeStatus = async (req: Request, res: Response) => {
@@ -76,8 +85,10 @@ export const changeStatus = async (req: Request, res: Response) => {
     const categoryId = req.params.id;
     const status = req.params.status;
     await Category.updateOne({ _id: categoryId }, { status: status });
-    res.json({ message: "Category status updated successfully" });
+    return new OK({
+      message: "Category status updated successfully",
+    }).send(res);
   } catch (error) {
-    res.status(500).json({ message: "Internal server error", error });
+    return new errorResponse.BadRequestError().send(res);
   }
 };
