@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import Table from "../models/table.model";
-import * as errorResponse from "../../core/error.response.js";
-import * as successResponse from "../../core/success.response.js";
-
+import { Created } from "../../core/success.response";
+import { BadRequestError } from "../../core/error.response";
+import { OK } from "../../core/success.response";
 const statusCodes = require("../../core/statusCodes");
 const reasonPhrases = require("../../core/reasonPhrases");
 
@@ -11,12 +11,12 @@ export const getAllTables = async (req: Request, res: Response) => {
     const tables = await Table.find({
       deleted: false,
     });
-    return new successResponse.OK({
+    return new OK({
       message: "Tables fetched successfully",
       metadata: tables,
     }).send(res);
   } catch (error) {
-    return new errorResponse.BadRequestError().send(res);
+    return new BadRequestError().send(res);
   }
 };
 
@@ -24,12 +24,12 @@ export const createTable = async (req: Request, res: Response) => {
   try {
     const newTable = new Table(req.body);
     const savedTable = await newTable.save();
-    return new successResponse.Created({
+    return new Created({
       message: "Table created successfully",
       metadata: savedTable,
     }).send(res);
   } catch (error) {
-    return new errorResponse.BadRequestError().send(res);
+    return new BadRequestError().send(res);
   }
 };
 
@@ -38,19 +38,19 @@ export const deleteTable = async (req: Request, res: Response) => {
     const { id } = req.params;
     const deletedTable = await Table.findOne({ _id: id });
     if (!deletedTable) {
-      return new errorResponse.BadRequestError(
+      return new BadRequestError(
         reasonPhrases.NOT_FOUND,
         statusCodes.NOT_FOUND,
         reasonPhrases.NOT_FOUND
       ).send(res);
     }
     await Table.updateOne({ _id: id }, { $set: { deleted: true } });
-    return new successResponse.OK({
+    return new OK({
       message: "Table deleted successfully",
       metadata: deletedTable,
     }).send(res);
   } catch (error) {
-    return new errorResponse.BadRequestError().send(res);
+    return new BadRequestError().send(res);
   }
 };
 
@@ -64,19 +64,19 @@ export const editTable = async (req: Request, res: Response) => {
     );
 
     if (!updatedTable) {
-      return new errorResponse.BadRequestError(
+      return new BadRequestError(
         reasonPhrases.NOT_FOUND,
         statusCodes.NOT_FOUND,
         reasonPhrases.NOT_FOUND
       ).send(res);
     }
 
-    return new successResponse.OK({
+    return new OK({
       message: "Table updated successfully",
       metadata: updatedTable,
     }).send(res);
   } catch (error) {
-    return new errorResponse.BadRequestError().send(res);
+    return new BadRequestError().send(res);
   }
 };
 
@@ -86,7 +86,7 @@ export const changeTableStatus = async (req: Request, res: Response) => {
     const validStatuses = ["available", "occupied", "reserved"];
 
     if (!validStatuses.includes(status)) {
-      return new errorResponse.BadRequestError(
+      return new BadRequestError(
         "Invalid status value. Valid values: " + validStatuses.join(", "),
         statusCodes.BAD_REQUEST,
         reasonPhrases.BAD_REQUEST
@@ -100,18 +100,18 @@ export const changeTableStatus = async (req: Request, res: Response) => {
     );
 
     if (!updatedTable) {
-      return new errorResponse.BadRequestError(
+      return new BadRequestError(
         reasonPhrases.NOT_FOUND,
         statusCodes.NOT_FOUND,
         reasonPhrases.NOT_FOUND
       ).send(res);
     }
 
-    return new successResponse.OK({
+    return new OK({
       message: "Table status updated successfully",
       metadata: updatedTable,
     }).send(res);
   } catch (error) {
-    return new errorResponse.BadRequestError().send(res);
+    return new BadRequestError().send(res);
   }
 };

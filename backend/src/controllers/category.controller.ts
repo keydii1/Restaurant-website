@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import Category from "../models/category.model";
-import * as errorResponse from "../../core/error.response.js";
-import { OK } from "../../core/success.response.js";
+import { OK } from "../../core/success.response";
+import { BadRequestError } from "../../core/error.response";
 export const getCategories = async (req: Request, res: Response) => {
   try {
     const categories = await Category.find();
@@ -10,7 +10,7 @@ export const getCategories = async (req: Request, res: Response) => {
       metadata: categories,
     }).send(res);
   } catch (error) {
-    return new errorResponse.BadRequestError().send(res);
+    return new BadRequestError().send(res);
   }
 };
 
@@ -23,7 +23,7 @@ export const create = async (req: Request, res: Response) => {
       metadata: newCategory,
     }).send(res);
   } catch (error) {
-    return new errorResponse.BadRequestError().send(res);
+    return new BadRequestError().send(res);
   }
 };
 export const edit = async (req: Request, res: Response) => {
@@ -34,7 +34,7 @@ export const edit = async (req: Request, res: Response) => {
       message: "Category updated successfully",
     }).send(res);
   } catch (error) {
-    return new errorResponse.BadRequestError().send(res);
+    return new BadRequestError().send(res);
   }
 };
 export const Delete = async (req: Request, res: Response) => {
@@ -45,7 +45,7 @@ export const Delete = async (req: Request, res: Response) => {
       message: "Category deleted successfully",
     }).send(res);
   } catch (error) {
-    return new errorResponse.BadRequestError().send(res);
+    return new BadRequestError().send(res);
   }
 };
 
@@ -77,7 +77,7 @@ export const changeMulti = async (req: Request, res: Response) => {
         return res.status(400).json({ message: "Invalid type parameter" });
     }
   } catch (error) {
-    return new errorResponse.BadRequestError().send(res);
+    return new BadRequestError().send(res);
   }
 };
 export const changeStatus = async (req: Request, res: Response) => {
@@ -89,6 +89,6 @@ export const changeStatus = async (req: Request, res: Response) => {
       message: "Category status updated successfully",
     }).send(res);
   } catch (error) {
-    return new errorResponse.BadRequestError().send(res);
+    return new BadRequestError().send(res);
   }
 };
