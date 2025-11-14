@@ -11,7 +11,7 @@ const asyncHandler = (
 
 const authUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // Try to get token from cookies first, then from Authorization header
+    // Try to get token from Authorization header
     const authHeader = req.headers.authorization;
     let token;
     if (authHeader) {
@@ -26,7 +26,7 @@ const authUser = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     const decoded = await verifyToken(token);
-    (req as any).user = decoded;
+    (req as any).accessToken = decoded;
     next();
   } catch (error) {
     return res.status(401).json({
@@ -39,7 +39,7 @@ const authUser = async (req: Request, res: Response, next: NextFunction) => {
 
 const authAdmin = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // Try to get token from cookies first, then from Authorization header
+    // Try to get token from cookies first
     let token = req.cookies?.token;
 
     if (!token) {
@@ -67,7 +67,7 @@ const authAdmin = async (req: Request, res: Response, next: NextFunction) => {
       });
     }
 
-    (req as any).user = decoded;
+    (req as any).accessToken = decoded;
     next();
   } catch (error) {
     return res.status(401).json({

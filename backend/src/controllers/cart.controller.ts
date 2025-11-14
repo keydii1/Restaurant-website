@@ -5,12 +5,12 @@ import { OK } from "../core/success.response";
 import { BadRequestError } from "../core/error.response";
 export const getCart = async (req: Request, res: Response) => {
   try {
-    const userId = req.query.userId as string;
+    const userId = (req as any).accessToken.id;
     const cart = await Cart.findOne({
       userId: userId,
     });
     if (!cart) {
-      return res.status(404).json({ message: "You do not have a cart" });
+      return new BadRequestError("Cart not found").send(res);
     }
     return new OK({
       message: "Fetch cart successfully",
