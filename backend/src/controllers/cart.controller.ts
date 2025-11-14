@@ -1,7 +1,7 @@
 import { Response, Request } from "express";
 import Cart from "../models/cart.model";
-import * as errorResponse from "../../core/error.response";
-import * as successResponse from "../../core/success.response";
+import Dish from "../models/dish.model";
+
 export const getCart = async (req: Request, res: Response) => {
   try {
     const userId = req.query.userId as string;
@@ -63,3 +63,47 @@ export const clearCart = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Error clearing cart", error });
   }
 };
+export const deleteOneItemFromCart = async (req: Request, res: Response) => {
+  try {
+    const { userId, dishId, quantity } = req.body;
+    const cart = await Cart.findOne({
+      userId: userId,
+    });
+    const dish = await Dish.findOne({
+      _id: dishId,
+    }).select("price");
+    if (!cart) {
+      return res.status(404).json({ message: "You do not have a cart" });
+    }
+    for (const item of cart.items) {
+      if (item.dishId === dishId) {
+        if (item.quantity >= quantity) {
+          item.quantity -= quantity;
+        } else {
+          return res.status(400).json({
+            message:
+              "Item quantity in cart is less than the quantity to delete",
+          });
+        }
+        if (item.quantity === 0) {
+          await Cart.updateOne(
+            { userId: userId },
+            { $pull: { items: { dishId: dishId } } }
+          );
+        }
+        cart.totalPrice -= dish.price * quantity;
+        await cart.save();
+        return res.status(200).json({
+          message: "Item deleted from cart successfully",
+          cart: cart,
+        });
+      } else {
+        return res.status(404).json({ message: "Item not found in cart" });
+      }
+    }
+    return res.status(404).json({ message: "Item not found in cart" });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting item from cart", error });
+  }
+};
+export const editItemQuantityInCart = async (req: Request, res: Response) => {};

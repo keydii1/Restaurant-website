@@ -1,14 +1,14 @@
 import { Router } from "express";
 const router = Router();
-
+import { uploadImage } from "../middlewares/uploadCloud.middleware";
+import { authUser, authAdmin } from "../auth/checkAuth.auth";
 import * as controller from "../controllers/dish.controller";
 import multer from "multer";
 // Use memory storage so `req.file.buffer` is available for stream upload to Cloudinary
 const upload = multer({ dest: "uploads/" });
 // Cloudinary upload middleware (ES Module import)
-import { uploadImage } from "../middlewares/uploadCloud.middleware";
-import { authUser, authAdmin } from "../auth/checkAuth.auth";
-router.get("/", authUser, controller.getDishes);
+
+router.get("/", authUser, authUser, controller.getDishes);
 router.patch("/change-status/:id/:status", controller.changeStatus);
 router.patch("/change-multi", controller.changeMulti);
 router.delete("/delete/:id", controller.deleteDish);

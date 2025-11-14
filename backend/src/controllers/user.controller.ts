@@ -107,7 +107,12 @@ export const login = async (req: Request, res: Response) => {
     const token = await createToken(payload);
     console.log("Generated token:", token);
     const refreshToken = await createRefreshToken(payload);
-
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day
+    });
     res.json({
       code: 200,
       message: "Login successful",
