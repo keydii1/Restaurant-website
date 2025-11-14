@@ -11,12 +11,14 @@ database.connect();
 const app: Express = express();
 const PORT: number = Number(process.env.PORT) || 3000;
 // Middleware
-app.use(cors({
-  origin: "*", // Cho phép tất cả origin (nên thay đổi trong production)
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
+app.use(
+  cors({
+    origin: "*", // Cho phép tất cả origin (nên thay đổi trong production)
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
