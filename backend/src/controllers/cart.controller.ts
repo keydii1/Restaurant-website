@@ -1,7 +1,8 @@
 import { Response, Request } from "express";
 import Cart from "../models/cart.model";
 import Dish from "../models/dish.model";
-
+import { OK } from "../core/success.response";
+import { BadRequestError } from "../core/error.response";
 export const getCart = async (req: Request, res: Response) => {
   try {
     const userId = req.query.userId as string;
@@ -11,18 +12,26 @@ export const getCart = async (req: Request, res: Response) => {
     if (!cart) {
       return res.status(404).json({ message: "You do not have a cart" });
     }
-    res.status(200).json({
-      message: "Cart fetched successfully",
-      cart: cart,
+    return new OK({
+      message: "Fetch cart successfully",
+      metadata: cart,
     });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching cart", error });
+    return new BadRequestError("Error fetching cart").send(res);
   }
 };
 export const addToCart = async (req: Request, res: Response) => {
   try {
-    const { userId, dishId, quantity, totalPrice } = req.body;
+    req.body.quantity = Number(req.body.quantity);
+    const { userId, dishId, quantity } = req.body;
     let cart = await Cart.findOne({ userId: userId });
+    const dish = await Dish.findOne({
+      _id: dishId,
+    }).select("price");
+    if (!dish) {
+      return new BadRequestError("Dish not found").send(res);
+    }
+    const totalPrice = dish.price * quantity;
     if (!cart) {
       cart = new Cart({
         userId: userId,
@@ -30,6 +39,10 @@ export const addToCart = async (req: Request, res: Response) => {
         totalPrice: totalPrice,
       });
       await cart.save();
+      return new OK({
+        message: "Cart created and item added successfully",
+        metadata: cart,
+      }).send(res);
     } else {
       for (const item of cart.items) {
         if (item.dishId === dishId) {
@@ -51,7 +64,7 @@ export const addToCart = async (req: Request, res: Response) => {
       });
     }
   } catch (error) {
-    res.status(500).json({ message: "Error adding to cart", error });
+    return new BadRequestError("Error adding to cart").send(res);
   }
 };
 export const clearCart = async (req: Request, res: Response) => {
@@ -63,7 +76,7 @@ export const clearCart = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Error clearing cart", error });
   }
 };
-export const deleteOneItemFromCart = async (req: Request, res: Response) => {
+export const changeOneItemFromCart = async (req: Request, res: Response) => {
   try {
     const { userId, dishId, quantity } = req.body;
     const cart = await Cart.findOne({
@@ -106,4 +119,3 @@ export const deleteOneItemFromCart = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Error deleting item from cart", error });
   }
 };
-export const editItemQuantityInCart = async (req: Request, res: Response) => {};

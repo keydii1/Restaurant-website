@@ -10,6 +10,7 @@ import accountRoutes from "./account.route";
 import paymentRoutes from "./payment.route";
 import tableRoutes from "./table.route";
 import discountRoutes from "./discount.route";
+import cartRoutes from "./cart.route";
 
 export const routerAppVer1 = (app: Express): void => {
   const version1 = process.env.PREFIX;
@@ -21,6 +22,7 @@ export const routerAppVer1 = (app: Express): void => {
   app.use(version1 + "/payments", paymentRoutes);
   app.use(version1 + "/tables", tableRoutes);
   app.use(version1 + "/discounts", discountRoutes);
+  app.use(version1 + "/carts", cartRoutes);
 };
 
 export default routerAppVer1;
