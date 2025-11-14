@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import Table from "../models/table.model";
-import { Created } from "../../core/success.response";
-import { BadRequestError } from "../../core/error.response";
-import { OK } from "../../core/success.response";
+import { Created } from "../core/success.response";
+import { BadRequestError } from "../core/error.response";
+import { OK } from "../core/success.response";
 const statusCodes = require("../../core/statusCodes");
 const reasonPhrases = require("../../core/reasonPhrases");
 

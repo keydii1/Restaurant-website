@@ -16,13 +16,17 @@ const dishSchema = new mongoose_1.Schema({
         default: 0,
     },
     images: {
-        type: [String],
-        default: [],
+        type: String,
+        default: "",
     },
-    category: { type: String, required: true },
-    status: { type: String, required: true },
-    finalPrice: { type: Number, required: true },
+    category: { type: String, default: "" },
+    status: { type: String, default: "inactive" },
+    finalPrice: { type: Number, default: 0 },
     rating: { type: Number, default: 0 },
+    position: { type: Number, default: 0 },
+    bestSeller: { type: Boolean, default: false },
+    prepareTime: { type: Number, default: 10 },
+    ingredients: { type: [String], default: [] },
 }, { collection: "dishes", timestamps: true });
 const Dish = (0, mongoose_1.model)("Dish", dishSchema);
 exports.default = Dish;

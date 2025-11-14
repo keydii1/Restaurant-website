@@ -14,9 +14,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.changeTableStatus = exports.editTable = exports.deleteTable = exports.createTable = exports.getAllTables = void 0;
 const table_model_1 = __importDefault(require("../models/table.model"));
-const success_response_1 = require("../../core/success.response");
-const error_response_1 = require("../../core/error.response");
-const success_response_2 = require("../../core/success.response");
+const success_response_1 = require("../core/success.response");
+const error_response_1 = require("../core/error.response");
+const success_response_2 = require("../core/success.response");
 const statusCodes = require("../../core/statusCodes");
 const reasonPhrases = require("../../core/reasonPhrases");
 const getAllTables = (req, res) => __awaiter(void 0, void 0, void 0, function* () {

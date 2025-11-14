@@ -18,7 +18,12 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const connect = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield mongoose_1.default.connect(process.env.MONGODB_URL);
+        yield mongoose_1.default.connect(process.env.MONGODB_URL, {
+            maxPoolSize: 5,
+            minPoolSize: 2,
+            socketTimeoutMS: 45000,
+            serverSelectionTimeoutMS: 5000,
+        });
         console.log("Connect DB successfully");
     }
     catch (err) {

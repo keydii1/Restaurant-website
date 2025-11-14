@@ -36,17 +36,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const router = express_1.default.Router();
+const express_1 = require("express");
+const router = (0, express_1.Router)();
+const uploadCloud_middleware_1 = require("../middlewares/uploadCloud.middleware");
+const checkAuth_auth_1 = require("../auth/checkAuth.auth");
 const controller = __importStar(require("../controllers/dish.controller"));
 const multer_1 = __importDefault(require("multer"));
 const upload = (0, multer_1.default)({ dest: "uploads/" });
-const uploadCloud_middleware_1 = require("../middlewares/uploadCloud.middleware");
-router.get("/", controller.getDishes);
+router.get("/", checkAuth_auth_1.authUser, checkAuth_auth_1.authUser, controller.getDishes);
 router.patch("/change-status/:id/:status", controller.changeStatus);
 router.patch("/change-multi", controller.changeMulti);
 router.delete("/delete/:id", controller.deleteDish);
 router.post("/create", upload.single("image"), uploadCloud_middleware_1.uploadImage, controller.create);
+router.get("/create", (req, res) => {
+    res.render("product/upload_test.pug");
+});
 router.patch("/edit/:id", upload.single("image"), uploadCloud_middleware_1.uploadImage, controller.edit);
 router.get("/detail/:id", controller.getDishDetail);
 exports.default = router;

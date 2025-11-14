@@ -39,6 +39,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const body_parser_1 = __importDefault(require("body-parser"));
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const database = __importStar(require("./config/database.config"));
 const index_route_1 = __importDefault(require("./routes/index.route"));
 dotenv_1.default.config();
@@ -48,6 +49,7 @@ const PORT = Number(process.env.PORT) || 3000;
 app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: true }));
 app.use(express_1.default.json());
+app.use((0, cookie_parser_1.default)());
 (0, index_route_1.default)(app);
 app.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);

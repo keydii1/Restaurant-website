@@ -101,8 +101,12 @@ const deleteDish = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 });
 exports.deleteDish = deleteDish;
 const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    req.body.price = parseFloat(req.body.price);
-    req.body.rating = parseFloat(req.body.rating);
+    if (req.body) {
+        req.body.images =
+            req.body.image || req.body.images || "";
+    }
+    req.body.price = parseFloat(req.body.price) || 0;
+    req.body.rating = parseFloat(req.body.rating) || 0;
     const newDish = new dish_model_1.default(req.body);
     yield newDish.save();
     res.json({ message: "Dish created successfully", data: newDish });
@@ -110,8 +114,12 @@ const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 exports.create = create;
 const edit = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        req.body.price = parseFloat(req.body.price);
-        req.body.rating = parseFloat(req.body.rating);
+        if (req.body) {
+            req.body.images =
+                req.body.image || req.body.images || "";
+        }
+        req.body.price = parseFloat(req.body.price) || 0;
+        req.body.rating = parseFloat(req.body.rating) || 0;
         yield dish_model_1.default.updateOne({ _id: req.params.id }, req.body);
         res.json({ message: "Dish updated successfully" });
     }

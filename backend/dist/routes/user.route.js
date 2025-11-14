@@ -32,16 +32,14 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const dotenv_1 = __importDefault(require("dotenv"));
-dotenv_1.default.config();
+const express_1 = require("express");
 const controller = __importStar(require("../controllers/user.controller"));
-const router = express_1.default.Router();
-router.get("/register", controller.register);
+const router = (0, express_1.Router)();
+router.get("/", controller.getUsers);
+router.post("/register", controller.register);
 router.post("/login", controller.login);
 router.post("/forgot-password", controller.forgotPassword);
+router.post("/verify-otp", controller.verifyOtp);
+router.patch("/reset-password", controller.resetPassword);
 exports.default = router;

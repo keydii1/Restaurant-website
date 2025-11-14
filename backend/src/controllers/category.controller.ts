@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import Category from "../models/category.model";
-import { OK } from "../../core/success.response";
-import { BadRequestError } from "../../core/error.response";
+import { OK } from "../core/success.response";
+import { BadRequestError } from "../core/error.response";
 export const getCategories = async (req: Request, res: Response) => {
   try {
     const categories = await Category.find();

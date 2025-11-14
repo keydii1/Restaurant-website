@@ -18,28 +18,32 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const fs_1 = __importDefault(require("fs"));
 dotenv_1.default.config();
 cloudinary_1.v2.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
+    cloud_name: process.env.CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.API_KEY || process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.API_SECRET || process.env.CLOUDINARY_API_SECRET,
 });
-const uploadImage = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const uploadImage = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const file = req.file;
-        if (!file) {
-            return res.status(400).json({ message: "No file uploaded" });
-        }
+        if (!file)
+            return next();
         const result = yield cloudinary_1.v2.uploader.upload(file.path, {
-            folder: "test_upload",
+            folder: "dishes_images",
         });
-        fs_1.default.unlinkSync(file.path);
-        res.status(200).json({
-            message: "Upload successful",
-            url: result.secure_url,
-        });
+        console.log("Cloudinary uploaded URL:", result.secure_url);
+        try {
+            fs_1.default.unlinkSync(file.path);
+        }
+        catch (e) {
+            console.warn("Could not remove temp file:", file.path, e);
+        }
+        req.body = req.body || {};
+        req.body.image = result.secure_url;
+        return next();
     }
     catch (error) {
         console.error("Upload error:", error);
-        res.status(500).json({ message: "Upload failed", error });
+        return res.status(500).json({ message: "Upload failed", error });
     }
 });
 exports.uploadImage = uploadImage;
