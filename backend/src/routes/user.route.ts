@@ -6,7 +6,6 @@ const router = Router();
 router.get("/", controller.getUsers);
 router.post("/register", controller.register);
 router.post("/login", controller.login);
-router.post("/refresh-token", controller.refreshAccessToken);
 router.post("/forgot-password", controller.forgotPassword);
 router.post("/verify-otp", controller.verifyOtp);
 router.patch("/reset-password", controller.resetPassword);

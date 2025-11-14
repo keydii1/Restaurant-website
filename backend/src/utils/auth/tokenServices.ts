@@ -3,6 +3,8 @@ import crypto from "crypto";
 import { IApiKey, ApiKeyModel } from "../../models/apiKey.model";
 import { jwtDecode } from "jwt-decode";
 import dotenv from "dotenv";
+import { Request, Response } from "express";
+import User from "../../models/user.model";
 dotenv.config();
 
 export const createApiKey = async (userId: string): Promise<IApiKey> => {
@@ -31,7 +33,7 @@ export const createApiKey = async (userId: string): Promise<IApiKey> => {
   return await newApiKey.save();
 };
 
-export const createToken = async (payload: any): Promise<string> => {
+export const createAccessToken = async (payload: any): Promise<string> => {
   const findApiKey = await ApiKeyModel.findOne({
     userId: payload.id.toString(),
   });
@@ -60,6 +62,57 @@ export const createRefreshToken = async (payload: any): Promise<string> => {
     expiresIn: "7d",
   } as SignOptions);
 };
+export const refreshAccessToken = async (req: Request, res: Response) => {
+  try {
+    // Get refresh token from cookies (automatically sent by browser)
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!refreshToken) {
+      return res.status(401).json({
+        code: 401,
+        message: "Refresh token not found, please login again",
+      });
+    }
+
+    // Verify refresh token
+    const decoded = await verifyToken(refreshToken);
+    const { id } = decoded;
+
+    // Find user
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(401).json({
+        code: 401,
+        message: "User not found, please login again",
+      });
+    }
+
+    // Generate new access token
+    const payload = {
+      id: user._id,
+      email: user.email,
+      username: user.username,
+      isAdmin: user.isAdmin,
+    };
+
+    const newAccessToken = await createAccessToken(payload);
+
+    res.json({
+      code: 200,
+      message: "Access token refreshed",
+      data: {
+        accessToken: newAccessToken,
+      },
+    });
+  } catch (error) {
+    res.status(401).json({
+      code: 401,
+      message: "Refresh token invalid or expired, please login again",
+      error: (error as any).message,
+    });
+  }
+};
+
 export const verifyToken = async (token: string): Promise<any> => {
   try {
     const decoded = jwtDecode<{ id: string }>(token);

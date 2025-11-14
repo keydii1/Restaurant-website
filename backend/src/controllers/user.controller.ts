@@ -5,7 +5,7 @@ import * as GenerateHelper from "../helpers/generate.helper";
 import SendMailForgotPassword from "../utils/SendMail/sendMailForgotPasswords";
 import bcrypt from "bcrypt";
 import {
-  createToken,
+  createAccessToken,
   createRefreshToken,
   createApiKey,
   verifyToken,
@@ -105,7 +105,7 @@ export const login = async (req: Request, res: Response) => {
       isAdmin: user.isAdmin,
     };
 
-    const accessToken = await createToken(payload);
+    const accessToken = await createAccessToken(payload);
     const refreshToken = await createRefreshToken(payload);
 
     // Set refresh token in HttpOnly cookie (auto-sent with requests)
@@ -277,57 +277,6 @@ export const resetPassword = async (req: Request, res: Response) => {
     res.status(500).json({
       code: 500,
       message: "Internal server error",
-      error: (error as any).message,
-    });
-  }
-};
-
-export const refreshAccessToken = async (req: Request, res: Response) => {
-  try {
-    // Get refresh token from cookies (automatically sent by browser)
-    const refreshToken = req.cookies?.refreshToken;
-
-    if (!refreshToken) {
-      return res.status(401).json({
-        code: 401,
-        message: "Refresh token not found, please login again",
-      });
-    }
-
-    // Verify refresh token
-    const decoded = await verifyToken(refreshToken);
-    const { id } = decoded;
-
-    // Find user
-    const user = await User.findById(id);
-    if (!user) {
-      return res.status(401).json({
-        code: 401,
-        message: "User not found, please login again",
-      });
-    }
-
-    // Generate new access token
-    const payload = {
-      id: user._id,
-      email: user.email,
-      username: user.username,
-      isAdmin: user.isAdmin,
-    };
-
-    const newAccessToken = await createToken(payload);
-
-    res.json({
-      code: 200,
-      message: "Access token refreshed",
-      data: {
-        accessToken: newAccessToken,
-      },
-    });
-  } catch (error) {
-    res.status(401).json({
-      code: 401,
-      message: "Refresh token invalid or expired, please login again",
       error: (error as any).message,
     });
   }
