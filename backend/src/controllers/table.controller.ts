@@ -3,8 +3,8 @@ import Table from "../models/table.model";
 import { Created } from "../core/success.response";
 import { BadRequestError } from "../core/error.response";
 import { OK } from "../core/success.response";
-const statusCodes = require("../../core/statusCodes");
-const reasonPhrases = require("../../core/reasonPhrases");
+import { statusCodes } from "../core/statusCodes";
+import { reasonPhrases } from "../core/reasonPhrases";
 
 export const getAllTables = async (req: Request, res: Response) => {
   try {
