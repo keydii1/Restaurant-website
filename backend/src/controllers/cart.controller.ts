@@ -3,9 +3,11 @@ import Cart from "../models/cart.model";
 import Dish from "../models/dish.model";
 import { OK } from "../core/success.response";
 import { BadRequestError } from "../core/error.response";
+import { verifyToken } from "../utils/auth/tokenServices";
 export const getCart = async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).accessToken.id;
+    const accesstoken = (req as any).accessToken;
+    const userId = accesstoken.id;
     const cart = await Cart.findOne({
       userId: userId,
     });
@@ -15,7 +17,7 @@ export const getCart = async (req: Request, res: Response) => {
     return new OK({
       message: "Fetch cart successfully",
       metadata: cart,
-    });
+    }).send(res);
   } catch (error) {
     return new BadRequestError("Error fetching cart").send(res);
   }

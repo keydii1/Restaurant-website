@@ -4,6 +4,8 @@ import OTP from "../models/otp.model";
 import * as GenerateHelper from "../helpers/generate.helper";
 import SendMailForgotPassword from "../utils/SendMail/sendMailForgotPasswords";
 import bcrypt from "bcrypt";
+import { OK } from "../core/success.response";
+import { BadRequestError } from "../core/error.response";
 import {
   createAccessToken,
   createRefreshToken,
@@ -279,5 +281,22 @@ export const resetPassword = async (req: Request, res: Response) => {
       message: "Internal server error",
       error: (error as any).message,
     });
+  }
+};
+export const logout = async (req: Request, res: Response) => {
+  try {
+    // Clear refresh token cookie
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+    // clear access token on client side
+    return new OK({
+      message: "Logout successful",
+      metadata: null,
+    }).send(res);
+  } catch (error) {
+    return new BadRequestError("Internal server error").send(res);
   }
 };

@@ -9,4 +9,5 @@ router.post("/login", controller.login);
 router.post("/forgot-password", controller.forgotPassword);
 router.post("/verify-otp", controller.verifyOtp);
 router.patch("/reset-password", controller.resetPassword);
+router.get("/logout", controller.logout);
 export default router;
