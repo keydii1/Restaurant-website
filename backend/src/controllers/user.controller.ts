@@ -8,6 +8,7 @@ import { OK } from "../core/success.response";
 import { BadRequestError } from "../core/error.response";
 import {
   createAccessToken,
+  refreshAccessToken,
   createRefreshToken,
   createApiKey,
   verifyToken,
@@ -295,6 +296,20 @@ export const logout = async (req: Request, res: Response) => {
     return new OK({
       message: "Logout successful",
       metadata: null,
+    }).send(res);
+  } catch (error) {
+    return new BadRequestError("Internal server error").send(res);
+  }
+};
+export const refreshToken = async (req: Request, res: Response) => {
+  try {
+    const newAccessToken = await refreshAccessToken(req, res);
+    // If refreshAccessToken handles the response itself (in case of error), just return
+    if (!newAccessToken)
+      return new BadRequestError("Could not refresh access token").send(res);
+    return new OK({
+      message: "Access token refreshed successfully",
+      metadata: { accessToken: newAccessToken },
     }).send(res);
   } catch (error) {
     return new BadRequestError("Internal server error").send(res);
