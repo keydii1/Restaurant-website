@@ -44,7 +44,7 @@ export const createAccessToken = async (payload: any): Promise<string> => {
 
   return jwt.sign(payload, findApiKey.privateKey, {
     algorithm: "RS256",
-    expiresIn: "15m",
+    expiresIn: "1h",
   } as SignOptions);
 };
 

@@ -4,8 +4,8 @@ import { authUser } from "../auth/checkAuth.auth";
 const router = Router();
 
 router.get("/", authUser, controller.getCart);
-router.post("/add", controller.addToCart);
-router.post("/clear", controller.clearCart);
-router.post("/change", controller.changeOneItemFromCart);
+router.post("/add", authUser, controller.addToCart);
+router.post("/clear", authUser, controller.clearCart);
+router.post("/change", authUser, controller.changeOneItemFromCart);
 
 export default router;
