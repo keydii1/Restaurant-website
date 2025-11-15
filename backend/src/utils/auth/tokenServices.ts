@@ -62,16 +62,16 @@ export const createRefreshToken = async (payload: any): Promise<string> => {
     expiresIn: "7d",
   } as SignOptions);
 };
-export const refreshAccessToken = async (req: Request, res: Response) => {
+export const refreshAccessToken = async (
+  req: Request,
+  res?: Response
+): Promise<string | null> => {
   try {
     // Get refresh token from cookies (automatically sent by browser)
     const refreshToken = req.cookies.refreshToken;
 
     if (!refreshToken) {
-      return res.status(401).json({
-        code: 401,
-        message: "Refresh token not found, please login again",
-      });
+      throw new Error("Refresh token not found, please login again");
     }
 
     // Verify refresh token
@@ -81,10 +81,7 @@ export const refreshAccessToken = async (req: Request, res: Response) => {
     // Find user
     const user = await User.findById(id);
     if (!user) {
-      return res.status(401).json({
-        code: 401,
-        message: "User not found, please login again",
-      });
+      throw new Error("User not found, please login again");
     }
 
     // Generate new access token
@@ -96,20 +93,9 @@ export const refreshAccessToken = async (req: Request, res: Response) => {
     };
 
     const newAccessToken = await createAccessToken(payload);
-
-    res.json({
-      code: 200,
-      message: "Access token refreshed",
-      data: {
-        accessToken: newAccessToken,
-      },
-    });
+    return newAccessToken;
   } catch (error) {
-    res.status(401).json({
-      code: 401,
-      message: "Refresh token invalid or expired, please login again",
-      error: (error as any).message,
-    });
+    throw error;
   }
 };
 

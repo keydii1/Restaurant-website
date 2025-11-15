@@ -5,7 +5,7 @@ interface IDish extends Document {
   description: string;
   price: number;
   discount: number;
-  images: string;
+  image: string;
   category: string;
   status: string;
   finalPrice: number;
@@ -31,7 +31,7 @@ const dishSchema = new Schema<IDish>(
       type: Number,
       default: 0,
     },
-    images: {
+    image: {
       type: String,
       default: "",
     },

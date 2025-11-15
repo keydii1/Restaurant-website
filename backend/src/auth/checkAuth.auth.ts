@@ -9,7 +9,7 @@ const asyncHandler = (
   };
 };
 
-const authUser = async (req: Request, res: Response, next: NextFunction) => {
+const auth = async (req: Request, res: Response, next: NextFunction) => {
   try {
     // Try to get token from Authorization header
     const authHeader = req.headers.authorization;
@@ -78,4 +78,4 @@ const authAdmin = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export { asyncHandler, authUser, authAdmin };
+export { asyncHandler, auth, authAdmin };

@@ -303,15 +303,14 @@ export const logout = async (req: Request, res: Response) => {
 };
 export const refreshToken = async (req: Request, res: Response) => {
   try {
-    const newAccessToken = await refreshAccessToken(req, res);
-    // If refreshAccessToken handles the response itself (in case of error), just return
-    if (!newAccessToken)
-      return new BadRequestError("Could not refresh access token").send(res);
+    const newAccessToken = await refreshAccessToken(req);
     return new OK({
       message: "Access token refreshed successfully",
       metadata: { accessToken: newAccessToken },
     }).send(res);
   } catch (error) {
-    return new BadRequestError("Internal server error").send(res);
+    return new BadRequestError(
+      (error as any).message || "Internal server error"
+    ).send(res);
   }
 };

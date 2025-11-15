@@ -3,6 +3,10 @@ interface Iuser extends Document {
   username: string;
   email: string;
   password: string;
+  avatar?: string;
+  address?: string;
+  phoneNumber?: string;
+  dateOfBirth?: Date;
   isAdmin?: boolean;
 }
 const userSchema: Schema = new Schema(
