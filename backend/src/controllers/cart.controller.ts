@@ -71,7 +71,8 @@ export const addToCart = async (req: Request, res: Response) => {
 };
 export const clearCart = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.body;
+    const accesstoken = (req as any).accessToken;
+    const userId = accesstoken.id;
     await Cart.deleteOne({ userId: userId });
     res.status(200).json({ message: "Cart cleared successfully" });
   } catch (error) {
