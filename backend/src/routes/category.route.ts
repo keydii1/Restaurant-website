@@ -1,9 +1,9 @@
 import { Router } from "express";
 import * as controller from "../controllers/category.controller";
-import * as validator from "../validates/category.validate";
+import * as validator from "../validates/EmailAndPassword.validate";
 const router = Router();
 import { auth, authAdmin } from "../auth/checkAuth.auth";
-router.get("/", auth, validator.test, controller.getCategories);
+router.get("/", auth, controller.getCategories);
 router.post("/create", authAdmin, controller.create);
 router.patch("/edit/:id", authAdmin, controller.edit);
 router.delete("/delete/:id", authAdmin, controller.Delete);
