@@ -15,4 +15,6 @@ router.post("/verify-otp", controller.verifyOtp);
 router.patch("/reset-password", validatePassword, controller.resetPassword);
 router.get("/logout", controller.logout);
 router.post("/refresh-token", controller.refreshToken);
+router.get("/auth/google", controller.googleAuth);
+router.get("/auth/google/callback", controller.googleAuthCallback);
 export default router;

@@ -4,6 +4,7 @@ import OTP from "../models/otp.model";
 import * as GenerateHelper from "../helpers/generate.helper";
 import SendMailForgotPassword from "../utils/SendMail/sendMailForgotPasswords";
 import bcrypt from "bcrypt";
+import { google } from "googleapis";
 import { OK } from "../core/success.response";
 import { BadRequestError } from "../core/error.response";
 import {
@@ -308,6 +309,94 @@ export const refreshToken = async (req: Request, res: Response) => {
       message: "Access token refreshed successfully",
       metadata: { accessToken: newAccessToken },
     }).send(res);
+  } catch (error) {
+    return new BadRequestError(
+      (error as any).message || "Internal server error"
+    ).send(res);
+  }
+};
+
+export const googleAuth = async (req: Request, res: Response) => {
+  try {
+    // The Google OAuth process would typically redirect the user to Google's login page
+    // and then back to your application with an authorization code.
+    // Here, we would handle that code, exchange it for tokens, and log the user in.
+    const oauth2Client = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      process.env.GOOGLE_REDIRECT_URI
+      // Callback URL after user grants permission
+    );
+    const SCOPES = ["profile", "email"];
+    const authUrl = oauth2Client.generateAuthUrl({
+      access_type: "offline", // Request refresh token
+      prompt: "consent", // Force consent screen
+      scope: SCOPES, // Request profile and email
+    });
+    console.log("Redirecting to Google OAuth2 consent screen:", authUrl);
+    res.redirect(authUrl);
+  } catch (error) {
+    return new BadRequestError(
+      (error as any).message || "Internal server error"
+    ).send(res);
+  }
+};
+export const googleAuthCallback = async (req: Request, res: Response) => {
+  try {
+    const code = req.query.code as string;
+    if (!code) {
+      console.log("No code provided");
+      return res.redirect("/");
+    }
+    const oauth2Client = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      process.env.GOOGLE_REDIRECT_URI
+      // Callback URL after user grants permission
+    );
+
+    try {
+      // Exchange authorization code for access token
+      const { tokens } = await oauth2Client.getToken(code);
+      oauth2Client.setCredentials(tokens);
+      console.log(tokens.access_token);
+      console.log(tokens.refresh_token);
+      console.log(tokens.expiry_date);
+
+      // Get user info from Google OAuth2 userinfo endpoint
+      const oauth2 = google.oauth2({ version: "v2", auth: oauth2Client });
+      const userinfo = await oauth2.userinfo.get();
+
+      // Store only refresh token in session (more secure)
+      // Access token will be refreshed when needed using refresh token
+      const user = await User.findOne({
+        googeleId: userinfo.data.id,
+      });
+      if (user) {
+        return new BadRequestError("User already exists").send(res);
+      }
+      if (!user) {
+        // If user does not exist, create a new user
+        const newUser = new User({
+          username: userinfo.data.name,
+          email: userinfo.data.email,
+          password: "", // No password for Google-authenticated users
+          googleId: userinfo.data.id,
+          loginMethod: "google",
+          isAdmin: false,
+          refreshToken: tokens.refresh_token,
+        });
+        await newUser.save();
+        console.log("New user created:", newUser.email);
+      } else {
+        console.log("Existing user logged in:", user.email);
+      }
+
+      console.log("User logged in:", userinfo.data.email);
+      return res.redirect("/profile");
+    } catch (err) {
+      return res.status(500).send("Authentication error");
+    }
   } catch (error) {
     return new BadRequestError(
       (error as any).message || "Internal server error"
