@@ -362,7 +362,6 @@ export const googleAuthCallback = async (req: Request, res: Response) => {
       console.log(tokens.access_token);
       console.log(tokens.refresh_token);
       console.log(tokens.expiry_date);
-
       // Get user info from Google OAuth2 userinfo endpoint
       const oauth2 = google.oauth2({ version: "v2", auth: oauth2Client });
       const userinfo = await oauth2.userinfo.get();

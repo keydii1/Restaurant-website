@@ -68,6 +68,7 @@ export const refreshAccessToken = async (
 ): Promise<string | null> => {
   try {
     // Get refresh token from cookies (automatically sent by browser)
+
     const refreshToken = req.cookies.refreshToken;
 
     if (!refreshToken) {

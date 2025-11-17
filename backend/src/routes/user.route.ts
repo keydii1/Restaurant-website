@@ -8,7 +8,7 @@ import {
 } from "../validates/EmailAndPassword.validate";
 
 router.get("/", controller.getUsers);
-router.post("/register", validateEmail, validatePassword, controller.register);
+router.post("/register", controller.register);
 router.post("/login", controller.login);
 router.post("/forgot-password", controller.forgotPassword);
 router.post("/verify-otp", controller.verifyOtp);
