@@ -36,5 +36,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const controller = __importStar(require("../controllers/payment.controller"));
 const router = (0, express_1.Router)();
-router.post("/", controller.createPayment);
+const checkAuth_auth_1 = require("../auth/checkAuth.auth");
+router.post("/", checkAuth_auth_1.authAdmin, controller.createPayment);
 exports.default = router;

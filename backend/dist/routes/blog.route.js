@@ -43,7 +43,7 @@ const upload = (0, multer_1.default)({ dest: "uploads/" });
 const controller = __importStar(require("../controllers/blog.controller"));
 const checkAuth_auth_1 = require("../auth/checkAuth.auth");
 const router = (0, express_1.Router)();
-router.get("/", checkAuth_auth_1.auth, controller.getBlogs);
+router.get("/", checkAuth_auth_1.auth, checkAuth_auth_1.auth, controller.getBlogs);
 router.post("/create", checkAuth_auth_1.authAdmin, upload.single("image"), uploadCloud_middleware_1.uploadImage, controller.create);
 router.patch("/edit/:id", checkAuth_auth_1.authAdmin, upload.single("image"), uploadCloud_middleware_1.uploadImage, controller.edit);
 router.delete("/delete/:id", checkAuth_auth_1.authAdmin, controller.DeleteBlog);

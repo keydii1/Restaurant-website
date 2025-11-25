@@ -241,7 +241,9 @@ const verifyOtp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 exports.verifyOtp = verifyOtp;
 const resetPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { email, otp, newPassword } = req.body;
+        const email = req.body.email;
+        const otp = req.body.otp;
+        const newPassword = req.body.newPassword;
         const user = yield user_model_1.default.findOne({ email });
         if (!user) {
             return res.status(404).json({

@@ -40,6 +40,6 @@ const controller = __importStar(require("../controllers/contact.controller"));
 const checkAuth_auth_1 = require("../auth/checkAuth.auth");
 router.get("/", checkAuth_auth_1.authAdmin, controller.getContacts);
 router.post("/create", checkAuth_auth_1.auth, EmailAndPassword_validate_1.validateEmail, controller.create);
-router.patch("/edit/:id", checkAuth_auth_1.auth, controller.edit);
-router.delete("/delete", checkAuth_auth_1.auth, controller.deleteContact);
+router.patch("/edit/:id", checkAuth_auth_1.authAdmin, controller.edit);
+router.delete("/delete", checkAuth_auth_1.authAdmin, controller.deleteContact);
 exports.default = router;
