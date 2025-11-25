@@ -1,0 +1,2284 @@
+openapi: 3.0.4
+info:
+  title: Restaurant Management API
+  description: |-
+    API documentation for Restaurant Management System.
+    This API provides endpoints for managing dishes, categories, users, orders, tables, discounts, blogs, and more.
+
+    Features:
+    - User authentication and authorization
+    - Dish and category management
+    - Shopping cart functionality
+    - Table reservations
+    - Discount codes
+    - Blog management
+    - Contact form handling
+  contact:
+    email: support@restaurant.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Development server
+  - url: https://api.restaurant.com/api/v1
+    description: Production server
+tags:
+  - name: users
+    description: Quản lý người dùng và xác thực
+  - name: dishes
+    description: Quản lý món ăn
+  - name: categories
+    description: Quản lý danh mục món ăn
+  - name: carts
+    description: Quản lý giỏ hàng
+  - name: orders
+    description: Quản lý đơn hàng
+  - name: tables
+    description: Quản lý bàn
+  - name: discounts
+    description: Quản lý mã giảm giá
+  - name: blogs
+    description: Quản lý blog
+  - name: contacts
+    description: Quản lý liên hệ
+  - name: roles
+    description: Quản lý vai trò
+  - name: payments
+    description: Quản lý thanh toán
+
+paths:
+  # ===== USER ENDPOINTS =====
+  /users:
+    get:
+      tags:
+        - users
+      summary: Lấy danh sách người dùng
+      description: Lấy danh sách tất cả người dùng (Chỉ admin)
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsersResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+
+  /users/register:
+    post:
+      tags:
+        - users
+      summary: Đăng ký tài khoản
+      description: Tạo tài khoản người dùng mới
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterBody"
+      responses:
+        "201":
+          description: Đăng ký thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessAuthentication"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+
+  /users/login:
+    post:
+      tags:
+        - users
+      summary: Đăng nhập
+      description: Đăng nhập vào hệ thống
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+      responses:
+        "200":
+          description: Đăng nhập thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessAuthentication"
+        "401":
+          description: Email hoặc mật khẩu không đúng
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorAuthentication"
+
+  /users/forgot-password:
+    post:
+      tags:
+        - users
+      summary: Quên mật khẩu
+      description: Gửi OTP để đặt lại mật khẩu
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+      responses:
+        "200":
+          description: OTP đã được gửi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+
+  /users/verify-otp:
+    post:
+      tags:
+        - users
+      summary: Xác thực OTP
+      description: Xác thực mã OTP để đặt lại mật khẩu
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - otp
+              properties:
+                email:
+                  type: string
+                  format: email
+                otp:
+                  type: string
+                  example: "123456"
+      responses:
+        "200":
+          description: OTP hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+
+  /users/reset-password:
+    patch:
+      tags:
+        - users
+      summary: Đặt lại mật khẩu
+      description: Đặt lại mật khẩu mới sau khi xác thực OTP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+      responses:
+        "200":
+          description: Đặt lại mật khẩu thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+
+  /users/logout:
+    get:
+      tags:
+        - users
+      summary: Đăng xuất
+      description: Đăng xuất khỏi hệ thống
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Đăng xuất thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /users/refresh-token:
+    post:
+      tags:
+        - users
+      summary: Làm mới token
+      description: Tạo access token mới từ refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        "200":
+          description: Token mới
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+
+  /users/auth/google:
+    get:
+      tags:
+        - users
+      summary: Đăng nhập Google
+      description: Chuyển hướng đến trang đăng nhập Google
+      responses:
+        "302":
+          description: Chuyển hướng đến Google OAuth
+
+  /users/auth/google/callback:
+    get:
+      tags:
+        - users
+      summary: Callback Google OAuth
+      description: Xử lý callback từ Google OAuth
+      parameters:
+        - in: query
+          name: code
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Đăng nhập thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessAuthentication"
+
+  # ===== DISH ENDPOINTS =====
+  /dishes:
+    get:
+      tags:
+        - dishes
+      summary: Lấy danh sách món ăn
+      description: Lấy danh sách tất cả món ăn với phân trang
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+        - in: query
+          name: category
+          schema:
+            type: string
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [active, inactive]
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DishesResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+
+  /dishes/create:
+    post:
+      tags:
+        - dishes
+      summary: Tạo món ăn mới
+      description: Tạo món ăn mới (Chỉ admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/DishCreateBody"
+      responses:
+        "201":
+          description: Tạo thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DishResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+
+  /dishes/detail/{id}:
+    get:
+      tags:
+        - dishes
+      summary: Lấy chi tiết món ăn
+      description: Lấy thông tin chi tiết của một món ăn
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DishResponse"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+  /dishes/edit/{id}:
+    patch:
+      tags:
+        - dishes
+      summary: Cập nhật món ăn
+      description: Cập nhật thông tin món ăn (Chỉ admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/DishUpdateBody"
+      responses:
+        "200":
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DishResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+  /dishes/delete/{id}:
+    delete:
+      tags:
+        - dishes
+      summary: Xóa món ăn
+      description: Xóa món ăn (Chỉ admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Xóa thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+  /dishes/change-status/{id}/{status}:
+    patch:
+      tags:
+        - dishes
+      summary: Thay đổi trạng thái món ăn
+      description: Thay đổi trạng thái món ăn (Chỉ admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: status
+          required: true
+          schema:
+            type: string
+            enum: [active, inactive]
+      responses:
+        "200":
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+
+  /dishes/change-multi:
+    patch:
+      tags:
+        - dishes
+      summary: Thay đổi nhiều món ăn
+      description: Thay đổi trạng thái hoặc xóa nhiều món ăn cùng lúc (Chỉ admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: string
+                type:
+                  type: string
+                  enum: [change-status, delete]
+                status:
+                  type: string
+                  enum: [active, inactive]
+      responses:
+        "200":
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+
+  # ===== CATEGORY ENDPOINTS =====
+  /categories:
+    get:
+      tags:
+        - categories
+      summary: Lấy danh sách danh mục
+      description: Lấy danh sách tất cả danh mục
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoriesResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+
+  /categories/create:
+    post:
+      tags:
+        - categories
+      summary: Tạo danh mục mới
+      description: Tạo danh mục mới (Chỉ admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryCreateBody"
+      responses:
+        "201":
+          description: Tạo thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+
+  /categories/edit/{id}:
+    patch:
+      tags:
+        - categories
+      summary: Cập nhật danh mục
+      description: Cập nhật thông tin danh mục (Chỉ admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryUpdateBody"
+      responses:
+        "200":
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+  /categories/delete/{id}:
+    delete:
+      tags:
+        - categories
+      summary: Xóa danh mục
+      description: Xóa danh mục (Chỉ admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Xóa thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+  /categories/change-status/{id}/{status}:
+    patch:
+      tags:
+        - categories
+      summary: Thay đổi trạng thái danh mục
+      description: Thay đổi trạng thái danh mục (Chỉ admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: status
+          required: true
+          schema:
+            type: string
+            enum: [active, inactive]
+      responses:
+        "200":
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+
+  /categories/change-multi:
+    patch:
+      tags:
+        - categories
+      summary: Thay đổi nhiều danh mục
+      description: Thay đổi trạng thái hoặc xóa nhiều danh mục cùng lúc (Chỉ admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: string
+                type:
+                  type: string
+                  enum: [change-status, delete]
+                status:
+                  type: string
+                  enum: [active, inactive]
+      responses:
+        "200":
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+
+  # ===== CART ENDPOINTS =====
+  /carts:
+    get:
+      tags:
+        - carts
+      summary: Lấy giỏ hàng
+      description: Lấy giỏ hàng của người dùng hiện tại
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+
+  /carts/add:
+    post:
+      tags:
+        - carts
+      summary: Thêm món vào giỏ hàng
+      description: Thêm món ăn vào giỏ hàng (Chỉ admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - dishId
+                - quantity
+              properties:
+                dishId:
+                  type: string
+                quantity:
+                  type: integer
+                  minimum: 1
+      responses:
+        "200":
+          description: Thêm thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+
+  /carts/clear:
+    delete:
+      tags:
+        - carts
+      summary: Xóa toàn bộ giỏ hàng
+      description: Xóa tất cả món trong giỏ hàng (Chỉ admin)
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Xóa thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+
+  /carts/change:
+    post:
+      tags:
+        - carts
+      summary: Thay đổi số lượng món trong giỏ
+      description: Thay đổi số lượng hoặc xóa món khỏi giỏ hàng (Chỉ admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - dishId
+                - quantity
+              properties:
+                dishId:
+                  type: string
+                quantity:
+                  type: integer
+                  description: Đặt 0 để xóa món khỏi giỏ
+      responses:
+        "200":
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+
+  # ===== BLOG ENDPOINTS =====
+  /blogs:
+    get:
+      tags:
+        - blogs
+      summary: Lấy danh sách blog
+      description: Lấy danh sách tất cả blog
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BlogsResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+
+  /blogs/create:
+    post:
+      tags:
+        - blogs
+      summary: Tạo blog mới
+      description: Tạo blog mới (Chỉ admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/BlogCreateBody"
+      responses:
+        "201":
+          description: Tạo thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BlogResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+
+  /blogs/edit/{id}:
+    patch:
+      tags:
+        - blogs
+      summary: Cập nhật blog
+      description: Cập nhật thông tin blog (Chỉ admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/BlogUpdateBody"
+      responses:
+        "200":
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BlogResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+  /blogs/delete/{id}:
+    delete:
+      tags:
+        - blogs
+      summary: Xóa blog
+      description: Xóa blog (Chỉ admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Xóa thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+  # ===== TABLE ENDPOINTS =====
+  /tables:
+    get:
+      tags:
+        - tables
+      summary: Lấy danh sách bàn
+      description: Lấy danh sách tất cả bàn
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TablesResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+
+  /tables/create:
+    post:
+      tags:
+        - tables
+      summary: Tạo bàn mới
+      description: Tạo bàn mới (Chỉ admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TableCreateBody"
+      responses:
+        "201":
+          description: Tạo thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TableResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+
+  /tables/edit/{id}:
+    patch:
+      tags:
+        - tables
+      summary: Cập nhật thông tin bàn
+      description: Cập nhật thông tin bàn (Chỉ admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TableUpdateBody"
+      responses:
+        "200":
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TableResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+  /tables/delete/{id}:
+    delete:
+      tags:
+        - tables
+      summary: Xóa bàn
+      description: Xóa bàn (Chỉ admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Xóa thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+  /tables/change-status/{id}/{status}:
+    patch:
+      tags:
+        - tables
+      summary: Thay đổi trạng thái bàn
+      description: Thay đổi trạng thái bàn (Chỉ admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: status
+          required: true
+          schema:
+            type: string
+            enum: [available, occupied, reserved]
+      responses:
+        "200":
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+
+  # ===== DISCOUNT ENDPOINTS =====
+  /discounts:
+    get:
+      tags:
+        - discounts
+      summary: Lấy danh sách mã giảm giá
+      description: Lấy danh sách tất cả mã giảm giá
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiscountsResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+
+  /discounts/create:
+    post:
+      tags:
+        - discounts
+      summary: Tạo mã giảm giá mới
+      description: Tạo mã giảm giá mới (Chỉ admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DiscountCreateBody"
+      responses:
+        "201":
+          description: Tạo thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiscountResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+
+  /discounts/edit/{id}:
+    patch:
+      tags:
+        - discounts
+      summary: Cập nhật mã giảm giá
+      description: Cập nhật thông tin mã giảm giá (Chỉ admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DiscountUpdateBody"
+      responses:
+        "200":
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiscountResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+  /discounts/delete/{id}:
+    delete:
+      tags:
+        - discounts
+      summary: Xóa mã giảm giá
+      description: Xóa mã giảm giá (Chỉ admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Xóa thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+  # ===== CONTACT ENDPOINTS =====
+  /contacts:
+    get:
+      tags:
+        - contacts
+      summary: Lấy danh sách liên hệ
+      description: Lấy danh sách tất cả liên hệ (Chỉ admin)
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactsResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+
+  /contacts/create:
+    post:
+      tags:
+        - contacts
+      summary: Tạo liên hệ mới
+      description: Gửi form liên hệ
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactCreateBody"
+      responses:
+        "201":
+          description: Gửi thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactResponse"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+
+  /contacts/edit/{id}:
+    patch:
+      tags:
+        - contacts
+      summary: Cập nhật trạng thái liên hệ
+      description: Cập nhật trạng thái liên hệ (Chỉ admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [Pending, Reviewed, Resolved]
+      responses:
+        "200":
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+  /contacts/delete:
+    delete:
+      tags:
+        - contacts
+      summary: Xóa liên hệ
+      description: Xóa một hoặc nhiều liên hệ (Chỉ admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        "200":
+          description: Xóa thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+
+  # ===== ROLE ENDPOINTS =====
+  /roles:
+    get:
+      tags:
+        - roles
+      summary: Lấy danh sách vai trò
+      description: Lấy danh sách tất cả vai trò
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RolesResponse"
+
+  /roles/create:
+    post:
+      tags:
+        - roles
+      summary: Tạo vai trò mới
+      description: Tạo vai trò mới
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoleCreateBody"
+      responses:
+        "201":
+          description: Tạo thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoleResponse"
+
+  /roles/edit/{id}:
+    patch:
+      tags:
+        - roles
+      summary: Cập nhật vai trò
+      description: Cập nhật thông tin vai trò
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoleUpdateBody"
+      responses:
+        "200":
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoleResponse"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+  /roles/delete/{id}:
+    delete:
+      tags:
+        - roles
+      summary: Xóa vai trò
+      description: Xóa vai trò
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Xóa thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+  # ===== ORDER ENDPOINTS =====
+  /orders:
+    get:
+      tags:
+        - orders
+      summary: Lấy danh sách đơn hàng
+      description: Lấy danh sách đơn hàng của người dùng
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrdersResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+
+  # ===== PAYMENT ENDPOINTS =====
+  /payments:
+    post:
+      tags:
+        - payments
+      summary: Tạo thanh toán
+      description: Tạo thanh toán mới (Chỉ admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentCreateBody"
+      responses:
+        "201":
+          description: Tạo thanh toán thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # ===== USER SCHEMAS =====
+    RegisterBody:
+      type: object
+      required:
+        - username
+        - email
+        - password
+      properties:
+        username:
+          type: string
+          example: John Doe
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          example: password123
+        phoneNumber:
+          type: string
+          example: "+84123456789"
+        address:
+          type: string
+          example: "123 Main St, City"
+        dateOfBirth:
+          type: string
+          format: date
+          example: "1990-01-01"
+
+    LoginBody:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          example: password123
+
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        avatar:
+          type: string
+        address:
+          type: string
+        phoneNumber:
+          type: string
+        dateOfBirth:
+          type: string
+          format: date
+        isAdmin:
+          type: boolean
+        loginMethod:
+          type: string
+          enum: [manual, google]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    UsersResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Success
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+
+    SuccessAuthentication:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Login successful
+        data:
+          type: object
+          properties:
+            accessToken:
+              type: string
+            refreshToken:
+              type: string
+            user:
+              $ref: "#/components/schemas/User"
+
+    ErrorAuthentication:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 401
+        message:
+          type: string
+          example: Email or password is incorrect
+
+    # ===== DISH SCHEMAS =====
+    Dish:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        discount:
+          type: number
+        image:
+          type: string
+        category:
+          type: string
+        status:
+          type: string
+          enum: [active, inactive]
+        finalPrice:
+          type: number
+        rating:
+          type: number
+        position:
+          type: integer
+        bestSeller:
+          type: boolean
+        ingredients:
+          type: array
+          items:
+            type: string
+        prepareTime:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    DishCreateBody:
+      type: object
+      required:
+        - name
+        - price
+        - category
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        discount:
+          type: number
+        category:
+          type: string
+        image:
+          type: string
+          format: binary
+        ingredients:
+          type: string
+          description: JSON string array
+        prepareTime:
+          type: integer
+        bestSeller:
+          type: boolean
+
+    DishUpdateBody:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        discount:
+          type: number
+        category:
+          type: string
+        image:
+          type: string
+          format: binary
+        status:
+          type: string
+          enum: [active, inactive]
+        ingredients:
+          type: string
+          description: JSON string array
+        prepareTime:
+          type: integer
+        bestSeller:
+          type: boolean
+
+    DishesResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Success
+        data:
+          type: object
+          properties:
+            dishes:
+              type: array
+              items:
+                $ref: "#/components/schemas/Dish"
+            pagination:
+              type: object
+              properties:
+                page:
+                  type: integer
+                limit:
+                  type: integer
+                total:
+                  type: integer
+
+    DishResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Success
+        data:
+          $ref: "#/components/schemas/Dish"
+
+    # ===== CATEGORY SCHEMAS =====
+    Category:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [active, inactive]
+        position:
+          type: integer
+        images:
+          type: string
+        deleted:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CategoryCreateBody:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [active, inactive]
+        images:
+          type: string
+
+    CategoryUpdateBody:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [active, inactive]
+        images:
+          type: string
+
+    CategoriesResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Success
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Category"
+
+    CategoryResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Success
+        data:
+          $ref: "#/components/schemas/Category"
+
+    # ===== CART SCHEMAS =====
+    Cart:
+      type: object
+      properties:
+        _id:
+          type: string
+        userId:
+          type: string
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              dishId:
+                type: string
+              quantity:
+                type: integer
+        totalPrice:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CartResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Success
+        data:
+          $ref: "#/components/schemas/Cart"
+
+    # ===== BLOG SCHEMAS =====
+    Blog:
+      type: object
+      properties:
+        _id:
+          type: string
+        title:
+          type: string
+        image:
+          type: string
+        content:
+          type: string
+        deleted:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    BlogCreateBody:
+      type: object
+      required:
+        - title
+        - content
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        image:
+          type: string
+          format: binary
+
+    BlogUpdateBody:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        image:
+          type: string
+          format: binary
+
+    BlogsResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Success
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Blog"
+
+    BlogResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Success
+        data:
+          $ref: "#/components/schemas/Blog"
+
+    # ===== TABLE SCHEMAS =====
+    Table:
+      type: object
+      properties:
+        _id:
+          type: string
+        tableNumber:
+          type: integer
+        maximumCapacity:
+          type: integer
+        status:
+          type: string
+          enum: [available, occupied, reserved]
+        position:
+          type: string
+        reserved:
+          type: boolean
+        deleted:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    TableCreateBody:
+      type: object
+      required:
+        - tableNumber
+        - maximumCapacity
+        - status
+        - position
+      properties:
+        tableNumber:
+          type: integer
+        maximumCapacity:
+          type: integer
+        status:
+          type: string
+          enum: [available, occupied, reserved]
+        position:
+          type: string
+
+    TableUpdateBody:
+      type: object
+      properties:
+        tableNumber:
+          type: integer
+        maximumCapacity:
+          type: integer
+        status:
+          type: string
+          enum: [available, occupied, reserved]
+        position:
+          type: string
+
+    TablesResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Success
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Table"
+
+    TableResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Success
+        data:
+          $ref: "#/components/schemas/Table"
+
+    # ===== DISCOUNT SCHEMAS =====
+    Discount:
+      type: object
+      properties:
+        _id:
+          type: string
+        code:
+          type: string
+        description:
+          type: string
+        percentage:
+          type: number
+        validFrom:
+          type: string
+          format: date-time
+        validTo:
+          type: string
+          format: date-time
+        active:
+          type: boolean
+        deleted:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    DiscountCreateBody:
+      type: object
+      required:
+        - code
+        - percentage
+        - validFrom
+        - validTo
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+        percentage:
+          type: number
+          minimum: 0
+          maximum: 100
+        validFrom:
+          type: string
+          format: date-time
+        validTo:
+          type: string
+          format: date-time
+        active:
+          type: boolean
+
+    DiscountUpdateBody:
+      type: object
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+        percentage:
+          type: number
+          minimum: 0
+          maximum: 100
+        validFrom:
+          type: string
+          format: date-time
+        validTo:
+          type: string
+          format: date-time
+        active:
+          type: boolean
+
+    DiscountsResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Success
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Discount"
+
+    DiscountResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Success
+        data:
+          $ref: "#/components/schemas/Discount"
+
+    # ===== CONTACT SCHEMAS =====
+    Contact:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        message:
+          type: string
+        status:
+          type: string
+          enum: [Pending, Reviewed, Resolved]
+        deleted:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ContactCreateBody:
+      type: object
+      required:
+        - name
+        - email
+        - message
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        message:
+          type: string
+
+    ContactsResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Success
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Contact"
+
+    ContactResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Success
+        data:
+          $ref: "#/components/schemas/Contact"
+
+    # ===== ROLE SCHEMAS =====
+    Role:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        permisstion:
+          type: array
+          items:
+            type: string
+        deleted:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    RoleCreateBody:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        permisstion:
+          type: array
+          items:
+            type: string
+
+    RoleUpdateBody:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        permisstion:
+          type: array
+          items:
+            type: string
+
+    RolesResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Success
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Role"
+
+    RoleResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Success
+        data:
+          $ref: "#/components/schemas/Role"
+
+    # ===== ORDER SCHEMAS =====
+    OrdersResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Success
+        data:
+          type: array
+          items:
+            type: object
+
+    # ===== PAYMENT SCHEMAS =====
+    PaymentCreateBody:
+      type: object
+      required:
+        - amount
+        - method
+      properties:
+        amount:
+          type: number
+        method:
+          type: string
+          enum: [cash, card, online]
+        orderId:
+          type: string
+
+    PaymentResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Success
+        data:
+          type: object
+          properties:
+            paymentId:
+              type: string
+            status:
+              type: string
+
+    # ===== COMMON SCHEMAS =====
+    SuccessResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Success
+        data:
+          type: object
+
+  responses:
+    UnauthorizedError:
+      description: Chưa xác thực hoặc token không hợp lệ
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                example: 401
+              message:
+                type: string
+                example: Unauthorized
+
+    ForbiddenError:
+      description: Không có quyền truy cập
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                example: 403
+              message:
+                type: string
+                example: Forbidden
+
+    NotFoundError:
+      description: Không tìm thấy tài nguyên
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                example: 404
+              message:
+                type: string
+                example: Not found
+
+    BadRequestError:
+      description: Yêu cầu không hợp lệ
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                example: 400
+              message:
+                type: string
+                example: Bad request

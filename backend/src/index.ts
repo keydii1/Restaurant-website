@@ -5,6 +5,16 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import * as database from "./config/database.config";
 import routerAppVer1 from "./routes/index.route";
+import swaggerUi from "swagger-ui-express";
+import yaml from "yaml";
+import fs from "fs";
+import path from "path";
+const fileRestaurantSwagger = fs.readFileSync(
+  path.resolve("restaurant_swagger.yaml"),
+  "utf8"
+);
+const restaurantSwagger = yaml.parse(fileRestaurantSwagger);
+
 dotenv.config();
 database.connect();
 
@@ -23,6 +33,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
+app.use("/api/v1/docs", swaggerUi.serve, swaggerUi.setup(restaurantSwagger));
 routerAppVer1(app); // Routes
 
 app.listen(PORT, () => {
