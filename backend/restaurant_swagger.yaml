@@ -22,7 +22,7 @@ info:
 servers:
   - url: http://localhost:3000/restaurant/api/v1
     description: Development server
-  - url: https://api.restaurant.com/restaurant/api/v1
+  - url: https://restaurant-website-s8zb.onrender.com/restaurant/api/v1
     description: Production server
 tags:
   - name: users
