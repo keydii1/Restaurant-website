@@ -33,7 +33,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
-app.use("/api/v1/docs", swaggerUi.serve, swaggerUi.setup(restaurantSwagger));
+app.use(
+  "/restaurant/api/v1/docs",
+  swaggerUi.serve,
+  swaggerUi.setup(restaurantSwagger)
+);
 routerAppVer1(app); // Routes
 
 app.listen(PORT, () => {
