@@ -6,13 +6,13 @@ import {
   validateEmail,
   validatePassword,
 } from "../validates/EmailAndPassword.validate";
-
-router.get("/", controller.getUsers);
+import { authAdmin } from "../auth/checkAuth.auth";
+router.get("/", authAdmin, controller.getUsers);
 router.post("/register", controller.register);
 router.post("/login", controller.login);
 router.post("/forgot-password", controller.forgotPassword);
 router.post("/verify-otp", controller.verifyOtp);
-router.patch("/reset-password", validatePassword, controller.resetPassword);
+router.patch("/reset-password", controller.resetPassword);
 router.get("/logout", controller.logout);
 router.post("/refresh-token", controller.refreshToken);
 router.get("/auth/google", controller.googleAuth);

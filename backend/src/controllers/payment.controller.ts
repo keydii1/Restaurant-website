@@ -1,5 +1,6 @@
 import { Response, Request } from "express";
 import sendMailThankYou from "../utils/SendMail/sendMailThankyou";
+import Order from "../models/order.model";
 export const createPayment = async (req: Request, res: Response) => {
   try {
     var accessKey = "F8BBA842ECF85";

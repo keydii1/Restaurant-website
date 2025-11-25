@@ -1,10 +1,15 @@
 import { Router } from "express";
 import * as controllers from "../controllers/table.controller";
 const router = Router();
-
-router.get("/", controllers.getAllTables);
-router.post("/create", controllers.createTable);
-router.delete("/delete/:id", controllers.deleteTable);
-router.patch("/edit/:id", controllers.editTable);
-router.patch("/change-status/:id/:status", controllers.changeTableStatus);
+import { auth, authAdmin } from "../auth/checkAuth.auth";
+``;
+router.get("/", auth, controllers.getAllTables);
+router.post("/create", authAdmin, controllers.createTable);
+router.delete("/delete/:id", authAdmin, controllers.deleteTable);
+router.patch("/edit/:id", authAdmin, controllers.editTable);
+router.patch(
+  "/change-status/:id/:status",
+  authAdmin,
+  controllers.changeTableStatus
+);
 export default router;

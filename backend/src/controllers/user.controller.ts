@@ -233,7 +233,9 @@ export const verifyOtp = async (req: Request, res: Response) => {
 };
 export const resetPassword = async (req: Request, res: Response) => {
   try {
-    const { email, otp, newPassword } = req.body;
+    const email = req.body.email;
+    const otp = req.body.otp;
+    const newPassword = req.body.newPassword;
 
     // Find user by email
     const user = await User.findOne({ email });

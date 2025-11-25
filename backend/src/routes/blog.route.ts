@@ -6,7 +6,7 @@ const upload = multer({ dest: "uploads/" });
 import * as controller from "../controllers/blog.controller";
 import { authAdmin, auth } from "../auth/checkAuth.auth";
 const router = Router();
-router.get("/", auth, controller.getBlogs);
+router.get("/", auth, auth, controller.getBlogs);
 router.post(
   "/create",
   authAdmin,
