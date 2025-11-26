@@ -116,6 +116,11 @@ const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
     req.body.price = parseFloat(req.body.price) || 0;
     req.body.rating = parseFloat(req.body.rating) || 0;
+    req.body.discount = parseFloat(req.body.discount) || 0;
+    req.body.finalPrice =
+        req.body.price - (req.body.price * req.body.discount) / 100;
+    req.body.prepareTime = parseInt(req.body.prepareTime) || 10;
+    req.body.position = parseInt(req.body.position) || 0;
     const newDish = new dish_model_1.default(req.body);
     yield newDish.save();
     res.json({ message: "Dish created successfully", data: newDish });

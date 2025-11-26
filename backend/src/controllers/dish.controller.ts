@@ -116,6 +116,12 @@ export const create = async (req: Request, res: Response) => {
   }
   req.body.price = parseFloat(req.body.price) || 0;
   req.body.rating = parseFloat(req.body.rating) || 0;
+  req.body.discount = parseFloat(req.body.discount) || 0;
+  req.body.finalPrice =
+    req.body.price - (req.body.price * req.body.discount) / 100;
+  req.body.prepareTime = parseInt(req.body.prepareTime) || 10;
+  req.body.position = parseInt(req.body.position) || 0;
+
   // Ensure deleted is always false for new dishes
   const newDish = new Dish(req.body);
   await newDish.save();
