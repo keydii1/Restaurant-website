@@ -12,7 +12,9 @@ export const getDishes = async (req: Request, res: Response) => {
       status?: string;
       name?: RegExp;
     }
-    const findCondition: DishCondition = {};
+    const findCondition: DishCondition = {
+      deleted: false,
+    };
     const filterStatus = req.query.status as string;
     const filterKeyword = req.query.keyword as string;
     const sortKey = req.query.sortKey as string;
@@ -50,7 +52,14 @@ export const getDishes = async (req: Request, res: Response) => {
       .sort(sortCondition)
       .skip(objectPagination.skip)
       .limit(objectPagination.limit);
-    res.json({ message: "Dishes fetched successfully", data: dishes });
+    res.json({
+      message: "Dishes fetched successfully",
+      data: {
+        dishes: dishes,
+        totalPages: objectPagination.totalPages,
+        currentPage: objectPagination.currentPage,
+      },
+    });
   } catch (error) {
     res.status(500).json({ message: "Internal server error", error });
   }
@@ -107,6 +116,7 @@ export const create = async (req: Request, res: Response) => {
   }
   req.body.price = parseFloat(req.body.price) || 0;
   req.body.rating = parseFloat(req.body.rating) || 0;
+  // Ensure deleted is always false for new dishes
   const newDish = new Dish(req.body);
   await newDish.save();
   res.json({ message: "Dish created successfully", data: newDish });

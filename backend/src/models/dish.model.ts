@@ -4,6 +4,7 @@ interface IDish extends Document {
   name: string;
   description: string;
   price: number;
+  deleted?: boolean;
   discount: number;
   image: string;
   category: string;
@@ -27,6 +28,7 @@ const dishSchema = new Schema<IDish>(
       type: Number,
       default: 0,
     },
+    deleted: { type: Boolean, default: false },
     discount: {
       type: Number,
       default: 0,
