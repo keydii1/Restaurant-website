@@ -19,7 +19,9 @@ const pagination_helper_1 = __importDefault(require("../helpers/pagination.helpe
 dotenv_1.default.config();
 const getDishes = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const findCondition = {};
+        const findCondition = {
+            deleted: false,
+        };
         const filterStatus = req.query.status;
         const filterKeyword = req.query.keyword;
         const sortKey = req.query.sortKey;
@@ -44,7 +46,14 @@ const getDishes = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             .sort(sortCondition)
             .skip(objectPagination.skip)
             .limit(objectPagination.limit);
-        res.json({ message: "Dishes fetched successfully", data: dishes });
+        res.json({
+            message: "Dishes fetched successfully",
+            data: {
+                dishes: dishes,
+                totalPages: objectPagination.totalPages,
+                currentPage: objectPagination.currentPage,
+            },
+        });
     }
     catch (error) {
         res.status(500).json({ message: "Internal server error", error });

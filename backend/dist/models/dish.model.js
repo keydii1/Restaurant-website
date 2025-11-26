@@ -11,6 +11,7 @@ const dishSchema = new mongoose_1.Schema({
         type: Number,
         default: 0,
     },
+    deleted: { type: Boolean, default: false },
     discount: {
         type: Number,
         default: 0,
