@@ -8,10 +8,10 @@ export const titleRequired = (req: Request, res: Response, next: Function) => {
 };
 
 export const titleLength = (req: Request, res: Response, next: Function) => {
-  if (req.body.title && req.body.title.length > 200) {
+  if (req.body.title && req.body.title.length > 100) {
     return res
       .status(400)
-      .json({ message: "Title must not exceed 200 characters" });
+      .json({ message: "Title must not exceed 100 characters" });
   }
   next();
 };

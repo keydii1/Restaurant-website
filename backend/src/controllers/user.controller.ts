@@ -371,7 +371,7 @@ export const googleAuthCallback = async (req: Request, res: Response) => {
       // Store only refresh token in session (more secure)
       // Access token will be refreshed when needed using refresh token
       const user = await User.findOne({
-        googeleId: userinfo.data.id,
+        googleId: userinfo.data.id,
       });
       if (user) {
         return new BadRequestError("User already exists").send(res);

@@ -5,7 +5,7 @@ import { BadRequestError } from "../core/error.response";
 
 export const getContacts = async (req: Request, res: Response) => {
   try {
-    const contacts = await Contact.find();
+    const contacts = await Contact.find({ deleted: false });
     return new OK({
       message: "Contacts fetched successfully",
       metadata: contacts,
@@ -40,12 +40,27 @@ export const edit = async (req: Request, res: Response) => {
 };
 export const deleteContact = async (req: Request, res: Response) => {
   try {
-    const ids = await Contact.find({
-      status: "Resolved",
-    });
-    await Contact.deleteMany({ _id: { $in: ids } });
+    const id = req.params.id;
+    await Contact.updateOne({ _id: id }, { deleted: true });
     return new OK({
-      message: "Contacts deleted successfully",
+      message: "Contact deleted successfully",
+    }).send(res);
+  } catch (error) {
+    return new BadRequestError().send(res);
+  }
+};
+
+export const deleteResolvedContacts = async (req: Request, res: Response) => {
+  try {
+    const resolvedContacts = await Contact.find({
+      status: "Resolved",
+      deleted: false,
+    });
+    const ids = resolvedContacts.map((contact) => contact._id);
+    await Contact.updateMany({ _id: { $in: ids } }, { deleted: true });
+    return new OK({
+      message: "Resolved contacts deleted successfully",
+      metadata: { count: ids.length },
     }).send(res);
   } catch (error) {
     return new BadRequestError().send(res);

@@ -4,7 +4,7 @@ import { OK } from "../core/success.response";
 import { BadRequestError } from "../core/error.response";
 export const getCategories = async (req: Request, res: Response) => {
   try {
-    const categories = await Category.find();
+    const categories = await Category.find({ deleted: false });
     return new OK({
       message: "Categories fetched successfully",
       metadata: categories,
@@ -55,7 +55,7 @@ export const edit = async (req: Request, res: Response) => {
 export const Delete = async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
-    await Category.deleteOne({ _id: id }, { deleted: true });
+    await Category.updateOne({ _id: id }, { deleted: true });
     return new OK({
       message: "Category deleted successfully",
     }).send(res);

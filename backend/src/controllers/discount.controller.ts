@@ -1,35 +1,44 @@
 import { Response, Request } from "express";
 import Discount from "../models/discount.model";
+import { OK, Created } from "../core/success.response";
+import { BadRequestError } from "../core/error.response";
 
 export const getAllDiscounts = async (req: Request, res: Response) => {
   try {
     const discounts = await Discount.find({
       deleted: false,
     });
-    res.status(200).json(discounts);
+    return new OK({
+      message: "Discounts fetched successfully",
+      metadata: discounts,
+    }).send(res);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching discounts", error });
+    return new BadRequestError("Error fetching discounts").send(res);
   }
 };
+
 export const createDiscount = async (req: Request, res: Response) => {
   try {
     const newDiscount = new Discount(req.body);
     await newDiscount.save();
-    res.status(201).json({
+    return new Created({
       message: "Discount created successfully",
-      discount: newDiscount,
-    });
+      metadata: newDiscount,
+    }).send(res);
   } catch (error) {
-    res.status(500).json({ message: "Error creating discount", error });
+    return new BadRequestError("Error creating discount").send(res);
   }
 };
+
 export const deleteDiscount = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     await Discount.updateOne({ _id: id }, { deleted: true });
-    res.status(200).json({ message: "Discount deleted successfully" });
+    return new OK({
+      message: "Discount deleted successfully",
+    }).send(res);
   } catch (error) {
-    res.status(500).json({ message: "Error deleting discount", error });
+    return new BadRequestError("Error deleting discount").send(res);
   }
 };
 
@@ -37,8 +46,12 @@ export const editDiscount = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     await Discount.updateOne({ _id: id }, { $set: req.body });
-    return res.json({ message: "Discount updated successfully" });
+    const updatedDiscount = await Discount.findById(id);
+    return new OK({
+      message: "Discount updated successfully",
+      metadata: updatedDiscount,
+    }).send(res);
   } catch (error) {
-    return res.status(500).json({ message: "Internal Server Error", error });
+    return new BadRequestError("Error updating discount").send(res);
   }
 };

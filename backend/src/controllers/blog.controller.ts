@@ -5,7 +5,7 @@ import { BadRequestError } from "../core/error.response";
 
 export const getBlogs = async (req: Request, res: Response) => {
   try {
-    const blogs = await Blog.find();
+    const blogs = await Blog.find({ deleted: false });
     return new OK({
       message: "Blogs fetched successfully",
       metadata: blogs,

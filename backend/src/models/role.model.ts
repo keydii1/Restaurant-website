@@ -2,14 +2,14 @@ import { Document, Schema, model } from "mongoose";
 interface IRole extends Document {
   name: String;
   description: String;
-  permisstion: Array<String>;
+  permissions: Array<String>;
   deleted: Boolean;
 }
 const roleSchema = new Schema<IRole>(
   {
     name: { type: String, required: true },
     description: { type: String, default: "" },
-    permisstion: { type: [String], default: [] },
+    permissions: { type: [String], default: [] },
     deleted: { type: Boolean, default: false },
   },
   { collection: "roles", timestamps: true }

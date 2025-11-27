@@ -52,7 +52,7 @@ export const getDishes = async (req: Request, res: Response) => {
       .sort(sortCondition)
       .skip(objectPagination.skip)
       .limit(objectPagination.limit)
-      .populate("categoryId");
+      .populate("categoryId", "name");
     res.json({
       message: "Dishes fetched successfully",
       data: {
@@ -134,44 +134,41 @@ export const deleteDish = async (req: Request, res: Response) => {
   }
 };
 export const create = async (req: Request, res: Response) => {
-  // If middleware provided `image` (singular), map it to the model field `images`.
-  if ((req as any).body) {
-    (req as any).body.images =
-      (req as any).body.image || (req as any).body.images || "";
-  }
-  req.body.price = parseFloat(req.body.price) || 0;
-  req.body.rating = parseFloat(req.body.rating) || 0;
-  req.body.discount = parseFloat(req.body.discount) || 0;
-  req.body.finalPrice =
-    req.body.price - (req.body.price * req.body.discount) / 100;
-  req.body.prepareTime = parseInt(req.body.prepareTime) || 10;
-  // Ensure deleted is always false for new dishes
-  const newDish = new Dish(req.body);
-  await newDish.save();
-
-  // Populate categoryId before sending response
-  const populatedDish = await Dish.findById(newDish._id).populate(
-    "categoryId",
-    "name"
-  );
-
-  res.json({ message: "Dish created successfully", data: populatedDish });
-};
-
-export const edit = async (req: Request, res: Response) => {
   try {
-    // map singular image to images field if present
-    if ((req as any).body) {
-      (req as any).body.images =
-        (req as any).body.image || (req as any).body.images || "";
-    }
     req.body.price = parseFloat(req.body.price) || 0;
     req.body.rating = parseFloat(req.body.rating) || 0;
     req.body.discount = parseFloat(req.body.discount) || 0;
     req.body.finalPrice =
       req.body.price - (req.body.price * req.body.discount) / 100;
     req.body.prepareTime = parseInt(req.body.prepareTime) || 10;
-    req.body.position = parseInt(req.body.position) || 0;
+
+    // Ensure deleted is always false for new dishes
+    const newDish = new Dish(req.body);
+    await newDish.save();
+
+    // Populate categoryId before sending response
+    const populatedDish = await Dish.findById(newDish._id).populate(
+      "categoryId",
+      "name"
+    );
+
+    res.json({ message: "Dish created successfully", data: populatedDish });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error", error });
+  }
+};
+
+export const edit = async (req: Request, res: Response) => {
+  try {
+    if (req.body.price) req.body.price = parseFloat(req.body.price);
+    if (req.body.rating) req.body.rating = parseFloat(req.body.rating);
+    if (req.body.discount) req.body.discount = parseFloat(req.body.discount);
+    if (req.body.price !== undefined && req.body.discount !== undefined) {
+      req.body.finalPrice =
+        req.body.price - (req.body.price * req.body.discount) / 100;
+    }
+    if (req.body.prepareTime)
+      req.body.prepareTime = parseInt(req.body.prepareTime);
 
     await Dish.updateOne({ _id: req.params.id }, req.body);
 
