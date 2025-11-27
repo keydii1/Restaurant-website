@@ -26,9 +26,7 @@ export const codeUnique = async (
   if (code) {
     const existingDiscount = await Discount.findOne({ code: code });
     if (existingDiscount && existingDiscount._id.toString() !== req.params.id) {
-      return res
-        .status(400)
-        .json({ message: "Discount code already exists" });
+      return res.status(400).json({ message: "Discount code already exists" });
     }
   }
   next();
@@ -75,7 +73,7 @@ export const dateRequired = (req: Request, res: Response, next: Function) => {
 export const dateValid = (req: Request, res: Response, next: Function) => {
   const validFrom = new Date(req.body.validFrom);
   const validTo = new Date(req.body.validTo);
-  
+
   if (isNaN(validFrom.getTime())) {
     return res.status(400).json({ message: "Invalid validFrom date format" });
   }

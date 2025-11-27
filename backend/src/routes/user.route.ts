@@ -18,12 +18,7 @@ router.post(
   userValidate.passwordRequirements,
   controller.register
 );
-router.post(
-  "/login",
-  validateEmail,
-  userValidate.emailValid,
-  controller.login
-);
+router.post("/login", validateEmail, userValidate.emailValid, controller.login);
 router.post(
   "/forgot-password",
   validateEmail,

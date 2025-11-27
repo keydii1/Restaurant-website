@@ -90,11 +90,7 @@ export const positionRequired = (
   next();
 };
 
-export const positionLength = (
-  req: Request,
-  res: Response,
-  next: Function
-) => {
+export const positionLength = (req: Request, res: Response, next: Function) => {
   if (req.body.position && req.body.position.length > 100) {
     return res
       .status(400)

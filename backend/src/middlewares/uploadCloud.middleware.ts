@@ -22,14 +22,34 @@ export const uploadImage = async (
     const file = (req as any).file;
 
     // If no file provided, continue to controller (controller may accept requests without an image)
-    if (!file) return next();
+    if (!file) {
+      console.log("No file provided in request");
+      return next();
+    }
+
+    console.log("File received:", {
+      fieldname: file.fieldname,
+      originalname: file.originalname,
+      mimetype: file.mimetype,
+      size: file.size,
+      path: file.path,
+    });
+
+    // Validate file exists
+    if (!fs.existsSync(file.path)) {
+      return res.status(400).json({ 
+        message: "File not found on server",
+        error: "Uploaded file path does not exist" 
+      });
+    }
 
     const result = await cloudinary.uploader.upload(file.path, {
       folder: "dishes_images",
+      resource_type: "auto", // Auto detect resource type
     });
 
     // Log uploaded URL for debugging
-    console.log("Cloudinary uploaded URL:", result.secure_url);
+    console.log("Cloudinary uploaded successfully:", result.secure_url);
 
     // Attempt to remove temp file; ignore errors
     try {
@@ -39,12 +59,16 @@ export const uploadImage = async (
     }
 
     // Attach uploaded image URL to request body so controller can save it
-    (req as any).body = (req as any).body || {};
-    (req as any).body.image = result.secure_url;
+    // Don't overwrite req.body, just add image property
+    req.body.image = result.secure_url;
 
     return next();
-  } catch (error) {
+  } catch (error: any) {
     console.error("Upload error:", error);
-    return res.status(500).json({ message: "Upload failed", error });
+    return res.status(500).json({ 
+      message: "Upload failed", 
+      error: error.message || error,
+      details: error.error || null
+    });
   }
 };

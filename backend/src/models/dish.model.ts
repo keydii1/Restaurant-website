@@ -15,7 +15,6 @@ interface IDish extends Document {
   ingredients?: string[];
   prepareTime?: number;
 }
-
 const dishSchema = new Schema<IDish>(
   {
     name: { type: String, required: true },

@@ -135,6 +135,9 @@ export const deleteDish = async (req: Request, res: Response) => {
 };
 export const create = async (req: Request, res: Response) => {
   try {
+    console.log("Create dish - Request body:", req.body);
+    console.log("Create dish - File:", (req as any).file);
+
     req.body.price = parseFloat(req.body.price) || 0;
     req.body.rating = parseFloat(req.body.rating) || 0;
     req.body.discount = parseFloat(req.body.discount) || 0;
@@ -152,14 +155,23 @@ export const create = async (req: Request, res: Response) => {
       "name"
     );
 
+    console.log("Dish created successfully:", populatedDish);
     res.json({ message: "Dish created successfully", data: populatedDish });
-  } catch (error) {
-    res.status(500).json({ message: "Internal server error", error });
+  } catch (error: any) {
+    console.error("Error creating dish:", error);
+    res.status(500).json({ 
+      message: "Internal server error", 
+      error: error.message || error 
+    });
   }
 };
 
 export const edit = async (req: Request, res: Response) => {
   try {
+    console.log("Edit dish - Request body:", req.body);
+    console.log("Edit dish - Dish ID:", req.params.id);
+    console.log("Edit dish - File:", (req as any).file);
+
     if (req.body.price) req.body.price = parseFloat(req.body.price);
     if (req.body.rating) req.body.rating = parseFloat(req.body.rating);
     if (req.body.discount) req.body.discount = parseFloat(req.body.discount);
@@ -178,9 +190,14 @@ export const edit = async (req: Request, res: Response) => {
       "name"
     );
 
+    console.log("Dish updated successfully:", updatedDish);
     res.json({ message: "Dish updated successfully", data: updatedDish });
-  } catch (error) {
-    res.status(500).json({ message: "Internal server error", error });
+  } catch (error: any) {
+    console.error("Error updating dish:", error);
+    res.status(500).json({ 
+      message: "Internal server error", 
+      error: error.message || error 
+    });
   }
 };
 export const getDishDetail = async (req: Request, res: Response) => {
