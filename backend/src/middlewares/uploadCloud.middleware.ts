@@ -37,9 +37,9 @@ export const uploadImage = async (
 
     // Validate file exists
     if (!fs.existsSync(file.path)) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         message: "File not found on server",
-        error: "Uploaded file path does not exist" 
+        error: "Uploaded file path does not exist",
       });
     }
 
@@ -65,10 +65,10 @@ export const uploadImage = async (
     return next();
   } catch (error: any) {
     console.error("Upload error:", error);
-    return res.status(500).json({ 
-      message: "Upload failed", 
+    return res.status(500).json({
+      message: "Upload failed",
       error: error.message || error,
-      details: error.error || null
+      details: error.error || null,
     });
   }
 };

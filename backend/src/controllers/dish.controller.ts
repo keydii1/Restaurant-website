@@ -159,9 +159,9 @@ export const create = async (req: Request, res: Response) => {
     res.json({ message: "Dish created successfully", data: populatedDish });
   } catch (error: any) {
     console.error("Error creating dish:", error);
-    res.status(500).json({ 
-      message: "Internal server error", 
-      error: error.message || error 
+    res.status(500).json({
+      message: "Internal server error",
+      error: error.message || error,
     });
   }
 };
@@ -194,9 +194,9 @@ export const edit = async (req: Request, res: Response) => {
     res.json({ message: "Dish updated successfully", data: updatedDish });
   } catch (error: any) {
     console.error("Error updating dish:", error);
-    res.status(500).json({ 
-      message: "Internal server error", 
-      error: error.message || error 
+    res.status(500).json({
+      message: "Internal server error",
+      error: error.message || error,
     });
   }
 };
