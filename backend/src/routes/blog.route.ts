@@ -5,13 +5,18 @@ import multer from "multer";
 const upload = multer({ dest: "uploads/" });
 import * as controller from "../controllers/blog.controller";
 import { authAdmin, auth } from "../auth/checkAuth.auth";
+import * as blogValidate from "../validates/blog.validate";
 const router = Router();
-router.get("/", auth, auth, controller.getBlogs);
+router.get("/", auth, controller.getBlogs);
 router.post(
   "/create",
   authAdmin,
   upload.single("image"),
   uploadImage,
+  blogValidate.titleRequired,
+  blogValidate.titleLength,
+  blogValidate.contentRequired,
+  blogValidate.contentLength,
   controller.create
 );
 router.patch(
@@ -19,6 +24,8 @@ router.patch(
   authAdmin,
   upload.single("image"),
   uploadImage,
+  blogValidate.titleLength,
+  blogValidate.contentLength,
   controller.edit
 );
 router.delete("/delete/:id", authAdmin, controller.DeleteBlog);
