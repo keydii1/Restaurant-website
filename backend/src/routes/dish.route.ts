@@ -3,6 +3,7 @@ const router = Router();
 import { uploadImage } from "../middlewares/uploadCloud.middleware";
 import { auth, authAdmin } from "../auth/checkAuth.auth";
 import * as controller from "../controllers/dish.controller";
+import * as dishValidate from "../validates/dish.validate";
 import multer from "multer";
 // Use memory storage so `req.file.buffer` is available for stream upload to Cloudinary
 const upload = multer({ dest: "uploads/" });
@@ -19,6 +20,9 @@ router.post(
   upload.single("image"),
   uploadImage,
   authAdmin,
+  dishValidate.titleNotEmpty,
+  dishValidate.tittleNotMoreThan30Chars,
+  dishValidate.categotyExistCheck,
   controller.create
 );
 router.get("/create", (req, res) => {
@@ -30,6 +34,7 @@ router.patch(
   upload.single("image"),
   uploadImage,
   authAdmin,
+  dishValidate.tittleNotMoreThan30Chars,
   controller.edit
 );
 router.get("/detail/:id", auth, controller.getDishDetail);
