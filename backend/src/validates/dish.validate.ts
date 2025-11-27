@@ -27,11 +27,7 @@ export const nameNotMoreThan100Chars = (
 };
 
 // Validate price
-export const priceValid = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const priceValid = (req: Request, res: Response, next: NextFunction) => {
   const price = parseFloat(req.body.price);
   if (req.body.price !== undefined && (isNaN(price) || price < 0)) {
     return res
@@ -103,7 +99,7 @@ export const categoryExistCheck = async (
   if (!categoryId) {
     return res.status(400).json({ message: "Category ID is required" });
   }
-  
+
   try {
     const category = await Category.findById(categoryId);
     if (!category) {
