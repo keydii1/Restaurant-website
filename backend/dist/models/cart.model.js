@@ -2,10 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
 const cartSchema = new mongoose_1.Schema({
-    userId: { type: String, required: true },
+    userId: { type: mongoose_1.Schema.Types.ObjectId, ref: "User", required: true },
     items: [
         {
-            dishId: { type: String, required: true },
+            dishId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Dish", required: true },
             quantity: { type: Number, required: true },
         },
     ],

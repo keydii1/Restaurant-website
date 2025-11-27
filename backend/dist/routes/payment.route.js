@@ -35,7 +35,8 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const controller = __importStar(require("../controllers/payment.controller"));
+const paymentValidate = __importStar(require("../validates/payment.validate"));
 const router = (0, express_1.Router)();
 const checkAuth_auth_1 = require("../auth/checkAuth.auth");
-router.post("/", checkAuth_auth_1.authAdmin, controller.createPayment);
+router.post("/", checkAuth_auth_1.authAdmin, paymentValidate.amountRequired, paymentValidate.amountValid, paymentValidate.orderIdRequired, controller.createPayment);
 exports.default = router;

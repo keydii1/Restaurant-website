@@ -18,7 +18,7 @@ const success_response_1 = require("../core/success.response");
 const error_response_1 = require("../core/error.response");
 const getBlogs = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const blogs = yield blog_model_1.default.find();
+        const blogs = yield blog_model_1.default.find({ deleted: false });
         return new success_response_1.OK({
             message: "Blogs fetched successfully",
             metadata: blogs,

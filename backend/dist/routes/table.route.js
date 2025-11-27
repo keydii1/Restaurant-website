@@ -35,12 +35,12 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const controllers = __importStar(require("../controllers/table.controller"));
+const tableValidate = __importStar(require("../validates/table.validate"));
 const router = (0, express_1.Router)();
 const checkAuth_auth_1 = require("../auth/checkAuth.auth");
-``;
 router.get("/", checkAuth_auth_1.auth, controllers.getAllTables);
-router.post("/create", checkAuth_auth_1.authAdmin, controllers.createTable);
+router.post("/create", checkAuth_auth_1.authAdmin, tableValidate.tableNumberRequired, tableValidate.tableNumberValid, tableValidate.tableNumberUnique, tableValidate.maximumCapacityRequired, tableValidate.maximumCapacityValid, tableValidate.statusValid, tableValidate.positionRequired, tableValidate.positionLength, controllers.createTable);
 router.delete("/delete/:id", checkAuth_auth_1.authAdmin, controllers.deleteTable);
-router.patch("/edit/:id", checkAuth_auth_1.authAdmin, controllers.editTable);
-router.patch("/change-status/:id/:status", checkAuth_auth_1.authAdmin, controllers.changeTableStatus);
+router.patch("/edit/:id", checkAuth_auth_1.authAdmin, tableValidate.tableNumberValid, tableValidate.tableNumberUnique, tableValidate.maximumCapacityValid, tableValidate.statusValid, tableValidate.positionLength, controllers.editTable);
+router.patch("/change-status/:id/:status", checkAuth_auth_1.authAdmin, tableValidate.statusValid, controllers.changeTableStatus);
 exports.default = router;

@@ -18,7 +18,7 @@ const success_response_1 = require("../core/success.response");
 const error_response_1 = require("../core/error.response");
 const getCategories = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const categories = yield category_model_1.default.find();
+        const categories = yield category_model_1.default.find({ deleted: false });
         return new success_response_1.OK({
             message: "Categories fetched successfully",
             metadata: categories,
@@ -31,6 +31,9 @@ const getCategories = (req, res) => __awaiter(void 0, void 0, void 0, function* 
 exports.getCategories = getCategories;
 const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        if (req.body.image) {
+            req.body.images = req.body.image;
+        }
         const newCategory = new category_model_1.default(req.body);
         yield newCategory.save();
         return new success_response_1.OK({
@@ -39,19 +42,26 @@ const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         }).send(res);
     }
     catch (error) {
+        console.error("Error creating category:", error);
         return new error_response_1.BadRequestError().send(res);
     }
 });
 exports.create = create;
 const edit = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        if (req.body.image) {
+            req.body.images = req.body.image;
+        }
         const id = req.params.id;
         yield category_model_1.default.updateOne({ _id: id }, req.body);
+        const updatedCategory = yield category_model_1.default.findById(id);
         return new success_response_1.OK({
             message: "Category updated successfully",
+            metadata: updatedCategory,
         }).send(res);
     }
     catch (error) {
+        console.error("Error updating category:", error);
         return new error_response_1.BadRequestError().send(res);
     }
 });
@@ -59,7 +69,7 @@ exports.edit = edit;
 const Delete = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const id = req.params.id;
-        yield category_model_1.default.deleteOne({ _id: id }, { deleted: true });
+        yield category_model_1.default.updateOne({ _id: id }, { deleted: true });
         return new success_response_1.OK({
             message: "Category deleted successfully",
         }).send(res);

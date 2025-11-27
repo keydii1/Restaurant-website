@@ -23,7 +23,7 @@ const getCart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const userId = accesstoken.id;
         const cart = yield cart_model_1.default.findOne({
             userId: userId,
-        });
+        }).populate("items.dishId", "name price image");
         if (!cart) {
             return new error_response_1.BadRequestError("Cart not found").send(res);
         }
@@ -64,23 +64,23 @@ const addToCart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             }).send(res);
         }
         else {
-            for (const item of cart.items) {
-                if (item.dishId === dishId) {
-                    item.quantity += quantity;
-                    cart.totalPrice += totalPrice;
-                    yield cart.save();
-                    return res.status(200).json({
-                        message: "Cart updated successfully",
-                        cart: cart,
-                    });
-                }
+            const existingItem = cart.items.find((item) => item.dishId.toString() === dishId);
+            if (existingItem) {
+                existingItem.quantity += quantity;
+                cart.totalPrice += totalPrice;
+                yield cart.save();
+                return new success_response_1.OK({
+                    message: "Cart updated successfully",
+                    metadata: cart,
+                }).send(res);
             }
+            cart.items.push({ dishId, quantity });
             cart.totalPrice += totalPrice;
             yield cart.save();
-            return res.status(200).json({
+            return new success_response_1.OK({
                 message: "Cart updated successfully",
-                cart: cart,
-            });
+                metadata: cart,
+            }).send(res);
         }
     }
     catch (error) {
@@ -93,10 +93,12 @@ const clearCart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const accesstoken = req.accessToken;
         const userId = accesstoken.id;
         yield cart_model_1.default.deleteOne({ userId: userId });
-        res.status(200).json({ message: "Cart cleared successfully" });
+        return new success_response_1.OK({
+            message: "Cart cleared successfully",
+        }).send(res);
     }
     catch (error) {
-        res.status(500).json({ message: "Error clearing cart", error });
+        return new error_response_1.BadRequestError("Error clearing cart").send(res);
     }
 });
 exports.clearCart = clearCart;
@@ -113,28 +115,26 @@ const changeOneItemFromCart = (req, res) => __awaiter(void 0, void 0, void 0, fu
         if (!dish) {
             return res.status(404).json({ message: "Dish not found" });
         }
-        const item = cart.items.find((i) => i.dishId === dishId);
+        const item = cart.items.find((i) => i.dishId.toString() === dishId);
         if (!item) {
-            return res.status(404).json({ message: "Item not found in cart" });
+            return new error_response_1.BadRequestError("Item not found in cart").send(res);
         }
         if (item.quantity < quantity) {
-            return res.status(400).json({
-                message: "Item quantity in cart is less than quantity to delete",
-            });
+            return new error_response_1.BadRequestError("Item quantity in cart is less than quantity to delete").send(res);
         }
         item.quantity -= quantity;
         cart.totalPrice -= dish.price * quantity;
         if (item.quantity === 0) {
-            cart.items = cart.items.filter((i) => i.dishId !== dishId);
+            cart.items = cart.items.filter((i) => i.dishId.toString() !== dishId);
         }
         yield cart.save();
-        return res.status(200).json({
+        return new success_response_1.OK({
             message: "Item deleted from cart successfully",
-            cart,
-        });
+            metadata: cart,
+        }).send(res);
     }
     catch (error) {
-        res.status(500).json({ message: "Error deleting item from cart", error });
+        return new error_response_1.BadRequestError("Error deleting item from cart").send(res);
     }
 });
 exports.changeOneItemFromCart = changeOneItemFromCart;

@@ -35,10 +35,11 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const controllers = __importStar(require("../controllers/discount.controller"));
+const discountValidate = __importStar(require("../validates/discount.validate"));
 const router = (0, express_1.Router)();
 const checkAuth_auth_1 = require("../auth/checkAuth.auth");
 router.get("/", checkAuth_auth_1.auth, controllers.getAllDiscounts);
-router.post("/create", checkAuth_auth_1.authAdmin, controllers.createDiscount);
+router.post("/create", checkAuth_auth_1.authAdmin, discountValidate.codeRequired, discountValidate.codeLength, discountValidate.codeUnique, discountValidate.percentageRequired, discountValidate.percentageValid, discountValidate.dateRequired, discountValidate.dateValid, controllers.createDiscount);
 router.delete("/delete/:id", checkAuth_auth_1.authAdmin, controllers.deleteDiscount);
-router.patch("/edit/:id", checkAuth_auth_1.authAdmin, controllers.editDiscount);
+router.patch("/edit/:id", checkAuth_auth_1.authAdmin, discountValidate.codeLength, discountValidate.codeUnique, discountValidate.percentageValid, discountValidate.dateValid, controllers.editDiscount);
 exports.default = router;

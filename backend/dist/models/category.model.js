@@ -6,7 +6,6 @@ const categorySchema = new mongoose_1.Schema({
     description: { type: String, default: "" },
     deleted: { type: Boolean, default: false },
     status: { type: String },
-    position: { type: Number, default: 0 },
     images: { type: String, default: "" },
 }, { collection: "categories", timestamps: true });
 const Category = (0, mongoose_1.model)("Category", categorySchema);

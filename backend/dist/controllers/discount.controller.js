@@ -14,15 +14,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.editDiscount = exports.deleteDiscount = exports.createDiscount = exports.getAllDiscounts = void 0;
 const discount_model_1 = __importDefault(require("../models/discount.model"));
+const success_response_1 = require("../core/success.response");
+const error_response_1 = require("../core/error.response");
 const getAllDiscounts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const discounts = yield discount_model_1.default.find({
             deleted: false,
         });
-        res.status(200).json(discounts);
+        return new success_response_1.OK({
+            message: "Discounts fetched successfully",
+            metadata: discounts,
+        }).send(res);
     }
     catch (error) {
-        res.status(500).json({ message: "Error fetching discounts", error });
+        return new error_response_1.BadRequestError("Error fetching discounts").send(res);
     }
 });
 exports.getAllDiscounts = getAllDiscounts;
@@ -30,13 +35,13 @@ const createDiscount = (req, res) => __awaiter(void 0, void 0, void 0, function*
     try {
         const newDiscount = new discount_model_1.default(req.body);
         yield newDiscount.save();
-        res.status(201).json({
+        return new success_response_1.Created({
             message: "Discount created successfully",
-            discount: newDiscount,
-        });
+            metadata: newDiscount,
+        }).send(res);
     }
     catch (error) {
-        res.status(500).json({ message: "Error creating discount", error });
+        return new error_response_1.BadRequestError("Error creating discount").send(res);
     }
 });
 exports.createDiscount = createDiscount;
@@ -44,10 +49,12 @@ const deleteDiscount = (req, res) => __awaiter(void 0, void 0, void 0, function*
     try {
         const { id } = req.params;
         yield discount_model_1.default.updateOne({ _id: id }, { deleted: true });
-        res.status(200).json({ message: "Discount deleted successfully" });
+        return new success_response_1.OK({
+            message: "Discount deleted successfully",
+        }).send(res);
     }
     catch (error) {
-        res.status(500).json({ message: "Error deleting discount", error });
+        return new error_response_1.BadRequestError("Error deleting discount").send(res);
     }
 });
 exports.deleteDiscount = deleteDiscount;
@@ -55,10 +62,14 @@ const editDiscount = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     try {
         const { id } = req.params;
         yield discount_model_1.default.updateOne({ _id: id }, { $set: req.body });
-        return res.json({ message: "Discount updated successfully" });
+        const updatedDiscount = yield discount_model_1.default.findById(id);
+        return new success_response_1.OK({
+            message: "Discount updated successfully",
+            metadata: updatedDiscount,
+        }).send(res);
     }
     catch (error) {
-        return res.status(500).json({ message: "Internal Server Error", error });
+        return new error_response_1.BadRequestError("Error updating discount").send(res);
     }
 });
 exports.editDiscount = editDiscount;

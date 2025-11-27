@@ -347,7 +347,7 @@ const googleAuthCallback = (req, res) => __awaiter(void 0, void 0, void 0, funct
             const oauth2 = googleapis_1.google.oauth2({ version: "v2", auth: oauth2Client });
             const userinfo = yield oauth2.userinfo.get();
             const user = yield user_model_1.default.findOne({
-                googeleId: userinfo.data.id,
+                googleId: userinfo.data.id,
             });
             if (user) {
                 return new error_response_1.BadRequestError("User already exists").send(res);
