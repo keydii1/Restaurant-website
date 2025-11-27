@@ -1,9 +1,9 @@
-import { Document, model, Schema } from "mongoose";
+import { Document, model, Schema, Types } from "mongoose";
 import { generateRandomNumber } from "../helpers/generate.helper";
 export interface IOrder extends Document {
   orderId: string;
-  userId: string;
-  tableId?: string;
+  userId: Types.ObjectId;
+  tableId?: Types.ObjectId;
   totalPrice: number;
   status: string;
   typeOfPayment?: string;
@@ -17,8 +17,12 @@ const orderSchema = new Schema<IOrder>(
       unique: true,
       default: () => `ORD-${Date.now()}-${generateRandomNumber(10)}`,
     },
-    userId: { type: String, required: true },
-    tableId: { type: String },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    tableId: { type: Schema.Types.ObjectId, ref: "Table" },
     totalPrice: { type: Number, required: true },
     status: { type: String, required: true, default: "pending" },
     typeOfPayment: { type: String },

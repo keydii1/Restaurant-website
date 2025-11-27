@@ -16,6 +16,11 @@ export const getCategories = async (req: Request, res: Response) => {
 
 export const create = async (req: Request, res: Response) => {
   try {
+    // Map image field from middleware to images field in model
+    if ((req as any).body.image) {
+      (req as any).body.images = (req as any).body.image;
+    }
+
     const newCategory = new Category(req.body);
     await newCategory.save();
     return new OK({
@@ -23,17 +28,27 @@ export const create = async (req: Request, res: Response) => {
       metadata: newCategory,
     }).send(res);
   } catch (error) {
+    console.error("Error creating category:", error);
     return new BadRequestError().send(res);
   }
 };
 export const edit = async (req: Request, res: Response) => {
   try {
+    // Map image field from middleware to images field in model
+    if ((req as any).body.image) {
+      (req as any).body.images = (req as any).body.image;
+    }
+
     const id = req.params.id;
     await Category.updateOne({ _id: id }, req.body);
+
+    const updatedCategory = await Category.findById(id);
     return new OK({
       message: "Category updated successfully",
+      metadata: updatedCategory,
     }).send(res);
   } catch (error) {
+    console.error("Error updating category:", error);
     return new BadRequestError().send(res);
   }
 };

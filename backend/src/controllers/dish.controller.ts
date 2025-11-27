@@ -51,7 +51,8 @@ export const getDishes = async (req: Request, res: Response) => {
     const dishes = await Dish.find(findCondition)
       .sort(sortCondition)
       .skip(objectPagination.skip)
-      .limit(objectPagination.limit);
+      .limit(objectPagination.limit)
+      .populate("categoryId");
     res.json({
       message: "Dishes fetched successfully",
       data: {
@@ -69,7 +70,10 @@ export const changeStatus = async (req: Request, res: Response) => {
     const dishId = req.params.id;
     const status = req.params.status;
     await Dish.updateOne({ _id: dishId }, { status: status });
-    res.json({ message: "Dish status updated successfully" });
+    res.json({
+      message: "Dish status updated successfully",
+      data: await Dish.findById(dishId).populate("categoryId", "name"),
+    });
   } catch (error) {
     res.status(500).json({ message: "Internal server error", error });
   }
@@ -82,15 +86,33 @@ export const changeMulti = async (req: Request, res: Response) => {
     switch (type) {
       case "delete":
         await Dish.updateMany({ _id: { $in: ids } }, { deleted: true });
-        res.json({ message: "Dishes deleted successfully" });
+        res.json({
+          message: "Dishes deleted successfully",
+          data: await Dish.find({ _id: { $in: ids } }).populate(
+            "categoryId",
+            "name"
+          ),
+        });
         break;
       case "active":
         await Dish.updateMany({ _id: { $in: ids } }, { status: "active" });
-        res.json({ message: "Dishes activated successfully" });
+        res.json({
+          message: "Dishes activated successfully",
+          data: await Dish.find({ _id: { $in: ids } }).populate(
+            "categoryId",
+            "name"
+          ),
+        });
         break;
       case "inactive":
         await Dish.updateMany({ _id: { $in: ids } }, { status: "inactive" });
-        res.json({ message: "Dishes deactivated successfully" });
+        res.json({
+          message: "Dishes deactivated successfully",
+          data: await Dish.find({ _id: { $in: ids } }).populate(
+            "categoryId",
+            "name"
+          ),
+        });
         break;
       default:
         return res.status(400).json({ message: "Invalid type parameter" });
@@ -103,7 +125,10 @@ export const deleteDish = async (req: Request, res: Response) => {
   try {
     const dishId = req.params.id;
     await Dish.updateOne({ _id: dishId }, { deleted: true });
-    res.json({ message: "Dish deleted successfully" });
+    res.json({
+      message: "Dish deleted successfully",
+      data: await Dish.findById(dishId).populate("categoryId", "name"),
+    });
   } catch (error) {
     res.status(500).json({ message: "Internal server error", error });
   }
@@ -120,12 +145,17 @@ export const create = async (req: Request, res: Response) => {
   req.body.finalPrice =
     req.body.price - (req.body.price * req.body.discount) / 100;
   req.body.prepareTime = parseInt(req.body.prepareTime) || 10;
-  req.body.position = parseInt(req.body.position) || 0;
-
   // Ensure deleted is always false for new dishes
   const newDish = new Dish(req.body);
   await newDish.save();
-  res.json({ message: "Dish created successfully", data: newDish });
+
+  // Populate categoryId before sending response
+  const populatedDish = await Dish.findById(newDish._id).populate(
+    "categoryId",
+    "name"
+  );
+
+  res.json({ message: "Dish created successfully", data: populatedDish });
 };
 
 export const edit = async (req: Request, res: Response) => {
@@ -144,7 +174,14 @@ export const edit = async (req: Request, res: Response) => {
     req.body.position = parseInt(req.body.position) || 0;
 
     await Dish.updateOne({ _id: req.params.id }, req.body);
-    res.json({ message: "Dish updated successfully" });
+
+    // Get updated dish with populated categoryId
+    const updatedDish = await Dish.findById(req.params.id).populate(
+      "categoryId",
+      "name"
+    );
+
+    res.json({ message: "Dish updated successfully", data: updatedDish });
   } catch (error) {
     res.status(500).json({ message: "Internal server error", error });
   }
@@ -152,7 +189,10 @@ export const edit = async (req: Request, res: Response) => {
 export const getDishDetail = async (req: Request, res: Response) => {
   try {
     const dishId = req.params.id;
-    const dish = await Dish.findOne({ _id: dishId });
+    const dish = await Dish.findOne({ _id: dishId }).populate(
+      "categoryId",
+      "name description"
+    );
     if (!dish) {
       return res.status(404).json({ message: "Dish not found" });
     }

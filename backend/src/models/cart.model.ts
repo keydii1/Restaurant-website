@@ -1,9 +1,9 @@
-import { Document, model, Schema } from "mongoose";
+import { Document, model, Schema, Types } from "mongoose";
 
 export interface ICart extends Document {
-  userId: string;
+  userId: Types.ObjectId;
   items: {
-    dishId: string;
+    dishId: Types.ObjectId;
     quantity: number;
   }[];
   totalPrice: number;
@@ -11,10 +11,10 @@ export interface ICart extends Document {
 
 const cartSchema = new Schema<ICart>(
   {
-    userId: { type: String, required: true },
+    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     items: [
       {
-        dishId: { type: String, required: true },
+        dishId: { type: Schema.Types.ObjectId, ref: "Dish", required: true },
         quantity: { type: Number, required: true },
       },
     ],
