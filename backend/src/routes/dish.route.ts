@@ -5,9 +5,15 @@ import { auth, authAdmin } from "../auth/checkAuth.auth";
 import * as controller from "../controllers/dish.controller";
 import * as dishValidate from "../validates/dish.validate";
 import multer from "multer";
-// Use memory storage so `req.file.buffer` is available for stream upload to Cloudinary
-const upload = multer({ dest: "uploads/" });
-// Cloudinary upload middleware (ES Module import)
+
+// Configure multer with file size limit (50MB)
+const upload = multer({
+  dest: "uploads/",
+  limits: {
+    fileSize: 50 * 1024 * 1024, // 50MB in bytes
+    fieldSize: 50 * 1024 * 1024, // 50MB for text fields
+  },
+});
 
 //restaurant/api/v1/dishes
 router.get("/", auth, controller.getDishes);
@@ -17,24 +23,35 @@ router.delete("/delete/:id", authAdmin, controller.deleteDish);
 
 router.post(
   "/create",
+  authAdmin,
   upload.single("image"),
   uploadImage,
-  authAdmin,
-  dishValidate.titleNotEmpty,
-  dishValidate.tittleNotMoreThan30Chars,
-  dishValidate.categotyExistCheck,
+  dishValidate.nameNotEmpty,
+  dishValidate.nameNotMoreThan100Chars,
+  dishValidate.categoryExistCheck,
+  dishValidate.priceValid,
+  dishValidate.discountValid,
+  dishValidate.ratingValid,
+  dishValidate.prepareTimeValid,
+  dishValidate.descriptionValid,
   controller.create
 );
+
 router.get("/create", (req, res) => {
   res.render("product/upload_test.pug");
 });
 
 router.patch(
   "/edit/:id",
+  authAdmin,
   upload.single("image"),
   uploadImage,
-  authAdmin,
-  dishValidate.tittleNotMoreThan30Chars,
+  dishValidate.nameNotMoreThan100Chars,
+  dishValidate.priceValid,
+  dishValidate.discountValid,
+  dishValidate.ratingValid,
+  dishValidate.prepareTimeValid,
+  dishValidate.descriptionValid,
   controller.edit
 );
 router.get("/detail/:id", auth, controller.getDishDetail);

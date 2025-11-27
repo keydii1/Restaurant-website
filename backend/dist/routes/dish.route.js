@@ -43,15 +43,21 @@ const checkAuth_auth_1 = require("../auth/checkAuth.auth");
 const controller = __importStar(require("../controllers/dish.controller"));
 const dishValidate = __importStar(require("../validates/dish.validate"));
 const multer_1 = __importDefault(require("multer"));
-const upload = (0, multer_1.default)({ dest: "uploads/" });
+const upload = (0, multer_1.default)({
+    dest: "uploads/",
+    limits: {
+        fileSize: 50 * 1024 * 1024,
+        fieldSize: 50 * 1024 * 1024,
+    },
+});
 router.get("/", checkAuth_auth_1.auth, controller.getDishes);
 router.patch("/change-status/:id/:status", checkAuth_auth_1.authAdmin, controller.changeStatus);
 router.patch("/change-multi", checkAuth_auth_1.authAdmin, controller.changeMulti);
 router.delete("/delete/:id", checkAuth_auth_1.authAdmin, controller.deleteDish);
-router.post("/create", upload.single("image"), uploadCloud_middleware_1.uploadImage, checkAuth_auth_1.authAdmin, dishValidate.titleNotEmpty, dishValidate.tittleNotMoreThan30Chars, dishValidate.categotyExistCheck, controller.create);
+router.post("/create", checkAuth_auth_1.authAdmin, upload.single("image"), uploadCloud_middleware_1.uploadImage, dishValidate.nameNotEmpty, dishValidate.nameNotMoreThan100Chars, dishValidate.categoryExistCheck, dishValidate.priceValid, dishValidate.discountValid, dishValidate.ratingValid, dishValidate.prepareTimeValid, dishValidate.descriptionValid, controller.create);
 router.get("/create", (req, res) => {
     res.render("product/upload_test.pug");
 });
-router.patch("/edit/:id", upload.single("image"), uploadCloud_middleware_1.uploadImage, checkAuth_auth_1.authAdmin, dishValidate.tittleNotMoreThan30Chars, controller.edit);
+router.patch("/edit/:id", checkAuth_auth_1.authAdmin, upload.single("image"), uploadCloud_middleware_1.uploadImage, dishValidate.nameNotMoreThan100Chars, dishValidate.priceValid, dishValidate.discountValid, dishValidate.ratingValid, dishValidate.prepareTimeValid, dishValidate.descriptionValid, controller.edit);
 router.get("/detail/:id", checkAuth_auth_1.auth, controller.getDishDetail);
 exports.default = router;
