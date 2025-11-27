@@ -1,6 +1,6 @@
 import { Router } from "express";
 import * as controller from "../controllers/category.controller";
-import * as validator from "../validates/EmailAndPassword.validate";
+import * as categoryValidate from "../validates/category.validate";
 const router = Router();
 import { auth, authAdmin } from "../auth/checkAuth.auth";
 import { uploadImage } from "../middlewares/uploadCloud.middleware";
@@ -14,6 +14,9 @@ router.post(
   upload.single("images"),
   uploadImage,
   authAdmin,
+  categoryValidate.nameRequired,
+  categoryValidate.nameLength,
+  categoryValidate.descriptionLength,
   controller.create
 );
 router.patch(
@@ -21,6 +24,9 @@ router.patch(
   upload.single("images"),
   uploadImage,
   authAdmin,
+  categoryValidate.nameLength,
+  categoryValidate.descriptionLength,
+  categoryValidate.statusValid,
   controller.edit
 );
 router.delete("/delete/:id", authAdmin, controller.Delete);
