@@ -30,15 +30,35 @@ const oAuth2Client = new google.auth.OAuth2(
 );
 oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
 
+// Helper function to add timeout to promises
+function withTimeout<T>(
+  promise: Promise<T>,
+  ms: number,
+  errorMsg: string
+): Promise<T> {
+  const timeout = new Promise<never>((_, reject) => {
+    setTimeout(() => reject(new Error(errorMsg)), ms);
+  });
+  return Promise.race([promise, timeout]);
+}
+
 export default async function sendMailForgotPassword(
   email: string,
   otp: string
 ): Promise<void> {
   try {
-    // getAccessToken() can return a string or an object depending on googleapis version
-    const atResponse = await oAuth2Client.getAccessToken();
+    console.log("Starting to send forgot password email to:", email);
+
+    // getAccessToken() with 10 second timeout
+    const atResponse = await withTimeout(
+      oAuth2Client.getAccessToken(),
+      10000,
+      "Timeout: Failed to get access token from Google OAuth2"
+    );
     const accessToken =
       typeof atResponse === "string" ? atResponse : atResponse?.token;
+
+    console.log("Got access token, creating transport...");
 
     const transport = nodemailer.createTransport({
       service: "gmail",
@@ -50,14 +70,22 @@ export default async function sendMailForgotPassword(
         refreshToken: REFRESH_TOKEN,
         accessToken,
       },
+      // Add connection timeout
+      connectionTimeout: 10000, // 10 seconds
+      greetingTimeout: 10000,
+      socketTimeout: 15000,
     });
 
-    const info = await transport.sendMail({
-      from: `"Maison Blanche" <${EMAIL_USER}>`,
-      to: email,
-      subject: "Yêu cầu đặt lại mật khẩu",
-      text: `Mã OTP để đặt lại mật khẩu của bạn là: ${otp}`,
-      html: `
+    console.log("Sending email...");
+
+    // Send email with 15 second timeout
+    const info = await withTimeout(
+      transport.sendMail({
+        from: `"Maison Blanche" <${EMAIL_USER}>`,
+        to: email,
+        subject: "Yêu cầu đặt lại mật khẩu",
+        text: `Mã OTP để đặt lại mật khẩu của bạn là: ${otp}`,
+        html: `
       <!DOCTYPE html>
       <html lang="vi">
       <head>
@@ -184,9 +212,12 @@ export default async function sendMailForgotPassword(
       </body>
       </html>
       `,
-    });
+      }),
+      15000,
+      "Timeout: Failed to send email within 15 seconds"
+    );
 
-    console.log("Forgot password email sent:", info.messageId);
+    console.log("Forgot password email sent:", (info as any).messageId);
   } catch (error) {
     console.error("Error sending forgot password email:", error);
     throw error;
