@@ -16,7 +16,7 @@ const upload = multer({
 });
 
 //restaurant/api/v1/dishes
-router.get("/", auth, controller.getDishes);
+router.get("/", controller.getDishes);
 router.patch("/change-status/:id/:status", authAdmin, controller.changeStatus);
 router.patch("/change-multi", authAdmin, controller.changeMulti);
 router.delete("/delete/:id", authAdmin, controller.deleteDish);

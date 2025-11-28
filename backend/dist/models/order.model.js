@@ -1,24 +1,38 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
-const generate_helper_1 = require("../helpers/generate.helper");
 const orderSchema = new mongoose_1.Schema({
-    orderId: {
-        type: String,
+    cartId: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: "Cart",
         required: true,
-        unique: true,
-        default: () => `ORD-${Date.now()}-${(0, generate_helper_1.generateRandomNumber)(10)}`,
     },
     userId: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: "User",
         required: true,
     },
-    tableId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Table" },
-    totalPrice: { type: Number, required: true },
-    status: { type: String, required: true, default: "pending" },
-    typeOfPayment: { type: String },
-    payed: { type: Boolean, required: true, default: false },
+    tableId: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: "Table",
+    },
+    totalPrice: { type: Number },
+    status: {
+        type: String,
+        enum: ["pending", "confirmed", "completed", "cancelled"],
+        required: true,
+        default: "pending",
+    },
+    deleveryAddress: { type: String },
+    deliveryOptions: {
+        type: String,
+        enum: ["delivery", "pickup", "dine-in"],
+        default: "dine-in",
+    },
+    typeOfPayment: {
+        type: String,
+        enum: ["cash", "card", "momo"],
+    },
 }, { timestamps: true, collection: "orders" });
 const Order = (0, mongoose_1.model)("Order", orderSchema);
 exports.default = Order;

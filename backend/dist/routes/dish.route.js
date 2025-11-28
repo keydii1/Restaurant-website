@@ -50,7 +50,7 @@ const upload = (0, multer_1.default)({
         fieldSize: 50 * 1024 * 1024,
     },
 });
-router.get("/", checkAuth_auth_1.auth, controller.getDishes);
+router.get("/", controller.getDishes);
 router.patch("/change-status/:id/:status", checkAuth_auth_1.authAdmin, controller.changeStatus);
 router.patch("/change-multi", checkAuth_auth_1.authAdmin, controller.changeMulti);
 router.delete("/delete/:id", checkAuth_auth_1.authAdmin, controller.deleteDish);

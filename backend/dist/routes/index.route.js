@@ -18,6 +18,7 @@ const discount_route_1 = __importDefault(require("./discount.route"));
 const cart_route_1 = __importDefault(require("./cart.route"));
 const blog_route_1 = __importDefault(require("./blog.route"));
 const contact_route_1 = __importDefault(require("./contact.route"));
+const order_route_1 = __importDefault(require("./order.route"));
 const routerAppVer1 = (app) => {
     const version1 = process.env.PREFIX;
     app.use(version1 + "/categories", category_route_1.default);
@@ -30,6 +31,7 @@ const routerAppVer1 = (app) => {
     app.use(version1 + "/carts", cart_route_1.default);
     app.use(version1 + "/blogs", blog_route_1.default);
     app.use(version1 + "/contacts", contact_route_1.default);
+    app.use(version1 + "/orders", order_route_1.default);
 };
 exports.routerAppVer1 = routerAppVer1;
 exports.default = exports.routerAppVer1;

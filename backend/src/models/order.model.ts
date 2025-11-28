@@ -1,32 +1,47 @@
 import { Document, model, Schema, Types } from "mongoose";
-import { generateRandomNumber } from "../helpers/generate.helper";
 export interface IOrder extends Document {
-  orderId: string;
+  cartId: Types.ObjectId;
   userId: Types.ObjectId;
   tableId?: Types.ObjectId;
   totalPrice: number;
+  deleveryAddress?: string;
+  deliveryOptions?: string;
   status: string;
   typeOfPayment?: string;
-  payed: boolean;
 }
 const orderSchema = new Schema<IOrder>(
   {
-    orderId: {
-      type: String,
+    cartId: {
+      type: Schema.Types.ObjectId,
+      ref: "Cart",
       required: true,
-      unique: true,
-      default: () => `ORD-${Date.now()}-${generateRandomNumber(10)}`,
     },
     userId: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    tableId: { type: Schema.Types.ObjectId, ref: "Table" },
-    totalPrice: { type: Number, required: true },
-    status: { type: String, required: true, default: "pending" },
-    typeOfPayment: { type: String },
-    payed: { type: Boolean, required: true, default: false },
+    tableId: {
+      type: Schema.Types.ObjectId,
+      ref: "Table",
+    },
+    totalPrice: { type: Number },
+    status: {
+      type: String,
+      enum: ["pending", "confirmed", "completed", "cancelled"],
+      required: true,
+      default: "pending",
+    },
+    deleveryAddress: { type: String },
+    deliveryOptions: {
+      type: String,
+      enum: ["delivery", "pickup", "dine-in"],
+      default: "dine-in",
+    },
+    typeOfPayment: {
+      type: String,
+      enum: ["cash", "card", "momo"],
+    },
   },
   { timestamps: true, collection: "orders" }
 );

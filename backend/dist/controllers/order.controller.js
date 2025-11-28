@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updatePaymentStatus = exports.updateOrderStatus = exports.updateOrder = exports.createOrder = exports.getOrderById = exports.getOrders = exports.getAllOrders = void 0;
+exports.updatePaymentStatus = exports.updateOrderStatus = exports.updateOrder = exports.createOrder = exports.GetOrderDetail = exports.getOrders = exports.getAllOrders = void 0;
 const order_model_1 = __importDefault(require("../models/order.model"));
 const success_response_1 = require("../core/success.response");
 const error_response_1 = require("../core/error.response");
@@ -47,7 +47,7 @@ const getOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getOrders = getOrders;
-const getOrderById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const GetOrderDetail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
         const order = yield order_model_1.default.findById(id)
@@ -65,7 +65,7 @@ const getOrderById = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         return new error_response_1.BadRequestError("Error fetching order").send(res);
     }
 });
-exports.getOrderById = getOrderById;
+exports.GetOrderDetail = GetOrderDetail;
 const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const userId = req.accessToken.id;

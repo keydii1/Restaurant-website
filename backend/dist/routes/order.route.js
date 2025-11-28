@@ -38,4 +38,8 @@ const controller = __importStar(require("../controllers/order.controller"));
 const checkAuth_auth_1 = require("../auth/checkAuth.auth");
 const router = (0, express_1.Router)();
 router.get("/", checkAuth_auth_1.auth, controller.getOrders);
+router.post("/create", checkAuth_auth_1.auth, controller.createOrder);
+router.put("/:id", checkAuth_auth_1.auth, controller.updateOrder);
+router.put("/:id/status", checkAuth_auth_1.auth, controller.updateOrderStatus);
+router.put("/:id/payment", checkAuth_auth_1.auth, controller.updatePaymentStatus);
 exports.default = router;

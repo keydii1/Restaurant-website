@@ -12,6 +12,7 @@ import discountRoutes from "./discount.route";
 import cartRoutes from "./cart.route";
 import blogRoutes from "./blog.route";
 import contactRoutes from "./contact.route";
+import orderRoutes from "./order.route";
 export const routerAppVer1 = (app: Express): void => {
   const version1 = process.env.PREFIX;
   app.use(version1 + "/categories", categoryRoutes);
@@ -24,6 +25,7 @@ export const routerAppVer1 = (app: Express): void => {
   app.use(version1 + "/carts", cartRoutes);
   app.use(version1 + "/blogs", blogRoutes);
   app.use(version1 + "/contacts", contactRoutes);
+  app.use(version1 + "/orders", orderRoutes);
 };
 
 export default routerAppVer1;

@@ -32,7 +32,7 @@ export const getOrders = async (req: Request, res: Response) => {
   }
 };
 
-export const getOrderById = async (req: Request, res: Response) => {
+export const GetOrderDetail = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const order = await Order.findById(id)
