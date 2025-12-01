@@ -44,7 +44,7 @@ const checkAuth_auth_1 = require("../auth/checkAuth.auth");
 const uploadCloud_middleware_1 = require("../middlewares/uploadCloud.middleware");
 const multer_1 = __importDefault(require("multer"));
 const upload = (0, multer_1.default)({ dest: "uploads/" });
-router.get("/", checkAuth_auth_1.auth, controller.getCategories);
+router.get("/", controller.getCategories);
 router.post("/create", upload.single("images"), uploadCloud_middleware_1.uploadImage, checkAuth_auth_1.authAdmin, categoryValidate.nameRequired, categoryValidate.nameLength, categoryValidate.descriptionLength, controller.create);
 router.patch("/edit/:id", upload.single("images"), uploadCloud_middleware_1.uploadImage, checkAuth_auth_1.authAdmin, categoryValidate.nameLength, categoryValidate.descriptionLength, categoryValidate.statusValid, controller.edit);
 router.delete("/delete/:id", checkAuth_auth_1.authAdmin, controller.Delete);

@@ -7,7 +7,8 @@ export const getAllOrders = async (req: Request, res: Response) => {
   try {
     const orders = await Order.find()
       .populate("userId", "username email")
-      .populate("tableId", "tableNumber status");
+      .populate("tableId", "tableNumber status")
+      .populate("cartId");
     return new OK({
       message: "Fetch all orders successfully",
       metadata: orders,
@@ -22,7 +23,8 @@ export const getOrders = async (req: Request, res: Response) => {
     const userId = (req as any).accessToken.id;
     const orders = await Order.find({ userId: userId })
       .populate("userId", "username email")
-      .populate("tableId", "tableNumber status");
+      .populate("tableId", "tableNumber status")
+      .populate("cartId");
     return new OK({
       message: "Fetch orders successfully",
       metadata: orders,
@@ -37,7 +39,8 @@ export const GetOrderDetail = async (req: Request, res: Response) => {
     const { id } = req.params;
     const order = await Order.findById(id)
       .populate("userId", "username email")
-      .populate("tableId", "tableNumber status");
+      .populate("tableId", "tableNumber status")
+      .populate("cartId");
     if (!order) {
       return new BadRequestError("Order not found").send(res);
     }
@@ -53,14 +56,13 @@ export const GetOrderDetail = async (req: Request, res: Response) => {
 export const createOrder = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).accessToken.id;
-    const newOrder = new Order({
-      ...req.body,
-      userId: userId,
-    });
+    const newOrder = new Order(req.body);
+    newOrder.userId = userId;
     await newOrder.save();
     const populatedOrder = await Order.findById(newOrder._id)
       .populate("userId", "username email")
-      .populate("tableId", "tableNumber status");
+      .populate("tableId", "tableNumber status")
+      .populate("cartId");
     return new Created({
       message: "Order created successfully",
       metadata: populatedOrder,
@@ -76,7 +78,11 @@ export const updateOrder = async (req: Request, res: Response) => {
     await Order.updateOne({ _id: id }, { $set: req.body });
     const updatedOrder = await Order.findById(id)
       .populate("userId", "username email")
-      .populate("tableId", "tableNumber status");
+      .populate("tableId", "tableNumber status")
+      .populate("cartId");
+    if (!updatedOrder) {
+      return new BadRequestError("Order not found").send(res);
+    }
     return new OK({
       message: "Order updated successfully",
       metadata: updatedOrder,
@@ -90,10 +96,18 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
+    const validStatuses = ["pending", "confirmed", "completed", "cancelled"];
+    if (!validStatuses.includes(status)) {
+      return new BadRequestError("Invalid status value").send(res);
+    }
     await Order.updateOne({ _id: id }, { status: status });
     const updatedOrder = await Order.findById(id)
       .populate("userId", "username email")
-      .populate("tableId", "tableNumber status");
+      .populate("tableId", "tableNumber status")
+      .populate("cartId");
+    if (!updatedOrder) {
+      return new BadRequestError("Order not found").send(res);
+    }
     return new OK({
       message: "Order status updated successfully",
       metadata: updatedOrder,
@@ -106,13 +120,22 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
 export const updatePaymentStatus = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { payed } = req.body;
-    await Order.updateOne({ _id: id }, { payed: payed });
+    // update payment method/type according to schema (typeOfPayment)
+    const { typeOfPayment } = req.body;
+    const validPayments = ["cash", "card", "momo"];
+    if (typeOfPayment && !validPayments.includes(typeOfPayment)) {
+      return new BadRequestError("Invalid payment type").send(res);
+    }
+    await Order.updateOne({ _id: id }, { $set: { typeOfPayment } });
     const updatedOrder = await Order.findById(id)
       .populate("userId", "username email")
-      .populate("tableId", "tableNumber status");
+      .populate("tableId", "tableNumber status")
+      .populate("cartId");
+    if (!updatedOrder) {
+      return new BadRequestError("Order not found").send(res);
+    }
     return new OK({
-      message: "Payment status updated successfully",
+      message: "Payment updated successfully",
       metadata: updatedOrder,
     }).send(res);
   } catch (error) {

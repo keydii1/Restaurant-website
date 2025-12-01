@@ -1,62 +1,28 @@
-import { google } from "googleapis";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const REDIRECT_URI = process.env.REDIRECT_URI;
-const REFRESH_TOKEN = process.env.REFRESH_TOKEN;
-const EMAIL_USER = process.env.EMAIL_USER;
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL;
 
-if (
-  !CLIENT_ID ||
-  !CLIENT_SECRET ||
-  !REDIRECT_URI ||
-  !REFRESH_TOKEN ||
-  !EMAIL_USER
-) {
-  // Fail fast so missing env is obvious when importing the module
+if (!RESEND_API_KEY || !RESEND_FROM_EMAIL) {
   throw new Error(
-    "Missing one of required env vars: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, REDIRECT_URI, REFRESH_TOKEN, EMAIL_USER"
+    "Missing one of required env vars: RESEND_API_KEY, RESEND_FROM_EMAIL"
   );
 }
 
-const oAuth2Client = new google.auth.OAuth2(
-  CLIENT_ID,
-  CLIENT_SECRET,
-  REDIRECT_URI
-);
-oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
+const resend = new Resend(RESEND_API_KEY);
 
 export default async function sendMailForgotPassword(
   email: string,
   otp: string
 ): Promise<void> {
   try {
-    // getAccessToken() can return a string or an object depending on googleapis version
-    const atResponse = await oAuth2Client.getAccessToken();
-    const accessToken =
-      typeof atResponse === "string" ? atResponse : atResponse?.token;
-
-    const transport = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        type: "OAuth2",
-        user: EMAIL_USER,
-        clientId: CLIENT_ID,
-        clientSecret: CLIENT_SECRET,
-        refreshToken: REFRESH_TOKEN,
-        accessToken,
-      },
-    });
-
-    const info = await transport.sendMail({
-      from: `"Maison Blanche" <${EMAIL_USER}>`,
+    const { data, error } = await resend.emails.send({
+      from: `Maison Blanche <${RESEND_FROM_EMAIL}>`,
       to: email,
       subject: "Yêu cầu đặt lại mật khẩu",
-      text: `Mã OTP để đặt lại mật khẩu của bạn là: ${otp}`,
       html: `
       <!DOCTYPE html>
       <html lang="vi">
@@ -186,7 +152,12 @@ export default async function sendMailForgotPassword(
       `,
     });
 
-    console.log("Forgot password email sent:", info.messageId);
+    if (error) {
+      console.error("Error sending forgot password email:", error);
+      throw error;
+    }
+
+    console.log("Forgot password email sent successfully:", data?.id);
   } catch (error) {
     console.error("Error sending forgot password email:", error);
     throw error;

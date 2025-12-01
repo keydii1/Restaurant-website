@@ -23,7 +23,9 @@ const getCart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const userId = accesstoken.id;
         const cart = yield cart_model_1.default.findOne({
             userId: userId,
-        }).populate("items.dishId", "name price image");
+        })
+            .populate("items.dishId", "name price image")
+            .populate("userId", "username email");
         if (!cart) {
             return new error_response_1.BadRequestError("Cart not found").send(res);
         }

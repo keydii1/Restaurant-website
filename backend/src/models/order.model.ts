@@ -3,9 +3,9 @@ export interface IOrder extends Document {
   cartId: Types.ObjectId;
   userId: Types.ObjectId;
   tableId?: Types.ObjectId;
-  totalPrice: number;
   deleveryAddress?: string;
   deliveryOptions?: string;
+  totalPrice: number;
   status: string;
   typeOfPayment?: string;
 }

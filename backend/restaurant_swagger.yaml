@@ -1470,6 +1470,10 @@ components:
         loginMethod:
           type: string
           enum: [manual, google]
+        googleId:
+          type: string
+        refreshToken:
+          type: string
         createdAt:
           type: string
           format: date-time
@@ -1490,6 +1494,23 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/User"
+      example:
+        code: 200
+        message: Success
+        data:
+          - _id: "64f1b2c3d4e5f6789a0b1c39"
+            username: "johndoe"
+            email: "johndoe@example.com"
+            avatar: "https://example.com/avatar.jpg"
+            address: "123 Main St"
+            phoneNumber: "+1234567890"
+            dateOfBirth: "1990-01-01"
+            isAdmin: false
+            loginMethod: "manual"
+            googleId: null
+            refreshToken: "refresh_token_here"
+            createdAt: "2023-09-01T10:00:00.000Z"
+            updatedAt: "2023-09-01T10:00:00.000Z"
 
     SuccessAuthentication:
       type: object
@@ -1509,6 +1530,26 @@ components:
               type: string
             user:
               $ref: "#/components/schemas/User"
+      example:
+        code: 200
+        message: Login successful
+        data:
+          accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          refreshToken: "refresh_token_here"
+          user:
+            _id: "64f1b2c3d4e5f6789a0b1c39"
+            username: "johndoe"
+            email: "johndoe@example.com"
+            avatar: "https://example.com/avatar.jpg"
+            address: "123 Main St"
+            phoneNumber: "+1234567890"
+            dateOfBirth: "1990-01-01"
+            isAdmin: false
+            loginMethod: "manual"
+            googleId: null
+            refreshToken: "refresh_token_here"
+            createdAt: "2023-09-01T10:00:00.000Z"
+            updatedAt: "2023-09-01T10:00:00.000Z"
 
     ErrorAuthentication:
       type: object
@@ -1536,8 +1577,10 @@ components:
           type: number
         image:
           type: string
-        category:
-          type: string
+        categoryId:
+          oneOf:
+            - type: string
+            - $ref: "#/components/schemas/Category"
         status:
           type: string
           enum: [active, inactive]
@@ -1555,6 +1598,8 @@ components:
             type: string
         prepareTime:
           type: integer
+        deleted:
+          type: boolean
         createdAt:
           type: string
           format: date-time
@@ -1567,7 +1612,7 @@ components:
       required:
         - name
         - price
-        - category
+        - categoryId
       properties:
         name:
           type: string
@@ -1577,8 +1622,10 @@ components:
           type: number
         discount:
           type: number
-        category:
-          type: string
+        categoryId:
+          oneOf:
+            - type: string
+            - $ref: "#/components/schemas/Category"
         image:
           type: string
           format: binary
@@ -1601,8 +1648,10 @@ components:
           type: number
         discount:
           type: number
-        category:
-          type: string
+        categoryId:
+          oneOf:
+            - type: string
+            - $ref: "#/components/schemas/Category"
         image:
           type: string
           format: binary
@@ -1642,6 +1691,34 @@ components:
                   type: integer
                 total:
                   type: integer
+      example:
+        code: 200
+        message: Success
+        data:
+          dishes:
+            - _id: "64f1b2c3d4e5f6789a0b1c2d"
+              name: "Phở Bò"
+              description: "Món phở bò truyền thống"
+              price: 50000
+              discount: 10
+              image: "https://example.com/dish.jpg"
+              categoryId:
+                _id: "64f1b2c3d4e5f6789a0b1c2e"
+                name: "Món chính"
+              status: "active"
+              finalPrice: 45000
+              rating: 4.5
+              position: 1
+              bestSeller: true
+              ingredients: ["bò", "phở", "rau"]
+              prepareTime: 15
+              deleted: false
+              createdAt: "2023-09-01T10:00:00.000Z"
+              updatedAt: "2023-09-01T10:00:00.000Z"
+          pagination:
+            page: 1
+            limit: 10
+            total: 50
 
     DishResponse:
       type: object
@@ -1654,6 +1731,29 @@ components:
           example: Success
         data:
           $ref: "#/components/schemas/Dish"
+      example:
+        code: 200
+        message: Success
+        data:
+          _id: "64f1b2c3d4e5f6789a0b1c2d"
+          name: "Phở Bò"
+          description: "Món phở bò truyền thống"
+          price: 50000
+          discount: 10
+          image: "https://example.com/dish.jpg"
+          categoryId:
+            _id: "64f1b2c3d4e5f6789a0b1c2e"
+            name: "Món chính"
+          status: "active"
+          finalPrice: 45000
+          rating: 4.5
+          position: 1
+          bestSeller: true
+          ingredients: ["bò", "phở", "rau"]
+          prepareTime: 15
+          deleted: false
+          createdAt: "2023-09-01T10:00:00.000Z"
+          updatedAt: "2023-09-01T10:00:00.000Z"
 
     # ===== CATEGORY SCHEMAS =====
     Category:
@@ -1724,6 +1824,19 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Category"
+      example:
+        code: 200
+        message: Success
+        data:
+          - _id: "64f1b2c3d4e5f6789a0b1c2f"
+            name: "Món chính"
+            description: "Các món ăn chính"
+            status: "active"
+            position: 1
+            images: "https://example.com/category.jpg"
+            deleted: false
+            createdAt: "2023-09-01T10:00:00.000Z"
+            updatedAt: "2023-09-01T10:00:00.000Z"
 
     CategoryResponse:
       type: object
@@ -1736,6 +1849,19 @@ components:
           example: Success
         data:
           $ref: "#/components/schemas/Category"
+      example:
+        code: 200
+        message: Success
+        data:
+          _id: "64f1b2c3d4e5f6789a0b1c2f"
+          name: "Món chính"
+          description: "Các món ăn chính"
+          status: "active"
+          position: 1
+          images: "https://example.com/category.jpg"
+          deleted: false
+          createdAt: "2023-09-01T10:00:00.000Z"
+          updatedAt: "2023-09-01T10:00:00.000Z"
 
     # ===== CART SCHEMAS =====
     Cart:
@@ -1744,14 +1870,18 @@ components:
         _id:
           type: string
         userId:
-          type: string
+          oneOf:
+            - type: string
+            - $ref: "#/components/schemas/User"
         items:
           type: array
           items:
             type: object
             properties:
               dishId:
-                type: string
+                oneOf:
+                  - type: string
+                  - $ref: "#/components/schemas/Dish"
               quantity:
                 type: integer
         totalPrice:
@@ -1762,18 +1892,34 @@ components:
         updatedAt:
           type: string
           format: date-time
-
     CartResponse:
       type: object
       properties:
-        code:
-          type: integer
-          example: 200
         message:
           type: string
-          example: Success
-        data:
+        statusCode:
+          type: integer
+        metadata:
           $ref: "#/components/schemas/Cart"
+      example:
+        message: "Fetch cart successfully"
+        statusCode: 200
+        metadata:
+          _id: "69294c34f92f14b27154467d"
+          userId:
+            _id: "690f65074d5fb8590ae9c0f6"
+            username: "hohoangson"
+            email: "hoson2k5@gmail.com"
+          items:
+            - dishId:
+                _id: "69278bdb14e21390ef18de93"
+                name: "Phở Bò Tái"
+                price: 45000
+                image: "https://res.cloudinary.com/dvxaznogb/image/upload/v1764198485/dishes_images/go7cltyjy1yv0crbmdai.jpg"
+              quantity: 1
+          totalPrice: 45000
+          createdAt: "2025-11-28T07:16:04.430Z"
+          updatedAt: "2025-11-28T07:16:04.430Z"
 
     # ===== BLOG SCHEMAS =====
     Blog:
@@ -1834,6 +1980,17 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Blog"
+      example:
+        code: 200
+        message: Success
+        data:
+          - _id: "64f1b2c3d4e5f6789a0b1c32"
+            title: "Cách nấu phở bò"
+            image: "https://example.com/blog.jpg"
+            content: "Hướng dẫn chi tiết cách nấu phở bò..."
+            deleted: false
+            createdAt: "2023-09-01T10:00:00.000Z"
+            updatedAt: "2023-09-01T10:00:00.000Z"
 
     BlogResponse:
       type: object
@@ -1846,6 +2003,17 @@ components:
           example: Success
         data:
           $ref: "#/components/schemas/Blog"
+      example:
+        code: 200
+        message: Success
+        data:
+          _id: "64f1b2c3d4e5f6789a0b1c32"
+          title: "Cách nấu phở bò"
+          image: "https://example.com/blog.jpg"
+          content: "Hướng dẫn chi tiết cách nấu phở bò..."
+          deleted: false
+          createdAt: "2023-09-01T10:00:00.000Z"
+          updatedAt: "2023-09-01T10:00:00.000Z"
 
     # ===== TABLE SCHEMAS =====
     Table:
@@ -1855,6 +2023,8 @@ components:
           type: string
         tableNumber:
           type: integer
+        tableName:
+          type: string
         maximumCapacity:
           type: integer
         status:
@@ -1866,6 +2036,12 @@ components:
           type: boolean
         deleted:
           type: boolean
+        orderTime:
+          type: string
+          format: date-time
+        finishedTime:
+          type: string
+          format: date-time
         createdAt:
           type: string
           format: date-time
@@ -1883,6 +2059,8 @@ components:
       properties:
         tableNumber:
           type: integer
+        tableName:
+          type: string
         maximumCapacity:
           type: integer
         status:
@@ -1896,6 +2074,8 @@ components:
       properties:
         tableNumber:
           type: integer
+        tableName:
+          type: string
         maximumCapacity:
           type: integer
         status:
@@ -1917,6 +2097,22 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Table"
+      example:
+        code: 200
+        message: Success
+        data:
+          - _id: "64f1b2c3d4e5f6789a0b1c33"
+            tableNumber: 1
+            tableName: "Bàn VIP"
+            maximumCapacity: 4
+            status: "available"
+            position: "Góc phòng"
+            reserved: false
+            deleted: false
+            orderTime: "2023-09-01T12:00:00.000Z"
+            finishedTime: "2023-09-01T14:00:00.000Z"
+            createdAt: "2023-09-01T10:00:00.000Z"
+            updatedAt: "2023-09-01T10:00:00.000Z"
 
     TableResponse:
       type: object
@@ -1929,6 +2125,22 @@ components:
           example: Success
         data:
           $ref: "#/components/schemas/Table"
+      example:
+        code: 200
+        message: Success
+        data:
+          _id: "64f1b2c3d4e5f6789a0b1c33"
+          tableNumber: 1
+          tableName: "Bàn VIP"
+          maximumCapacity: 4
+          status: "available"
+          position: "Góc phòng"
+          reserved: false
+          deleted: false
+          orderTime: "2023-09-01T12:00:00.000Z"
+          finishedTime: "2023-09-01T14:00:00.000Z"
+          createdAt: "2023-09-01T10:00:00.000Z"
+          updatedAt: "2023-09-01T10:00:00.000Z"
 
     # ===== DISCOUNT SCHEMAS =====
     Discount:
@@ -2017,6 +2229,20 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Discount"
+      example:
+        code: 200
+        message: Success
+        data:
+          - _id: "64f1b2c3d4e5f6789a0b1c34"
+            code: "DISCOUNT10"
+            description: "Giảm giá 10%"
+            percentage: 10
+            validFrom: "2023-09-01T00:00:00.000Z"
+            validTo: "2023-12-31T23:59:59.000Z"
+            active: true
+            deleted: false
+            createdAt: "2023-09-01T10:00:00.000Z"
+            updatedAt: "2023-09-01T10:00:00.000Z"
 
     DiscountResponse:
       type: object
@@ -2029,6 +2255,20 @@ components:
           example: Success
         data:
           $ref: "#/components/schemas/Discount"
+      example:
+        code: 200
+        message: Success
+        data:
+          _id: "64f1b2c3d4e5f6789a0b1c34"
+          code: "DISCOUNT10"
+          description: "Giảm giá 10%"
+          percentage: 10
+          validFrom: "2023-09-01T00:00:00.000Z"
+          validTo: "2023-12-31T23:59:59.000Z"
+          active: true
+          deleted: false
+          createdAt: "2023-09-01T10:00:00.000Z"
+          updatedAt: "2023-09-01T10:00:00.000Z"
 
     # ===== CONTACT SCHEMAS =====
     Contact:
@@ -2082,6 +2322,18 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Contact"
+      example:
+        code: 200
+        message: Success
+        data:
+          - _id: "64f1b2c3d4e5f6789a0b1c35"
+            name: "Nguyễn Văn A"
+            email: "nguyenvana@example.com"
+            message: "Tôi muốn đặt bàn"
+            status: "Pending"
+            deleted: false
+            createdAt: "2023-09-01T10:00:00.000Z"
+            updatedAt: "2023-09-01T10:00:00.000Z"
 
     ContactResponse:
       type: object
@@ -2094,6 +2346,18 @@ components:
           example: Success
         data:
           $ref: "#/components/schemas/Contact"
+      example:
+        code: 200
+        message: Success
+        data:
+          _id: "64f1b2c3d4e5f6789a0b1c35"
+          name: "Nguyễn Văn A"
+          email: "nguyenvana@example.com"
+          message: "Tôi muốn đặt bàn"
+          status: "Pending"
+          deleted: false
+          createdAt: "2023-09-01T10:00:00.000Z"
+          updatedAt: "2023-09-01T10:00:00.000Z"
 
     # ===== ROLE SCHEMAS =====
     Role:
@@ -2105,7 +2369,7 @@ components:
           type: string
         description:
           type: string
-        permisstion:
+        permissions:
           type: array
           items:
             type: string
@@ -2127,7 +2391,7 @@ components:
           type: string
         description:
           type: string
-        permisstion:
+        permissions:
           type: array
           items:
             type: string
@@ -2139,7 +2403,7 @@ components:
           type: string
         description:
           type: string
-        permisstion:
+        permissions:
           type: array
           items:
             type: string
@@ -2157,6 +2421,17 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Role"
+      example:
+        code: 200
+        message: Success
+        data:
+          - _id: "64f1b2c3d4e5f6789a0b1c36"
+            name: "Admin"
+            description: "Quyền quản trị"
+            permissions: ["read", "write", "delete"]
+            deleted: false
+            createdAt: "2023-09-01T10:00:00.000Z"
+            updatedAt: "2023-09-01T10:00:00.000Z"
 
     RoleResponse:
       type: object
@@ -2169,21 +2444,98 @@ components:
           example: Success
         data:
           $ref: "#/components/schemas/Role"
+      example:
+        code: 200
+        message: Success
+        data:
+          _id: "64f1b2c3d4e5f6789a0b1c36"
+          name: "Admin"
+          description: "Quyền quản trị"
+          permissions: ["read", "write", "delete"]
+          deleted: false
+          createdAt: "2023-09-01T10:00:00.000Z"
+          updatedAt: "2023-09-01T10:00:00.000Z"
 
     # ===== ORDER SCHEMAS =====
+    Order:
+      type: object
+      properties:
+        _id:
+          type: string
+        cartId:
+          oneOf:
+            - type: string
+            - $ref: "#/components/schemas/Cart"
+        userId:
+          oneOf:
+            - type: string
+            - $ref: "#/components/schemas/User"
+        tableId:
+          oneOf:
+            - type: string
+            - $ref: "#/components/schemas/Table"
+        deleveryAddress:
+          type: string
+        deliveryOptions:
+          type: string
+          enum: [delivery, pickup, "dine-in"]
+        totalPrice:
+          type: number
+        status:
+          type: string
+          enum: [pending, confirmed, completed, cancelled]
+        typeOfPayment:
+          type: string
+          enum: [cash, card, momo]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
     OrdersResponse:
       type: object
       properties:
-        code:
-          type: integer
-          example: 200
         message:
           type: string
-          example: Success
-        data:
+        statusCode:
+          type: integer
+        metadata:
           type: array
           items:
-            type: object
+            $ref: "#/components/schemas/Order"
+      example:
+        message: "Fetch orders successfully"
+        statusCode: 200
+        metadata:
+          - _id: "64f1b2c3d4e5f6789a0b1c37"
+            cartId:
+              _id: "64f1b2c3d4e5f6789a0b1c30"
+              userId: "64f1b2c3d4e5f6789a0b1c31"
+              items:
+                - dishId:
+                    _id: "69278bdb14e21390ef18de93"
+                    name: "Phở Bò Tái"
+                    price: 45000
+                    image: "https://res.cloudinary.com/dvxaznogb/image/upload/v1764198485/dishes_images/go7cltyjy1yv0crbmdai.jpg"
+                  quantity: 1
+              totalPrice: 45000
+            userId:
+              _id: "64f1b2c3d4e5f6789a0b1c31"
+              username: "johndoe"
+              email: "johndoe@example.com"
+            tableId:
+              _id: "64f1b2c3d4e5f6789a0b1c33"
+              tableNumber: 1
+              status: "available"
+            deleveryAddress: "123 Đường ABC, Quận 1, TP.HCM"
+            deliveryOptions: "dine-in"
+            totalPrice: 150000
+            status: "pending"
+            typeOfPayment: "cash"
+            createdAt: "2023-09-01T10:00:00.000Z"
+            updatedAt: "2023-09-01T10:00:00.000Z"
 
     # ===== PAYMENT SCHEMAS =====
     PaymentCreateBody:
@@ -2216,6 +2568,12 @@ components:
               type: string
             status:
               type: string
+      example:
+        code: 200
+        message: Success
+        data:
+          paymentId: "64f1b2c3d4e5f6789a0b1c38"
+          status: "completed"
 
     # ===== COMMON SCHEMAS =====
     SuccessResponse:

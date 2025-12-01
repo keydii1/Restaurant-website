@@ -17,15 +17,11 @@ const table_model_1 = __importDefault(require("../models/table.model"));
 const success_response_1 = require("../core/success.response");
 const error_response_1 = require("../core/error.response");
 const success_response_2 = require("../core/success.response");
-const statusCodes_1 = require("../core/statusCodes");
-const reasonPhrases_1 = require("../core/reasonPhrases");
 const getAllTables = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const tables = yield table_model_1.default.find({
-            deleted: false,
-        });
+        const tables = yield table_model_1.default.find({ deleted: false });
         return new success_response_2.OK({
-            message: "Tables fetched successfully",
+            message: "Fetched all tables successfully",
             metadata: tables,
         }).send(res);
     }
@@ -37,10 +33,10 @@ exports.getAllTables = getAllTables;
 const createTable = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const newTable = new table_model_1.default(req.body);
-        const savedTable = yield newTable.save();
+        yield newTable.save();
         return new success_response_1.Created({
             message: "Table created successfully",
-            metadata: savedTable,
+            metadata: newTable,
         }).send(res);
     }
     catch (error) {
@@ -50,57 +46,44 @@ const createTable = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 exports.createTable = createTable;
 const deleteTable = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { id } = req.params;
-        const deletedTable = yield table_model_1.default.findOne({ _id: id });
-        if (!deletedTable) {
-            return new error_response_1.BadRequestError(reasonPhrases_1.reasonPhrases.NOT_FOUND, statusCodes_1.statusCodes.NOT_FOUND, reasonPhrases_1.reasonPhrases.NOT_FOUND).send(res);
-        }
-        yield table_model_1.default.updateOne({ _id: id }, { $set: { deleted: true } });
+        const tableId = req.params.id;
+        yield table_model_1.default.updateOne({ _id: tableId }, { deleted: true });
         return new success_response_2.OK({
             message: "Table deleted successfully",
-            metadata: deletedTable,
         }).send(res);
     }
     catch (error) {
-        return new error_response_1.BadRequestError().send(res);
+        return res.status(500).json({ message: error.message });
     }
 });
 exports.deleteTable = deleteTable;
 const editTable = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { id } = req.params;
-        const updatedTable = yield table_model_1.default.findByIdAndUpdate(id, { $set: req.body }, { new: true });
-        if (!updatedTable) {
-            return new error_response_1.BadRequestError(reasonPhrases_1.reasonPhrases.NOT_FOUND, statusCodes_1.statusCodes.NOT_FOUND, reasonPhrases_1.reasonPhrases.NOT_FOUND).send(res);
-        }
+        const tableId = req.params.id;
+        const updatedData = req.body;
+        yield table_model_1.default.updateOne({ _id: tableId }, updatedData);
         return new success_response_2.OK({
             message: "Table updated successfully",
-            metadata: updatedTable,
+            metadata: yield table_model_1.default.findById(tableId),
         }).send(res);
     }
     catch (error) {
-        return new error_response_1.BadRequestError().send(res);
+        return res.status(500).json({ message: error.message });
     }
 });
 exports.editTable = editTable;
 const changeTableStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { id, status } = req.params;
-        const validStatuses = ["available", "occupied", "reserved"];
-        if (!validStatuses.includes(status)) {
-            return new error_response_1.BadRequestError("Invalid status value. Valid values: " + validStatuses.join(", "), statusCodes_1.statusCodes.BAD_REQUEST, reasonPhrases_1.reasonPhrases.BAD_REQUEST).send(res);
-        }
-        const updatedTable = yield table_model_1.default.findByIdAndUpdate(id, { $set: { status: status } }, { new: true });
-        if (!updatedTable) {
-            return new error_response_1.BadRequestError(reasonPhrases_1.reasonPhrases.NOT_FOUND, statusCodes_1.statusCodes.NOT_FOUND, reasonPhrases_1.reasonPhrases.NOT_FOUND).send(res);
-        }
+        const tableId = req.params.id;
+        const status = req.params.status;
+        yield table_model_1.default.updateOne({ _id: tableId }, { status: status });
         return new success_response_2.OK({
             message: "Table status updated successfully",
-            metadata: updatedTable,
+            metadata: yield table_model_1.default.findById(tableId),
         }).send(res);
     }
     catch (error) {
-        return new error_response_1.BadRequestError().send(res);
+        return res.status(500).json({ message: error.message });
     }
 });
 exports.changeTableStatus = changeTableStatus;

@@ -13,45 +13,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = sendMailThankYou;
-const googleapis_1 = require("googleapis");
-const nodemailer_1 = __importDefault(require("nodemailer"));
+const resend_1 = require("resend");
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
-const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const REDIRECT_URI = process.env.REDIRECT_URI;
-const REFRESH_TOKEN = process.env.REFRESH_TOKEN;
-const EMAIL_USER = process.env.EMAIL_USER;
-if (!CLIENT_ID ||
-    !CLIENT_SECRET ||
-    !REDIRECT_URI ||
-    !REFRESH_TOKEN ||
-    !EMAIL_USER) {
-    throw new Error("Missing one of required env vars: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, REDIRECT_URI, REFRESH_TOKEN, EMAIL_USER");
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL;
+if (!RESEND_API_KEY || !RESEND_FROM_EMAIL) {
+    throw new Error("Missing one of required env vars: RESEND_API_KEY, RESEND_FROM_EMAIL");
 }
-const oAuth2Client = new googleapis_1.google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
-oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
+const resend = new resend_1.Resend(RESEND_API_KEY);
 function sendMailThankYou(email) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const atResponse = yield oAuth2Client.getAccessToken();
-            const accessToken = typeof atResponse === "string" ? atResponse : atResponse === null || atResponse === void 0 ? void 0 : atResponse.token;
-            const transport = nodemailer_1.default.createTransport({
-                service: "gmail",
-                auth: {
-                    type: "OAuth2",
-                    user: EMAIL_USER,
-                    clientId: CLIENT_ID,
-                    clientSecret: CLIENT_SECRET,
-                    refreshToken: REFRESH_TOKEN,
-                    accessToken,
-                },
-            });
-            const info = yield transport.sendMail({
-                from: `"Maison Blanche" <${EMAIL_USER}>`,
+            const { data, error } = yield resend.emails.send({
+                from: `Maison Blanche <${RESEND_FROM_EMAIL}>`,
                 to: email,
                 subject: "Thank You for Choosing Maison Blanche",
-                text: `Thank you for using our services at Maison Blanche. We are honored to serve you.`,
                 html: `
       <!DOCTYPE html>
       <html lang="vi">
@@ -192,7 +169,11 @@ function sendMailThankYou(email) {
       </html>
       `,
             });
-            console.log("Thank you email sent:", info.messageId);
+            if (error) {
+                console.error("Error sending thank you email:", error);
+                throw error;
+            }
+            console.log("Thank you email sent successfully:", data === null || data === void 0 ? void 0 : data.id);
         }
         catch (error) {
             console.error("Error sending thank you email:", error);

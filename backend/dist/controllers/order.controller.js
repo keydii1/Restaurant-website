@@ -20,7 +20,8 @@ const getAllOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     try {
         const orders = yield order_model_1.default.find()
             .populate("userId", "username email")
-            .populate("tableId", "tableNumber status");
+            .populate("tableId", "tableNumber status")
+            .populate("cartId");
         return new success_response_1.OK({
             message: "Fetch all orders successfully",
             metadata: orders,
@@ -36,7 +37,8 @@ const getOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const userId = req.accessToken.id;
         const orders = yield order_model_1.default.find({ userId: userId })
             .populate("userId", "username email")
-            .populate("tableId", "tableNumber status");
+            .populate("tableId", "tableNumber status")
+            .populate("cartId");
         return new success_response_1.OK({
             message: "Fetch orders successfully",
             metadata: orders,
@@ -52,7 +54,8 @@ const GetOrderDetail = (req, res) => __awaiter(void 0, void 0, void 0, function*
         const { id } = req.params;
         const order = yield order_model_1.default.findById(id)
             .populate("userId", "username email")
-            .populate("tableId", "tableNumber status");
+            .populate("tableId", "tableNumber status")
+            .populate("cartId");
         if (!order) {
             return new error_response_1.BadRequestError("Order not found").send(res);
         }
@@ -69,11 +72,13 @@ exports.GetOrderDetail = GetOrderDetail;
 const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const userId = req.accessToken.id;
-        const newOrder = new order_model_1.default(Object.assign(Object.assign({}, req.body), { userId: userId }));
+        const newOrder = new order_model_1.default(req.body);
+        newOrder.userId = userId;
         yield newOrder.save();
         const populatedOrder = yield order_model_1.default.findById(newOrder._id)
             .populate("userId", "username email")
-            .populate("tableId", "tableNumber status");
+            .populate("tableId", "tableNumber status")
+            .populate("cartId");
         return new success_response_1.Created({
             message: "Order created successfully",
             metadata: populatedOrder,
@@ -90,7 +95,11 @@ const updateOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         yield order_model_1.default.updateOne({ _id: id }, { $set: req.body });
         const updatedOrder = yield order_model_1.default.findById(id)
             .populate("userId", "username email")
-            .populate("tableId", "tableNumber status");
+            .populate("tableId", "tableNumber status")
+            .populate("cartId");
+        if (!updatedOrder) {
+            return new error_response_1.BadRequestError("Order not found").send(res);
+        }
         return new success_response_1.OK({
             message: "Order updated successfully",
             metadata: updatedOrder,
@@ -105,10 +114,18 @@ const updateOrderStatus = (req, res) => __awaiter(void 0, void 0, void 0, functi
     try {
         const { id } = req.params;
         const { status } = req.body;
+        const validStatuses = ["pending", "confirmed", "completed", "cancelled"];
+        if (!validStatuses.includes(status)) {
+            return new error_response_1.BadRequestError("Invalid status value").send(res);
+        }
         yield order_model_1.default.updateOne({ _id: id }, { status: status });
         const updatedOrder = yield order_model_1.default.findById(id)
             .populate("userId", "username email")
-            .populate("tableId", "tableNumber status");
+            .populate("tableId", "tableNumber status")
+            .populate("cartId");
+        if (!updatedOrder) {
+            return new error_response_1.BadRequestError("Order not found").send(res);
+        }
         return new success_response_1.OK({
             message: "Order status updated successfully",
             metadata: updatedOrder,
@@ -122,13 +139,21 @@ exports.updateOrderStatus = updateOrderStatus;
 const updatePaymentStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
-        const { payed } = req.body;
-        yield order_model_1.default.updateOne({ _id: id }, { payed: payed });
+        const { typeOfPayment } = req.body;
+        const validPayments = ["cash", "card", "momo"];
+        if (typeOfPayment && !validPayments.includes(typeOfPayment)) {
+            return new error_response_1.BadRequestError("Invalid payment type").send(res);
+        }
+        yield order_model_1.default.updateOne({ _id: id }, { $set: { typeOfPayment } });
         const updatedOrder = yield order_model_1.default.findById(id)
             .populate("userId", "username email")
-            .populate("tableId", "tableNumber status");
+            .populate("tableId", "tableNumber status")
+            .populate("cartId");
+        if (!updatedOrder) {
+            return new error_response_1.BadRequestError("Order not found").send(res);
+        }
         return new success_response_1.OK({
-            message: "Payment status updated successfully",
+            message: "Payment updated successfully",
             metadata: updatedOrder,
         }).send(res);
     }

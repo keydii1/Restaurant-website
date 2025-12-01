@@ -9,7 +9,9 @@ export const getCart = async (req: Request, res: Response) => {
     const userId = accesstoken.id;
     const cart = await Cart.findOne({
       userId: userId,
-    }).populate("items.dishId", "name price image");
+    })
+      .populate("items.dishId", "name price image")
+      .populate("userId", "username email");
     if (!cart) {
       return new BadRequestError("Cart not found").send(res);
     }
