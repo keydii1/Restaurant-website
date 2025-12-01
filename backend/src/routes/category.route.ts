@@ -8,7 +8,7 @@ import multer from "multer";
 
 const upload = multer({ dest: "uploads/" });
 
-router.get("/", auth, controller.getCategories);
+router.get("/", controller.getCategories);
 router.post(
   "/create",
   upload.single("images"),
