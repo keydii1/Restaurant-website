@@ -43,10 +43,6 @@ tags:
     description: Quản lý blog
   - name: contacts
     description: Quản lý liên hệ
-  - name: roles
-    description: Quản lý vai trò
-  - name: payments
-    description: Quản lý thanh toán
 
 paths:
   # ===== USER ENDPOINTS =====
