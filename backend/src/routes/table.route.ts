@@ -20,7 +20,7 @@ router.post(
 router.delete("/delete/:id", authAdmin, controllers.deleteTable);
 router.patch(
   "/edit/:id",
-  authAdmin,
+  auth,
   tableValidate.tableNumberValid,
   tableValidate.tableNumberUnique,
   tableValidate.maximumCapacityValid,
@@ -29,7 +29,7 @@ router.patch(
   controllers.editTable
 );
 router.patch(
-  "/change-status/:id/:status",
+  "/change-status/:id",
   authAdmin,
   tableValidate.statusValid,
   controllers.changeTableStatus

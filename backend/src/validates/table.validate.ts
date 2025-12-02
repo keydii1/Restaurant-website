@@ -196,33 +196,3 @@ export const finishedTimeValid = (
   }
   next();
 };
-
-// optional: validate deleted flag if provided
-export const deletedValid = (req: Request, res: Response, next: Function) => {
-  if (req.body.deleted !== undefined) {
-    if (typeof req.body.deleted !== "boolean") {
-      return res.status(400).json({ message: "deleted must be a boolean" });
-    }
-  }
-  next();
-};
-
-// business rule: if status is 'occupied' require orderTime
-export const statusAndOrderTimeConsistency = (
-  req: Request,
-  res: Response,
-  next: Function
-) => {
-  if (req.body.status === "occupied") {
-    if (
-      req.body.orderTime === undefined ||
-      req.body.orderTime === null ||
-      req.body.orderTime === ""
-    ) {
-      return res
-        .status(400)
-        .json({ message: "orderTime is required when status is 'occupied'" });
-    }
-  }
-  next();
-};
