@@ -4,12 +4,6 @@ import * as paymentValidate from "../validates/payment.validate";
 
 const router = Router();
 import { auth, authAdmin } from "../auth/checkAuth.auth";
-router.post(
-  "/",
-  authAdmin,
-  paymentValidate.amountRequired,
-  paymentValidate.amountValid,
-  paymentValidate.orderIdRequired,
-  controller.createPayment
-);
+router.post("/", controller.createPayment);
+router.get("/result", controller.changePaymentStatus);
 export default router;

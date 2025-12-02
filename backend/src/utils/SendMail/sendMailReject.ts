@@ -242,7 +242,10 @@ export default async function sendMailReject(
             <div class="reason-box">
               <div class="reason-title">📌 Lý Do:</div>
               <div class="reason-text">
-                ${reason || 'Nhà hàng đã hết chỗ trống trong khung giờ Quý khách mong muốn. Chúng tôi nhận được rất nhiều yêu cầu đặt bàn và xin lỗi vì sự bất tiện này.'}
+                ${
+                  reason ||
+                  "Nhà hàng đã hết chỗ trống trong khung giờ Quý khách mong muốn. Chúng tôi nhận được rất nhiều yêu cầu đặt bàn và xin lỗi vì sự bất tiện này."
+                }
               </div>
             </div>
 

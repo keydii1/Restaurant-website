@@ -3,14 +3,29 @@ import sendMailThankYou from "../utils/SendMail/sendMailThankyou";
 import Order from "../models/order.model";
 export const createPayment = async (req: Request, res: Response) => {
   try {
+    const idOfOrder = req.body.id;
+    const email = req.body.email;
+    const InforOfOrder = await Order.findById(idOfOrder);
+    if (!InforOfOrder) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
     var accessKey = "F8BBA842ECF85";
     var secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
-    var orderInfo = "123456";
+    var orderInfo = InforOfOrder._id.toString();
     var partnerCode = "MOMO";
-    var redirectUrl = "http://localhost:3000/api/momo/result";
-    var ipnUrl = "http://localhost:3000/api/momo/result";
+    var redirectUrl =
+      "http://localhost:3000/restaurant/api/v1/payments/result?id=" +
+      InforOfOrder._id.toString() +
+      "&&email=" +
+      email.toString();
+    var ipnUrl =
+      "http://localhost:3000/restaurant/api/v1/payments/result?id=" +
+      InforOfOrder._id.toString() +
+      "&&email=" +
+      email.toString();
     var requestType = "payWithMethod";
-    var amount = 5000000;
+    var amount = InforOfOrder.totalPrice.toString();
     var orderId = partnerCode + new Date().getTime();
     var requestId = orderId;
     var extraData = "";
@@ -115,6 +130,26 @@ export const createPayment = async (req: Request, res: Response) => {
     console.log("Sending....");
     req2.write(requestBody);
     req2.end();
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+export const changePaymentStatus = async (req: Request, res: Response) => {
+  try {
+    const idOfOrder = req.query.id;
+    const email = req.query.email;
+    if (!idOfOrder) {
+      return res.status(400).json({ message: "Order ID is required" });
+    }
+    await Order.updateOne(
+      {
+        _id: idOfOrder,
+      },
+      {
+        status: "Confirmed",
+      }
+    );
+    await sendMailThankYou(email.toString());
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }

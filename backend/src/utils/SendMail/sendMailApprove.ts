@@ -214,20 +214,30 @@ export default async function sendMailApprove(
                 <div class="detail-label">📧 Email:</div>
                 <div class="detail-value">${email}</div>
               </div>
-              ${bookingDetails ? `
+              ${
+                bookingDetails
+                  ? `
               <div class="detail-row">
                 <div class="detail-label">📅 Ngày đặt:</div>
-                <div class="detail-value">${bookingDetails.date || 'Đang cập nhật'}</div>
+                <div class="detail-value">${
+                  bookingDetails.date || "Đang cập nhật"
+                }</div>
               </div>
               <div class="detail-row">
                 <div class="detail-label">🕐 Giờ đến:</div>
-                <div class="detail-value">${bookingDetails.time || 'Đang cập nhật'}</div>
+                <div class="detail-value">${
+                  bookingDetails.time || "Đang cập nhật"
+                }</div>
               </div>
               <div class="detail-row">
                 <div class="detail-label">👥 Số người:</div>
-                <div class="detail-value">${bookingDetails.guests || 'Đang cập nhật'} người</div>
+                <div class="detail-value">${
+                  bookingDetails.guests || "Đang cập nhật"
+                } người</div>
               </div>
-              ` : ''}
+              `
+                  : ""
+              }
             </div>
 
             <div class="info-box">
