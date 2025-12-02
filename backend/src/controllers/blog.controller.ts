@@ -27,6 +27,7 @@ export const create = async (req: Request, res: Response) => {
     return new BadRequestError().send(res);
   }
 };
+
 export const edit = async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
@@ -42,9 +43,11 @@ export const edit = async (req: Request, res: Response) => {
 export const DeleteBlog = async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
+    const deleteBlog = await Blog.findOne({ _id: id });
     await Blog.updateOne({ _id: id }, { deleted: true });
     return new OK({
       message: "Blog deleted successfully",
+      metadata: deleteBlog,
     }).send(res);
   } catch (error) {
     return new BadRequestError().send(res);

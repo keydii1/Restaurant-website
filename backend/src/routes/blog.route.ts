@@ -7,7 +7,7 @@ import * as controller from "../controllers/blog.controller";
 import { authAdmin, auth } from "../auth/checkAuth.auth";
 import * as blogValidate from "../validates/blog.validate";
 const router = Router();
-router.get("/", auth, controller.getBlogs);
+router.get("/", controller.getBlogs);
 router.post(
   "/create",
   authAdmin,
@@ -24,7 +24,9 @@ router.patch(
   authAdmin,
   upload.single("image"),
   uploadImage,
+  blogValidate.titleRequired,
   blogValidate.titleLength,
+  blogValidate.contentRequired,
   blogValidate.contentLength,
   controller.edit
 );
