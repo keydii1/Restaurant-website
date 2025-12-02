@@ -3,6 +3,8 @@ import Dish from "../models/dish.model";
 import dotenv from "dotenv";
 import paginationHelper from "../helpers/pagination.helper";
 dotenv.config();
+import { BadRequestError } from "../core/error.response";
+import { OK } from "../core/success.response";
 
 export const getDishes = async (req: Request, res: Response) => {
   try {
@@ -53,29 +55,36 @@ export const getDishes = async (req: Request, res: Response) => {
       .skip(objectPagination.skip)
       .limit(objectPagination.limit)
       .populate("categoryId", "name");
-    res.json({
+    return new OK({
       message: "Dishes fetched successfully",
-      data: {
+      metadata: {
         dishes: dishes,
         totalPages: objectPagination.totalPages,
         currentPage: objectPagination.currentPage,
       },
-    });
+    }).send(res);
   } catch (error) {
-    res.status(500).json({ message: "Internal server error", error });
+    return new BadRequestError().send(res);
   }
 };
 export const changeStatus = async (req: Request, res: Response) => {
   try {
     const dishId = req.params.id;
     const status = req.params.status;
+    if (status !== "active" && status !== "inactive") {
+      return new BadRequestError("Status must be either active or inactive");
+    }
+    const dish = await Dish.findById(dishId);
+    if (!dish) {
+      return new BadRequestError("Dish not found").send(res);
+    }
     await Dish.updateOne({ _id: dishId }, { status: status });
-    res.json({
+    return new OK({
       message: "Dish status updated successfully",
-      data: await Dish.findById(dishId).populate("categoryId", "name"),
-    });
+      metadata: await Dish.findById(dishId).populate("categoryId", "name"),
+    }).send(res);
   } catch (error) {
-    res.status(500).json({ message: "Internal server error", error });
+    return new BadRequestError().send(res);
   }
 };
 
@@ -83,54 +92,63 @@ export const changeMulti = async (req: Request, res: Response) => {
   try {
     const type = req.body.type;
     const ids = req.body.ids.split(",");
+    for (let i = 0; i < ids.length; i++) {
+      const dish = await Dish.findById(ids[i]);
+      if (!dish) {
+        return new BadRequestError(`Dish with ID ${ids[i]} not found`).send(
+          res
+        );
+      }
+    }
     switch (type) {
       case "delete":
         await Dish.updateMany({ _id: { $in: ids } }, { deleted: true });
-        res.json({
+        return new OK({
           message: "Dishes deleted successfully",
-          data: await Dish.find({ _id: { $in: ids } }).populate(
+          metadata: await Dish.find({ _id: { $in: ids } }).populate(
             "categoryId",
             "name"
           ),
-        });
+        }).send(res);
         break;
       case "active":
         await Dish.updateMany({ _id: { $in: ids } }, { status: "active" });
-        res.json({
+        return new OK({
           message: "Dishes activated successfully",
-          data: await Dish.find({ _id: { $in: ids } }).populate(
+          metadata: await Dish.find({ _id: { $in: ids } }).populate(
             "categoryId",
             "name"
           ),
-        });
+        }).send(res);
         break;
       case "inactive":
         await Dish.updateMany({ _id: { $in: ids } }, { status: "inactive" });
-        res.json({
+        return new OK({
           message: "Dishes deactivated successfully",
-          data: await Dish.find({ _id: { $in: ids } }).populate(
+          metadata: await Dish.find({ _id: { $in: ids } }).populate(
             "categoryId",
             "name"
           ),
-        });
+        }).send(res);
         break;
       default:
-        return res.status(400).json({ message: "Invalid type parameter" });
+        return new BadRequestError("Invalid type parameter").send(res);
     }
   } catch (error) {
-    res.status(500).json({ message: "Internal server error", error });
+    return new BadRequestError().send(res);
   }
 };
 export const deleteDish = async (req: Request, res: Response) => {
   try {
     const dishId = req.params.id;
     await Dish.updateOne({ _id: dishId }, { deleted: true });
-    res.json({
+
+    return new OK({
       message: "Dish deleted successfully",
-      data: await Dish.findById(dishId).populate("categoryId", "name"),
-    });
+      metadata: await Dish.findById(dishId).populate("categoryId", "name"),
+    }).send(res);
   } catch (error) {
-    res.status(500).json({ message: "Internal server error", error });
+    return new BadRequestError().send(res);
   }
 };
 export const create = async (req: Request, res: Response) => {
@@ -205,13 +223,16 @@ export const getDishDetail = async (req: Request, res: Response) => {
     const dishId = req.params.id;
     const dish = await Dish.findOne({ _id: dishId }).populate(
       "categoryId",
-      "name description"
+      "name description status image createdAt updatedAt"
     );
     if (!dish) {
-      return res.status(404).json({ message: "Dish not found" });
+      return new BadRequestError("Dish not found").send(res);
     }
-    res.json({ message: "Dish fetched successfully", data: dish });
+    return new OK({
+      message: "Dish fetched successfully",
+      metadata: dish,
+    }).send(res);
   } catch (error) {
-    res.status(500).json({ message: "Internal server error", error });
+    return new BadRequestError().send(res);
   }
 };

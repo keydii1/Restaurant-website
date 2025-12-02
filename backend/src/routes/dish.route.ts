@@ -36,11 +36,6 @@ router.post(
   dishValidate.descriptionValid,
   controller.create
 );
-
-router.get("/create", (req, res) => {
-  res.render("product/upload_test.pug");
-});
-
 router.patch(
   "/edit/:id",
   authAdmin,
