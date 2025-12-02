@@ -1,14 +1,6 @@
 import { verifyToken } from "../utils/auth/tokenServices";
-import modelUser from "../models/user.model";
+import User from "../models/user.model";
 import { Request, Response, NextFunction } from "express";
-const asyncHandler = (
-  fn: (req: Request, res: Response, next: NextFunction) => Promise<void>
-) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    fn(req, res, next).catch(next);
-  };
-};
-
 const auth = async (req: Request, res: Response, next: NextFunction) => {
   try {
     // Try to get token from Authorization header
@@ -40,30 +32,32 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
 const authAdmin = async (req: Request, res: Response, next: NextFunction) => {
   try {
     // Try to get token from cookies first
-    let token = req.cookies?.token;
-
-    if (!token) {
-      const authHeader = req.headers.authorization;
+    const authHeader = req.headers.authorization;
+    let token;
+    if (authHeader) {
       if (authHeader && authHeader.startsWith("Bearer ")) {
         token = authHeader.substring(7); // Remove "Bearer " prefix
       }
-    }
-
-    if (!token) {
+    } else {
       return res.status(401).json({
         code: 401,
-        message: "Bạn không có quyền truy cập",
+        message: "Vui lòng đăng nhập",
       });
     }
 
     const decoded = await verifyToken(token);
     const { id } = decoded;
-    const findUser = await modelUser.findById(id);
-
-    if (!findUser || findUser.isAdmin === false) {
+    const findUser = await User.findById(id);
+    if (!findUser) {
+      return res.status(404).json({
+        code: 404,
+        message: "User not found",
+      });
+    }
+    if (findUser.isAdmin === false) {
       return res.status(403).json({
         code: 403,
-        message: "Bạn không có quyền truy cập",
+        message: "Bạn không có quyền truy cập, Bạn không phải là admin",
       });
     }
 
@@ -78,4 +72,4 @@ const authAdmin = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export { asyncHandler, auth, authAdmin };
+export { auth, authAdmin };
