@@ -50,3 +50,14 @@ export const statusValid = (req: Request, res: Response, next: Function) => {
   }
   next();
 };
+export const emailValid = (req: Request, res: Response, next: Function) => {
+  const email = req.body.email;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (email && !emailRegex.test(email)) {
+    return res.status(400).json({
+      message:
+        "Invalid email format, please enter a email that have to match the format:  example@example.com",
+    });
+  }
+  next();
+};

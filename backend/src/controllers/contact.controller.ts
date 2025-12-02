@@ -14,6 +14,7 @@ export const getContacts = async (req: Request, res: Response) => {
     return new BadRequestError().send(res);
   }
 };
+
 export const create = async (req: Request, res: Response) => {
   try {
     const newContact = new Contact(req.body);
@@ -26,6 +27,7 @@ export const create = async (req: Request, res: Response) => {
     return new BadRequestError().send(res);
   }
 };
+
 export const edit = async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
@@ -38,29 +40,13 @@ export const edit = async (req: Request, res: Response) => {
     return new BadRequestError().send(res);
   }
 };
+
 export const deleteContact = async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
     await Contact.updateOne({ _id: id }, { deleted: true });
     return new OK({
       message: "Contact deleted successfully",
-    }).send(res);
-  } catch (error) {
-    return new BadRequestError().send(res);
-  }
-};
-
-export const deleteResolvedContacts = async (req: Request, res: Response) => {
-  try {
-    const resolvedContacts = await Contact.find({
-      status: "Resolved",
-      deleted: false,
-    });
-    const ids = resolvedContacts.map((contact) => contact._id);
-    await Contact.updateMany({ _id: { $in: ids } }, { deleted: true });
-    return new OK({
-      message: "Resolved contacts deleted successfully",
-      metadata: { count: ids.length },
     }).send(res);
   } catch (error) {
     return new BadRequestError().send(res);
