@@ -31,5 +31,11 @@ router.patch(
 );
 router.delete("/delete/:id", authAdmin, controller.Delete);
 router.patch("/change-multi", authAdmin, controller.changeMulti);
-router.patch("/change-status/:id/:status", authAdmin, controller.changeStatus);
+router.patch(
+  "/change-status/:id/:status",
+  authAdmin,
+  categoryValidate.statusValid,
+  controller.changeStatus
+);
+
 export default router;
