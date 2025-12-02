@@ -3,7 +3,8 @@ import * as controllers from "../controllers/discount.controller";
 import * as discountValidate from "../validates/discount.validate";
 const router = Router();
 import { auth, authAdmin } from "../auth/checkAuth.auth";
-router.get("/", auth, controllers.getAllDiscounts);
+router.get("/", auth, controllers.getCurrentDiscounts);
+router.get("/all", authAdmin, controllers.getAllDiscounts);
 router.post(
   "/create",
   authAdmin,

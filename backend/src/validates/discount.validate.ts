@@ -25,7 +25,7 @@ export const codeUnique = async (
   const code = req.body.code;
   if (code) {
     const existingDiscount = await Discount.findOne({ code: code });
-    if (existingDiscount && existingDiscount._id.toString() !== req.params.id) {
+    if (existingDiscount) {
       return res.status(400).json({ message: "Discount code already exists" });
     }
   }
@@ -71,19 +71,21 @@ export const dateRequired = (req: Request, res: Response, next: Function) => {
 };
 
 export const dateValid = (req: Request, res: Response, next: Function) => {
-  const validFrom = new Date(req.body.validFrom);
-  const validTo = new Date(req.body.validTo);
+  if (req.body.validFrom && req.body.validTo) {
+    const validFrom = new Date(req.body.validFrom);
+    const validTo = new Date(req.body.validTo);
 
-  if (isNaN(validFrom.getTime())) {
-    return res.status(400).json({ message: "Invalid validFrom date format" });
-  }
-  if (isNaN(validTo.getTime())) {
-    return res.status(400).json({ message: "Invalid validTo date format" });
-  }
-  if (validFrom >= validTo) {
-    return res
-      .status(400)
-      .json({ message: "Valid from date must be before valid to date" });
+    if (isNaN(validFrom.getTime())) {
+      return res.status(400).json({ message: "Invalid validFrom date format" });
+    }
+    if (isNaN(validTo.getTime())) {
+      return res.status(400).json({ message: "Invalid validTo date format" });
+    }
+    if (validFrom >= validTo) {
+      return res
+        .status(400)
+        .json({ message: "Valid from date must be before valid to date" });
+    }
   }
   next();
 };
