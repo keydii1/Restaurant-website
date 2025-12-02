@@ -36,17 +36,20 @@ export const addToCart = async (req: Request, res: Response) => {
     if (!dish) {
       return new BadRequestError("Dish not found").send(res);
     }
-    const totalPrice = dish.price * quantity;
+    const totalPriceOfCurrentItem = dish.price * quantity;
     if (!cart) {
       cart = new Cart({
         userId: userId,
         items: [{ dishId, quantity }],
-        totalPrice: totalPrice,
+        totalPrice: totalPriceOfCurrentItem,
       });
       await cart.save();
+      const information = await Cart.findOne({ userId: userId })
+        .populate("items.dishId", "name price image")
+        .populate("userId", "username email");
       return new OK({
         message: "Cart created and item added successfully",
-        metadata: cart,
+        metadata: information,
       }).send(res);
     } else {
       const existingItem = cart.items.find(
@@ -54,25 +57,32 @@ export const addToCart = async (req: Request, res: Response) => {
       );
       if (existingItem) {
         existingItem.quantity += quantity;
-        cart.totalPrice += totalPrice;
+        cart.totalPrice += totalPriceOfCurrentItem;
         await cart.save();
+        const information = await Cart.findOne({ userId: userId })
+          .populate("items.dishId", "name price image")
+          .populate("userId", "username email");
         return new OK({
           message: "Cart updated successfully",
-          metadata: cart,
+          metadata: information,
         }).send(res);
       }
       cart.items.push({ dishId, quantity });
-      cart.totalPrice += totalPrice;
+      cart.totalPrice += totalPriceOfCurrentItem;
       await cart.save();
+      const information = await Cart.findOne({ userId: userId })
+        .populate("items.dishId", "name price image")
+        .populate("userId", "username email");
       return new OK({
         message: "Cart updated successfully",
-        metadata: cart,
+        metadata: information,
       }).send(res);
     }
   } catch (error) {
     return new BadRequestError(`Error adding to cart ${error}`).send(res);
   }
 };
+
 export const clearCart = async (req: Request, res: Response) => {
   try {
     const accesstoken = (req as any).accessToken;
@@ -85,8 +95,10 @@ export const clearCart = async (req: Request, res: Response) => {
     return new BadRequestError("Error clearing cart").send(res);
   }
 };
+
 export const changeOneItemFromCart = async (req: Request, res: Response) => {
   try {
+    req.body.quantity = Number(req.body.quantity);
     const accesstoken = (req as any).accessToken;
     const userId = accesstoken.id;
     const { dishId, quantity } = req.body;
@@ -95,41 +107,59 @@ export const changeOneItemFromCart = async (req: Request, res: Response) => {
     if (!cart) {
       return res.status(404).json({ message: "You do not have a cart" });
     }
-
     const dish = await Dish.findById(dishId).select("price");
     if (!dish) {
       return res.status(404).json({ message: "Dish not found" });
     }
-
-    // Tìm item
-    const item = cart.items.find((i) => i.dishId.toString() === dishId);
-    if (!item) {
-      return new BadRequestError("Item not found in cart").send(res);
+    const existingItem = cart.items.find(
+      (item) => item.dishId.toString() === dishId
+    );
+    if (!existingItem) {
+      return res.status(404).json({ message: "Item not found in your cart" });
     }
-
-    // Kiểm tra số lượng
-    if (item.quantity < quantity) {
-      return new BadRequestError(
-        "Item quantity in cart is less than quantity to delete"
-      ).send(res);
-    }
-
-    // Cập nhật số lượng còn lại
-    item.quantity -= quantity;
-    cart.totalPrice -= dish.price * quantity;
-
-    // Nếu hết thì xoá item khỏi array
-    if (item.quantity === 0) {
-      cart.items = cart.items.filter((i) => i.dishId.toString() !== dishId);
-    }
-
+    const oldTotalPriceOfItem = dish.price * existingItem.quantity;
+    existingItem.quantity = quantity;
+    const newTotalPriceOfItem = dish.price * quantity;
+    cart.totalPrice =
+      cart.totalPrice - oldTotalPriceOfItem + newTotalPriceOfItem;
     await cart.save();
-
+    const information = await Cart.findOne({ userId })
+      .populate("items.dishId", "name price image")
+      .populate("userId", "username email");
     return new OK({
-      message: "Item deleted from cart successfully",
-      metadata: cart,
+      message: "Item quantity updated successfully",
+      metadata: information,
     }).send(res);
   } catch (error) {
-    return new BadRequestError("Error deleting item from cart").send(res);
+    return new BadRequestError("Error updating item quantity").send(res);
+  }
+};
+
+export const removeOneItemFromCart = async (req: Request, res: Response) => {
+  try {
+    const accesstoken = (req as any).accessToken;
+    const userId = accesstoken.id;
+    const dishId = req.body.dishId;
+    const cart = await Cart.findOne({ userId });
+    if (!cart) {
+      return res.status(404).json({ message: "You do not have a cart" });
+    }
+    const itemPrice = await Dish.findById(dishId).select("price");
+    const quantityItem = cart.items.find(
+      (item) => item.dishId.toString() === dishId
+    ).quantity;
+    const finalPrice = itemPrice.price * quantityItem;
+    cart.totalPrice -= finalPrice;
+    cart.items = cart.items.filter((i) => i.dishId.toString() !== dishId);
+    await cart.save();
+    const infomation = await Cart.findOne({ userId })
+      .populate("items.dishId", "name price image")
+      .populate("userId", "username email");
+    return new OK({
+      message: "Item removed from cart successfully",
+      metadata: infomation,
+    }).send(res);
+  } catch (error) {
+    return new BadRequestError("Error removing item from cart").send(res);
   }
 };
