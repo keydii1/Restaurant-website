@@ -38,7 +38,6 @@ export const register = async (req: Request, res: Response) => {
 
     await newUser.save();
 
-    // Create API key for JWT
     await createApiKey(newUser._id.toString());
 
     return new OK({
@@ -281,92 +280,60 @@ export const googleAuthCallback = async (req: Request, res: Response) => {
     const code = req.query.code as string;
     if (!code) {
       console.log("No code provided");
-      return res.redirect("/?error=no_code");
+      return res.redirect("/");
     }
-
     const oauth2Client = new google.auth.OAuth2(
       process.env.GOOGLE_CLIENT_ID,
       process.env.GOOGLE_CLIENT_SECRET,
       process.env.GOOGLE_REDIRECT_URI
+      // Callback URL after user grants permission
     );
 
     try {
       // Exchange authorization code for access token
       const { tokens } = await oauth2Client.getToken(code);
       oauth2Client.setCredentials(tokens);
-
-      // Get user info from Google
+      console.log(tokens.access_token);
+      console.log(tokens.refresh_token);
+      console.log(tokens.expiry_date);
+      // Get user info from Google OAuth2 userinfo endpoint
       const oauth2 = google.oauth2({ version: "v2", auth: oauth2Client });
       const userinfo = await oauth2.userinfo.get();
 
-      // Check if user exists
-      let user = await User.findOne({
-        $or: [{ googleId: userinfo.data.id }, { email: userinfo.data.email }],
+      // Store only refresh token in session (more secure)
+      // Access token will be refreshed when needed using refresh token
+      const user = await User.findOne({
+        googleId: userinfo.data.id,
       });
-
+      if (user) {
+        return new BadRequestError("User already exists").send(res);
+      }
       if (!user) {
-        // Create new user if not exists
-        user = new User({
+        // If user does not exist, create a new user
+        const newUser = new User({
           username: userinfo.data.name,
           email: userinfo.data.email,
-          password: "", // No password for Google users
+          password: "", // No password for Google-authenticated users
           googleId: userinfo.data.id,
           loginMethod: "google",
           isAdmin: false,
-          avatar: userinfo.data.picture || "",
-          refreshToken: tokens.refresh_token || "", // Google refresh token (only first time)
+          avatar: userinfo.data.picture || "", // Get avatar from Google
+          refreshToken: tokens.refresh_token,
         });
-        await user.save();
-
-        // Create API key for JWT
-        await createApiKey(user._id.toString());
-
-        console.log("New Google user created:", user.email);
+        await newUser.save();
+        console.log("New user created:", newUser.email);
       } else {
-        // Update existing user with Google info if needed
-        if (!user.googleId) {
-          user.googleId = userinfo.data.id;
-        }
-        if (!user.avatar && userinfo.data.picture) {
-          user.avatar = userinfo.data.picture;
-        }
-        // Only update Google refresh token if a new one is provided
-        if (tokens.refresh_token) {
-          user.refreshToken = tokens.refresh_token;
-        }
-        await user.save();
-
-        console.log("Existing user logged in via Google:", user.email);
+        console.log("Existing user logged in:", user.email);
       }
 
-      // Generate YOUR system's JWT tokens (not Google's tokens!)
-      const payload = {
-        id: user._id,
-        email: user.email,
-        username: user.username,
-        isAdmin: user.isAdmin,
-      };
-
-      const accessToken = await createAccessToken(payload);
-      const systemRefreshToken = await createRefreshToken(payload);
-
-      // Set YOUR system's refresh token in HttpOnly cookie
-      res.cookie("refreshToken", systemRefreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      });
-
-      // Redirect to frontend with access token in query (or use a better method)
-      // Frontend should store this in memory or localStorage
-      return res.redirect(`/profile?accessToken=${accessToken}`);
+      console.log("User logged in:", userinfo.data.email);
+      return res.redirect("/profile");
     } catch (err) {
-      console.error("Google OAuth error:", err);
-      return res.redirect("/?error=auth_failed");
+      return res.status(500).send("Authentication error");
     }
   } catch (error) {
-    console.error("Callback error:", error);
-    return res.redirect("/?error=server_error");
+    return new BadRequestError(
+      (error as any).message || "Internal server error"
+    ).send(res);
   }
 };

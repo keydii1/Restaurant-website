@@ -156,12 +156,12 @@ export const createPayment = async (req: Request, res: Response) => {
     var orderInfo = InforOfOrder._id.toString();
     var partnerCode = "MOMO";
     var redirectUrl =
-      "http://localhost:3000/restaurant/api/v1/payments/result?id=" +
+      "http://localhost:3000/restaurant/api/v1/orders/result?id=" +
       InforOfOrder._id.toString() +
       "&&email=" +
       email.toString();
     var ipnUrl =
-      "http://localhost:3000/restaurant/api/v1/payments/result?id=" +
+      "http://localhost:3000/restaurant/api/v1/orders/result?id=" +
       InforOfOrder._id.toString() +
       "&&email=" +
       email.toString();
@@ -275,12 +275,13 @@ export const createPayment = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-export const changePaymentStatus = async (req: Request, res: Response) => {
+export const successfulPayment = async (req: Request, res: Response) => {
   try {
     const idOfOrder = req.query.id;
     const email = req.query.email;
-    if (!idOfOrder) {
-      return res.status(400).json({ message: "Order ID is required" });
+    const InforOfOrder = await Order.findById(idOfOrder);
+    if (!InforOfOrder) {
+      return res.status(404).json({ message: "Order not found" });
     }
     await Order.updateOne(
       {
