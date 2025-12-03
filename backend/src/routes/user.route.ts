@@ -2,33 +2,32 @@ import { Router } from "express";
 import * as controller from "../controllers/user.controller";
 import * as userValidate from "../validates/user.validate";
 const router = Router();
-import {
-  validateEmail,
-  validatePassword,
-} from "../validates/EmailAndPassword.validate";
 import { authAdmin } from "../auth/checkAuth.auth";
+import { uploadImage } from "../middlewares/uploadCloud.middleware";
+import multer from "multer";
+const upload = multer({ dest: "uploads/" });
 router.get("/", authAdmin, controller.getUsers);
 router.post(
   "/register",
+  upload.single("avatar"),
+  uploadImage,
   userValidate.usernameNotEmpty,
-  validateEmail,
   userValidate.emailValid,
   userValidate.emailExistCheck,
-  validatePassword,
+  userValidate.usernameExistCheck,
+  userValidate.phoneExistCheck,
   userValidate.passwordRequirements,
   controller.register
 );
-router.post("/login", validateEmail, userValidate.emailValid, controller.login);
+router.post("/login", userValidate.emailValid, controller.login);
 router.post(
   "/forgot-password",
-  validateEmail,
   userValidate.emailValid,
   controller.forgotPassword
 );
 router.post("/verify-otp", controller.verifyOtp);
 router.patch(
   "/reset-password",
-  validatePassword,
   userValidate.passwordRequirements,
   controller.resetPassword
 );

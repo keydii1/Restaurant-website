@@ -12,70 +12,45 @@ import {
   refreshAccessToken,
   createRefreshToken,
   createApiKey,
-  verifyToken,
 } from "../utils/auth/tokenServices";
 
 export const getUsers = async (req: Request, res: Response) => {
   try {
     const users = await User.find();
-    res.json({
-      code: 200,
+    return new OK({
       message: "Success",
-      data: users,
-    });
+      metadata: users,
+    }).send(res);
   } catch (error) {
-    res.status(500).json({
-      code: 500,
-      message: "Internal server error",
-      error: error,
-    });
+    return new BadRequestError().send(res);
   }
 };
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { username, email, password } = req.body;
-
     // Check if user already exists
-    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
-    if (existingUser) {
-      return res.status(400).json({
-        code: 400,
-        message: "User already exists",
-      });
-    }
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    req.body.password = await bcrypt.hash(req.body.password, 10);
 
     // Create new user
-    const newUser = new User({
-      username,
-      email,
-      password: hashedPassword,
-      isAdmin: false,
-    });
+    const newUser = new User(req.body);
 
     await newUser.save();
 
     // Create API key for JWT
     await createApiKey(newUser._id.toString());
 
-    res.status(201).json({
-      code: 201,
+    return new OK({
       message: "User registered successfully",
-      data: {
+      metadata: {
         id: newUser._id,
         username: newUser.username,
         email: newUser.email,
       },
-    });
+    }).send(res);
   } catch (error) {
-    res.status(500).json({
-      code: 500,
-      message: "Internal server error",
-      error: (error as any).message,
-    });
+    return new BadRequestError().send(res);
   }
 };
 
@@ -84,21 +59,15 @@ export const login = async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
     // Find user by email
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: email });
     if (!user) {
-      return res.status(401).json({
-        code: 401,
-        message: "Email or password is incorrect",
-      });
+      return new BadRequestError("Email does not exist").send(res);
     }
 
     // Compare password
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!isPasswordCorrect) {
-      return res.status(401).json({
-        code: 401,
-        message: "Email or password is incorrect",
-      });
+      return new BadRequestError("Password is incorrect").send(res);
     }
 
     // Generate tokens
@@ -120,10 +89,9 @@ export const login = async (req: Request, res: Response) => {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    res.json({
-      code: 200,
+    return new OK({
       message: "Login successful",
-      data: {
+      metadata: {
         accessToken: accessToken,
         user: {
           id: user._id,
@@ -132,13 +100,9 @@ export const login = async (req: Request, res: Response) => {
           isAdmin: user.isAdmin,
         },
       },
-    });
+    }).send(res);
   } catch (error) {
-    res.status(500).json({
-      code: 500,
-      message: "Internal server error",
-      error: (error as any).message,
-    });
+    return new BadRequestError().send(res);
   }
 };
 
@@ -149,10 +113,9 @@ export const forgotPassword = async (req: Request, res: Response) => {
     // Check if user exists
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json({
-        code: 404,
-        message: "User with this email does not exist",
-      });
+      return new BadRequestError("User with this email does not exist").send(
+        res
+      );
     }
 
     // Generate OTP
@@ -167,21 +130,15 @@ export const forgotPassword = async (req: Request, res: Response) => {
     });
     await otpEntry.save();
     //sent OTP to user's email (omitted for brevity)
-    const subject = "Password Reset OTP";
-    const text = `Your OTP for password reset is: ${otpCode}. It is valid for 5 minutes.`;
+
     await SendMailForgotPassword(email, otpCode);
 
-    res.json({
-      code: 200,
+    return new OK({
       message: "OTP sent to email successfully",
-    });
+    }).send(res);
     // after that, page will redirect to reset password page
   } catch (error) {
-    res.status(500).json({
-      code: 500,
-      message: "Internal server error",
-      error: (error as any).message,
-    });
+    return new BadRequestError().send(res);
   }
 };
 export const verifyOtp = async (req: Request, res: Response) => {
@@ -191,44 +148,32 @@ export const verifyOtp = async (req: Request, res: Response) => {
     // Find user by email
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json({
-        code: 404,
-        message: "User with this email does not exist",
-      });
+      return new BadRequestError("User with this email does not exist").send(
+        res
+      );
     }
 
     // Find OTP entry
     const otpEntry = await OTP.findOne({ userId: user._id, code: otp });
     if (!otpEntry) {
-      return res.status(400).json({
-        code: 400,
-        message: "Invalid OTP",
-      });
+      return new BadRequestError("Invalid OTP").send(res);
     }
 
     // Check if OTP is expired
     if (otpEntry.expiresAt < new Date()) {
       // Delete expired OTP
       await OTP.deleteOne({ _id: otpEntry._id });
-      return res.status(400).json({
-        code: 400,
-        message: "OTP has expired",
-      });
+      return new BadRequestError("OTP has expired").send(res);
     }
 
     // Mark OTP as used and delete it immediately after verification
     await OTP.deleteOne({ _id: otpEntry._id });
 
-    res.json({
-      code: 200,
+    return new OK({
       message: "OTP verified successfully",
-    });
+    }).send(res);
   } catch (error) {
-    res.status(500).json({
-      code: 500,
-      message: "Internal server error",
-      error: (error as any).message,
-    });
+    return new BadRequestError().send(res);
   }
 };
 export const resetPassword = async (req: Request, res: Response) => {
@@ -240,29 +185,22 @@ export const resetPassword = async (req: Request, res: Response) => {
     // Find user by email
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json({
-        code: 404,
-        message: "User with this email does not exist",
-      });
+      return new BadRequestError("User with this email does not exist").send(
+        res
+      );
     }
 
     // Find OTP entry
     const otpEntry = await OTP.findOne({ userId: user._id, code: otp });
     if (!otpEntry) {
-      return res.status(400).json({
-        code: 400,
-        message: "Invalid OTP",
-      });
+      return new BadRequestError("Invalid OTP").send(res);
     }
 
     // Check if OTP is expired
     if (otpEntry.expiresAt < new Date()) {
       // Delete expired OTP
       await OTP.deleteOne({ _id: otpEntry._id });
-      return res.status(400).json({
-        code: 400,
-        message: "OTP has expired",
-      });
+      return new BadRequestError("OTP has expired").send(res);
     }
 
     // Hash new password
@@ -275,16 +213,11 @@ export const resetPassword = async (req: Request, res: Response) => {
     // Delete OTP entry after successful password reset
     await OTP.deleteOne({ _id: otpEntry._id });
 
-    res.json({
-      code: 200,
+    return new OK({
       message: "Password reset successfully",
-    });
+    }).send(res);
   } catch (error) {
-    res.status(500).json({
-      code: 500,
-      message: "Internal server error",
-      error: (error as any).message,
-    });
+    return new BadRequestError().send(res);
   }
 };
 export const logout = async (req: Request, res: Response) => {
@@ -348,59 +281,92 @@ export const googleAuthCallback = async (req: Request, res: Response) => {
     const code = req.query.code as string;
     if (!code) {
       console.log("No code provided");
-      return res.redirect("/");
+      return res.redirect("/?error=no_code");
     }
+
     const oauth2Client = new google.auth.OAuth2(
       process.env.GOOGLE_CLIENT_ID,
       process.env.GOOGLE_CLIENT_SECRET,
       process.env.GOOGLE_REDIRECT_URI
-      // Callback URL after user grants permission
     );
 
     try {
       // Exchange authorization code for access token
       const { tokens } = await oauth2Client.getToken(code);
       oauth2Client.setCredentials(tokens);
-      console.log(tokens.access_token);
-      console.log(tokens.refresh_token);
-      console.log(tokens.expiry_date);
-      // Get user info from Google OAuth2 userinfo endpoint
+
+      // Get user info from Google
       const oauth2 = google.oauth2({ version: "v2", auth: oauth2Client });
       const userinfo = await oauth2.userinfo.get();
 
-      // Store only refresh token in session (more secure)
-      // Access token will be refreshed when needed using refresh token
-      const user = await User.findOne({
-        googleId: userinfo.data.id,
+      // Check if user exists
+      let user = await User.findOne({
+        $or: [{ googleId: userinfo.data.id }, { email: userinfo.data.email }],
       });
-      if (user) {
-        return new BadRequestError("User already exists").send(res);
-      }
+
       if (!user) {
-        // If user does not exist, create a new user
-        const newUser = new User({
+        // Create new user if not exists
+        user = new User({
           username: userinfo.data.name,
           email: userinfo.data.email,
-          password: "", // No password for Google-authenticated users
+          password: "", // No password for Google users
           googleId: userinfo.data.id,
           loginMethod: "google",
           isAdmin: false,
-          refreshToken: tokens.refresh_token,
+          avatar: userinfo.data.picture || "",
+          refreshToken: tokens.refresh_token || "", // Google refresh token (only first time)
         });
-        await newUser.save();
-        console.log("New user created:", newUser.email);
+        await user.save();
+
+        // Create API key for JWT
+        await createApiKey(user._id.toString());
+
+        console.log("New Google user created:", user.email);
       } else {
-        console.log("Existing user logged in:", user.email);
+        // Update existing user with Google info if needed
+        if (!user.googleId) {
+          user.googleId = userinfo.data.id;
+        }
+        if (!user.avatar && userinfo.data.picture) {
+          user.avatar = userinfo.data.picture;
+        }
+        // Only update Google refresh token if a new one is provided
+        if (tokens.refresh_token) {
+          user.refreshToken = tokens.refresh_token;
+        }
+        await user.save();
+
+        console.log("Existing user logged in via Google:", user.email);
       }
 
-      console.log("User logged in:", userinfo.data.email);
-      return res.redirect("/profile");
+      // Generate YOUR system's JWT tokens (not Google's tokens!)
+      const payload = {
+        id: user._id,
+        email: user.email,
+        username: user.username,
+        isAdmin: user.isAdmin,
+      };
+
+      const accessToken = await createAccessToken(payload);
+      const systemRefreshToken = await createRefreshToken(payload);
+
+      // Set YOUR system's refresh token in HttpOnly cookie
+      res.cookie("refreshToken", systemRefreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+
+      // Redirect to frontend with access token in query (or use a better method)
+      // Frontend should store this in memory or localStorage
+      return res.redirect(`/profile?accessToken=${accessToken}`);
     } catch (err) {
-      return res.status(500).send("Authentication error");
+      console.error("Google OAuth error:", err);
+      return res.redirect("/?error=auth_failed");
     }
   } catch (error) {
-    return new BadRequestError(
-      (error as any).message || "Internal server error"
-    ).send(res);
+    console.error("Callback error:", error);
+    return res.redirect("/?error=server_error");
   }
 };
