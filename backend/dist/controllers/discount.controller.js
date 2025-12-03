@@ -12,11 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.editDiscount = exports.deleteDiscount = exports.createDiscount = exports.getAllDiscounts = void 0;
+exports.editDiscount = exports.deleteDiscount = exports.createDiscount = exports.getAllDiscounts = exports.getCurrentDiscounts = void 0;
 const discount_model_1 = __importDefault(require("../models/discount.model"));
 const success_response_1 = require("../core/success.response");
 const error_response_1 = require("../core/error.response");
-const getAllDiscounts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getCurrentDiscounts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const discounts = yield discount_model_1.default.find({
             deleted: false,
@@ -28,6 +28,19 @@ const getAllDiscounts = (req, res) => __awaiter(void 0, void 0, void 0, function
     }
     catch (error) {
         return new error_response_1.BadRequestError("Error fetching discounts").send(res);
+    }
+});
+exports.getCurrentDiscounts = getCurrentDiscounts;
+const getAllDiscounts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const discounts = yield discount_model_1.default.find();
+        return new success_response_1.OK({
+            message: "All discounts fetched successfully",
+            metadata: discounts,
+        }).send(res);
+    }
+    catch (error) {
+        return new error_response_1.BadRequestError("Error fetching all discounts").send(res);
     }
 });
 exports.getAllDiscounts = getAllDiscounts;
@@ -51,6 +64,7 @@ const deleteDiscount = (req, res) => __awaiter(void 0, void 0, void 0, function*
         yield discount_model_1.default.updateOne({ _id: id }, { deleted: true });
         return new success_response_1.OK({
             message: "Discount deleted successfully",
+            metadata: yield discount_model_1.default.findById(id),
         }).send(res);
     }
     catch (error) {

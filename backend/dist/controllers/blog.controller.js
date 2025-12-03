@@ -60,9 +60,11 @@ exports.edit = edit;
 const DeleteBlog = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const id = req.params.id;
+        const deleteBlog = yield blog_model_1.default.findOne({ _id: id });
         yield blog_model_1.default.updateOne({ _id: id }, { deleted: true });
         return new success_response_1.OK({
             message: "Blog deleted successfully",
+            metadata: deleteBlog,
         }).send(res);
     }
     catch (error) {

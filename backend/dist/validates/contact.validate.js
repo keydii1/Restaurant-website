@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.statusValid = exports.messageLength = exports.messageRequired = exports.nameLength = exports.nameRequired = void 0;
+exports.emailValid = exports.statusValid = exports.messageLength = exports.messageRequired = exports.nameLength = exports.nameRequired = void 0;
 const nameRequired = (req, res, next) => {
     if (!req.body.name || req.body.name.trim() === "") {
         return res.status(400).json({ message: "Name is required" });
@@ -48,3 +48,14 @@ const statusValid = (req, res, next) => {
     next();
 };
 exports.statusValid = statusValid;
+const emailValid = (req, res, next) => {
+    const email = req.body.email;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (email && !emailRegex.test(email)) {
+        return res.status(400).json({
+            message: "Invalid email format, please enter a email that have to match the format:  example@example.com",
+        });
+    }
+    next();
+};
+exports.emailValid = emailValid;

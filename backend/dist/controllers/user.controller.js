@@ -58,75 +58,46 @@ const tokenServices_1 = require("../utils/auth/tokenServices");
 const getUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const users = yield user_model_1.default.find();
-        res.json({
-            code: 200,
+        return new success_response_1.OK({
             message: "Success",
-            data: users,
-        });
+            metadata: users,
+        }).send(res);
     }
     catch (error) {
-        res.status(500).json({
-            code: 500,
-            message: "Internal server error",
-            error: error,
-        });
+        return new error_response_1.BadRequestError().send(res);
     }
 });
 exports.getUsers = getUsers;
 const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { username, email, password } = req.body;
-        const existingUser = yield user_model_1.default.findOne({ $or: [{ email }, { username }] });
-        if (existingUser) {
-            return res.status(400).json({
-                code: 400,
-                message: "User already exists",
-            });
-        }
-        const hashedPassword = yield bcrypt_1.default.hash(password, 10);
-        const newUser = new user_model_1.default({
-            username,
-            email,
-            password: hashedPassword,
-            isAdmin: false,
-        });
+        req.body.password = yield bcrypt_1.default.hash(req.body.password, 10);
+        const newUser = new user_model_1.default(req.body);
         yield newUser.save();
         yield (0, tokenServices_1.createApiKey)(newUser._id.toString());
-        res.status(201).json({
-            code: 201,
+        return new success_response_1.OK({
             message: "User registered successfully",
-            data: {
+            metadata: {
                 id: newUser._id,
                 username: newUser.username,
                 email: newUser.email,
             },
-        });
+        }).send(res);
     }
     catch (error) {
-        res.status(500).json({
-            code: 500,
-            message: "Internal server error",
-            error: error.message,
-        });
+        return new error_response_1.BadRequestError().send(res);
     }
 });
 exports.register = register;
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { email, password } = req.body;
-        const user = yield user_model_1.default.findOne({ email });
+        const user = yield user_model_1.default.findOne({ email: email });
         if (!user) {
-            return res.status(401).json({
-                code: 401,
-                message: "Email or password is incorrect",
-            });
+            return new error_response_1.BadRequestError("Email does not exist").send(res);
         }
         const isPasswordCorrect = yield bcrypt_1.default.compare(password, user.password);
         if (!isPasswordCorrect) {
-            return res.status(401).json({
-                code: 401,
-                message: "Email or password is incorrect",
-            });
+            return new error_response_1.BadRequestError("Password is incorrect").send(res);
         }
         const payload = {
             id: user._id,
@@ -142,10 +113,9 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             sameSite: "strict",
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
-        res.json({
-            code: 200,
+        return new success_response_1.OK({
             message: "Login successful",
-            data: {
+            metadata: {
                 accessToken: accessToken,
                 user: {
                     id: user._id,
@@ -154,14 +124,10 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                     isAdmin: user.isAdmin,
                 },
             },
-        });
+        }).send(res);
     }
     catch (error) {
-        res.status(500).json({
-            code: 500,
-            message: "Internal server error",
-            error: error.message,
-        });
+        return new error_response_1.BadRequestError().send(res);
     }
 });
 exports.login = login;
@@ -170,10 +136,7 @@ const forgotPassword = (req, res) => __awaiter(void 0, void 0, void 0, function*
         const email = req.body.email;
         const user = yield user_model_1.default.findOne({ email });
         if (!user) {
-            return res.status(404).json({
-                code: 404,
-                message: "User with this email does not exist",
-            });
+            return new error_response_1.BadRequestError("User with this email does not exist").send(res);
         }
         const otpCode = GenerateHelper.generateOTP();
         const otpEntry = new otp_model_1.default({
@@ -183,20 +146,13 @@ const forgotPassword = (req, res) => __awaiter(void 0, void 0, void 0, function*
             expiresAt: new Date(Date.now() + 5 * 60 * 1000),
         });
         yield otpEntry.save();
-        const subject = "Password Reset OTP";
-        const text = `Your OTP for password reset is: ${otpCode}. It is valid for 5 minutes.`;
         yield (0, sendMailForgotPasswords_1.default)(email, otpCode);
-        res.json({
-            code: 200,
+        return new success_response_1.OK({
             message: "OTP sent to email successfully",
-        });
+        }).send(res);
     }
     catch (error) {
-        res.status(500).json({
-            code: 500,
-            message: "Internal server error",
-            error: error.message,
-        });
+        return new error_response_1.BadRequestError().send(res);
     }
 });
 exports.forgotPassword = forgotPassword;
@@ -205,37 +161,23 @@ const verifyOtp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { email, otp } = req.body;
         const user = yield user_model_1.default.findOne({ email });
         if (!user) {
-            return res.status(404).json({
-                code: 404,
-                message: "User with this email does not exist",
-            });
+            return new error_response_1.BadRequestError("User with this email does not exist").send(res);
         }
         const otpEntry = yield otp_model_1.default.findOne({ userId: user._id, code: otp });
         if (!otpEntry) {
-            return res.status(400).json({
-                code: 400,
-                message: "Invalid OTP",
-            });
+            return new error_response_1.BadRequestError("Invalid OTP").send(res);
         }
         if (otpEntry.expiresAt < new Date()) {
             yield otp_model_1.default.deleteOne({ _id: otpEntry._id });
-            return res.status(400).json({
-                code: 400,
-                message: "OTP has expired",
-            });
+            return new error_response_1.BadRequestError("OTP has expired").send(res);
         }
         yield otp_model_1.default.deleteOne({ _id: otpEntry._id });
-        res.json({
-            code: 200,
+        return new success_response_1.OK({
             message: "OTP verified successfully",
-        });
+        }).send(res);
     }
     catch (error) {
-        res.status(500).json({
-            code: 500,
-            message: "Internal server error",
-            error: error.message,
-        });
+        return new error_response_1.BadRequestError().send(res);
     }
 });
 exports.verifyOtp = verifyOtp;
@@ -246,40 +188,26 @@ const resetPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         const newPassword = req.body.newPassword;
         const user = yield user_model_1.default.findOne({ email });
         if (!user) {
-            return res.status(404).json({
-                code: 404,
-                message: "User with this email does not exist",
-            });
+            return new error_response_1.BadRequestError("User with this email does not exist").send(res);
         }
         const otpEntry = yield otp_model_1.default.findOne({ userId: user._id, code: otp });
         if (!otpEntry) {
-            return res.status(400).json({
-                code: 400,
-                message: "Invalid OTP",
-            });
+            return new error_response_1.BadRequestError("Invalid OTP").send(res);
         }
         if (otpEntry.expiresAt < new Date()) {
             yield otp_model_1.default.deleteOne({ _id: otpEntry._id });
-            return res.status(400).json({
-                code: 400,
-                message: "OTP has expired",
-            });
+            return new error_response_1.BadRequestError("OTP has expired").send(res);
         }
         const hashedPassword = yield bcrypt_1.default.hash(newPassword, 10);
         user.password = hashedPassword;
         yield user.save();
         yield otp_model_1.default.deleteOne({ _id: otpEntry._id });
-        res.json({
-            code: 200,
+        return new success_response_1.OK({
             message: "Password reset successfully",
-        });
+        }).send(res);
     }
     catch (error) {
-        res.status(500).json({
-            code: 500,
-            message: "Internal server error",
-            error: error.message,
-        });
+        return new error_response_1.BadRequestError().send(res);
     }
 });
 exports.resetPassword = resetPassword;
@@ -360,6 +288,7 @@ const googleAuthCallback = (req, res) => __awaiter(void 0, void 0, void 0, funct
                     googleId: userinfo.data.id,
                     loginMethod: "google",
                     isAdmin: false,
+                    avatar: userinfo.data.picture || "",
                     refreshToken: tokens.refresh_token,
                 });
                 yield newUser.save();

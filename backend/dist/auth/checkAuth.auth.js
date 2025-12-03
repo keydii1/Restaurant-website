@@ -12,15 +12,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.authAdmin = exports.auth = exports.asyncHandler = void 0;
+exports.authAdmin = exports.auth = void 0;
 const tokenServices_1 = require("../utils/auth/tokenServices");
 const user_model_1 = __importDefault(require("../models/user.model"));
-const asyncHandler = (fn) => {
-    return (req, res, next) => {
-        fn(req, res, next).catch(next);
-    };
-};
-exports.asyncHandler = asyncHandler;
 const auth = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const authHeader = req.headers.authorization;
@@ -50,28 +44,33 @@ const auth = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () 
 });
 exports.auth = auth;
 const authAdmin = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
     try {
-        let token = (_a = req.cookies) === null || _a === void 0 ? void 0 : _a.token;
-        if (!token) {
-            const authHeader = req.headers.authorization;
+        const authHeader = req.headers.authorization;
+        let token;
+        if (authHeader) {
             if (authHeader && authHeader.startsWith("Bearer ")) {
                 token = authHeader.substring(7);
             }
         }
-        if (!token) {
+        else {
             return res.status(401).json({
                 code: 401,
-                message: "Bạn không có quyền truy cập",
+                message: "Vui lòng đăng nhập",
             });
         }
         const decoded = yield (0, tokenServices_1.verifyToken)(token);
         const { id } = decoded;
         const findUser = yield user_model_1.default.findById(id);
-        if (!findUser || findUser.isAdmin === false) {
+        if (!findUser) {
+            return res.status(404).json({
+                code: 404,
+                message: "User not found",
+            });
+        }
+        if (findUser.isAdmin === false) {
             return res.status(403).json({
                 code: 403,
-                message: "Bạn không có quyền truy cập",
+                message: "Bạn không có quyền truy cập, Bạn không phải là admin",
             });
         }
         req.accessToken = decoded;

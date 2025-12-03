@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteResolvedContacts = exports.deleteContact = exports.edit = exports.create = exports.getContacts = void 0;
+exports.deleteContact = exports.edit = exports.create = exports.getContacts = void 0;
 const contact_model_1 = __importDefault(require("../models/contact.model"));
 const success_response_1 = require("../core/success.response");
 const error_response_1 = require("../core/error.response");
@@ -70,21 +70,3 @@ const deleteContact = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.deleteContact = deleteContact;
-const deleteResolvedContacts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const resolvedContacts = yield contact_model_1.default.find({
-            status: "Resolved",
-            deleted: false,
-        });
-        const ids = resolvedContacts.map((contact) => contact._id);
-        yield contact_model_1.default.updateMany({ _id: { $in: ids } }, { deleted: true });
-        return new success_response_1.OK({
-            message: "Resolved contacts deleted successfully",
-            metadata: { count: ids.length },
-        }).send(res);
-    }
-    catch (error) {
-        return new error_response_1.BadRequestError().send(res);
-    }
-});
-exports.deleteResolvedContacts = deleteResolvedContacts;

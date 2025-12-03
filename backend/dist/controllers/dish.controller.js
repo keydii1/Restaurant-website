@@ -17,6 +17,8 @@ const dish_model_1 = __importDefault(require("../models/dish.model"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const pagination_helper_1 = __importDefault(require("../helpers/pagination.helper"));
 dotenv_1.default.config();
+const error_response_1 = require("../core/error.response");
+const success_response_1 = require("../core/success.response");
 const getDishes = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const findCondition = {
@@ -47,17 +49,17 @@ const getDishes = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             .skip(objectPagination.skip)
             .limit(objectPagination.limit)
             .populate("categoryId", "name");
-        res.json({
+        return new success_response_1.OK({
             message: "Dishes fetched successfully",
-            data: {
+            metadata: {
                 dishes: dishes,
                 totalPages: objectPagination.totalPages,
                 currentPage: objectPagination.currentPage,
             },
-        });
+        }).send(res);
     }
     catch (error) {
-        res.status(500).json({ message: "Internal server error", error });
+        return new error_response_1.BadRequestError().send(res);
     }
 });
 exports.getDishes = getDishes;
@@ -65,14 +67,21 @@ const changeStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     try {
         const dishId = req.params.id;
         const status = req.params.status;
+        if (status !== "active" && status !== "inactive") {
+            return new error_response_1.BadRequestError("Status must be either active or inactive");
+        }
+        const dish = yield dish_model_1.default.findById(dishId);
+        if (!dish) {
+            return new error_response_1.BadRequestError("Dish not found").send(res);
+        }
         yield dish_model_1.default.updateOne({ _id: dishId }, { status: status });
-        res.json({
+        return new success_response_1.OK({
             message: "Dish status updated successfully",
-            data: yield dish_model_1.default.findById(dishId).populate("categoryId", "name"),
-        });
+            metadata: yield dish_model_1.default.findById(dishId).populate("categoryId", "name"),
+        }).send(res);
     }
     catch (error) {
-        res.status(500).json({ message: "Internal server error", error });
+        return new error_response_1.BadRequestError().send(res);
     }
 });
 exports.changeStatus = changeStatus;
@@ -80,34 +89,40 @@ const changeMulti = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     try {
         const type = req.body.type;
         const ids = req.body.ids.split(",");
+        for (let i = 0; i < ids.length; i++) {
+            const dish = yield dish_model_1.default.findById(ids[i]);
+            if (!dish) {
+                return new error_response_1.BadRequestError(`Dish with ID ${ids[i]} not found`).send(res);
+            }
+        }
         switch (type) {
             case "delete":
                 yield dish_model_1.default.updateMany({ _id: { $in: ids } }, { deleted: true });
-                res.json({
+                return new success_response_1.OK({
                     message: "Dishes deleted successfully",
-                    data: yield dish_model_1.default.find({ _id: { $in: ids } }).populate("categoryId", "name"),
-                });
+                    metadata: yield dish_model_1.default.find({ _id: { $in: ids } }).populate("categoryId", "name"),
+                }).send(res);
                 break;
             case "active":
                 yield dish_model_1.default.updateMany({ _id: { $in: ids } }, { status: "active" });
-                res.json({
+                return new success_response_1.OK({
                     message: "Dishes activated successfully",
-                    data: yield dish_model_1.default.find({ _id: { $in: ids } }).populate("categoryId", "name"),
-                });
+                    metadata: yield dish_model_1.default.find({ _id: { $in: ids } }).populate("categoryId", "name"),
+                }).send(res);
                 break;
             case "inactive":
                 yield dish_model_1.default.updateMany({ _id: { $in: ids } }, { status: "inactive" });
-                res.json({
+                return new success_response_1.OK({
                     message: "Dishes deactivated successfully",
-                    data: yield dish_model_1.default.find({ _id: { $in: ids } }).populate("categoryId", "name"),
-                });
+                    metadata: yield dish_model_1.default.find({ _id: { $in: ids } }).populate("categoryId", "name"),
+                }).send(res);
                 break;
             default:
-                return res.status(400).json({ message: "Invalid type parameter" });
+                return new error_response_1.BadRequestError("Invalid type parameter").send(res);
         }
     }
     catch (error) {
-        res.status(500).json({ message: "Internal server error", error });
+        return new error_response_1.BadRequestError().send(res);
     }
 });
 exports.changeMulti = changeMulti;
@@ -115,13 +130,13 @@ const deleteDish = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     try {
         const dishId = req.params.id;
         yield dish_model_1.default.updateOne({ _id: dishId }, { deleted: true });
-        res.json({
+        return new success_response_1.OK({
             message: "Dish deleted successfully",
-            data: yield dish_model_1.default.findById(dishId).populate("categoryId", "name"),
-        });
+            metadata: yield dish_model_1.default.findById(dishId).populate("categoryId", "name"),
+        }).send(res);
     }
     catch (error) {
-        res.status(500).json({ message: "Internal server error", error });
+        return new error_response_1.BadRequestError().send(res);
     }
 });
 exports.deleteDish = deleteDish;
@@ -184,14 +199,17 @@ exports.edit = edit;
 const getDishDetail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const dishId = req.params.id;
-        const dish = yield dish_model_1.default.findOne({ _id: dishId }).populate("categoryId", "name description");
+        const dish = yield dish_model_1.default.findOne({ _id: dishId }).populate("categoryId", "name description status image createdAt updatedAt");
         if (!dish) {
-            return res.status(404).json({ message: "Dish not found" });
+            return new error_response_1.BadRequestError("Dish not found").send(res);
         }
-        res.json({ message: "Dish fetched successfully", data: dish });
+        return new success_response_1.OK({
+            message: "Dish fetched successfully",
+            metadata: dish,
+        }).send(res);
     }
     catch (error) {
-        res.status(500).json({ message: "Internal server error", error });
+        return new error_response_1.BadRequestError().send(res);
     }
 });
 exports.getDishDetail = getDishDetail;

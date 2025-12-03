@@ -53,7 +53,8 @@ const uploadImage = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         catch (e) {
             console.warn("Could not remove temp file:", file.path, e);
         }
-        req.body.image = result.secure_url;
+        const fieldName = file.fieldname || "image";
+        req.body[fieldName] = result.secure_url;
         return next();
     }
     catch (error) {

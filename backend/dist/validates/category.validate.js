@@ -28,7 +28,8 @@ const descriptionLength = (req, res, next) => {
 exports.descriptionLength = descriptionLength;
 const statusValid = (req, res, next) => {
     const validStatuses = ["active", "inactive"];
-    if (req.body.status && !validStatuses.includes(req.body.status)) {
+    const status = req.params.status;
+    if (status && !validStatuses.includes(status)) {
         return res
             .status(400)
             .json({ message: "Status must be either active or inactive" });

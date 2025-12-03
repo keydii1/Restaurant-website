@@ -35,12 +35,11 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const router = (0, express_1.Router)();
-const EmailAndPassword_validate_1 = require("../validates/EmailAndPassword.validate");
 const contactValidate = __importStar(require("../validates/contact.validate"));
 const controller = __importStar(require("../controllers/contact.controller"));
 const checkAuth_auth_1 = require("../auth/checkAuth.auth");
 router.get("/", checkAuth_auth_1.authAdmin, controller.getContacts);
-router.post("/create", checkAuth_auth_1.auth, contactValidate.nameRequired, contactValidate.nameLength, EmailAndPassword_validate_1.validateEmail, contactValidate.messageRequired, contactValidate.messageLength, controller.create);
+router.post("/create", contactValidate.nameRequired, contactValidate.nameLength, contactValidate.emailValid, contactValidate.messageRequired, contactValidate.messageLength, controller.create);
 router.patch("/edit/:id", checkAuth_auth_1.authAdmin, contactValidate.nameLength, contactValidate.messageLength, contactValidate.statusValid, controller.edit);
-router.delete("/delete", checkAuth_auth_1.authAdmin, controller.deleteContact);
+router.delete("/delete/:id", checkAuth_auth_1.authAdmin, controller.deleteContact);
 exports.default = router;

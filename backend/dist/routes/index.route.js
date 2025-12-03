@@ -10,9 +10,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const category_route_1 = __importDefault(require("./category.route"));
 const dish_route_1 = __importDefault(require("./dish.route"));
-const role_route_1 = __importDefault(require("./role.route"));
 const user_route_1 = __importDefault(require("./user.route"));
-const payment_route_1 = __importDefault(require("./payment.route"));
 const table_route_1 = __importDefault(require("./table.route"));
 const discount_route_1 = __importDefault(require("./discount.route"));
 const cart_route_1 = __importDefault(require("./cart.route"));
@@ -24,8 +22,6 @@ const routerAppVer1 = (app) => {
     app.use(version1 + "/categories", category_route_1.default);
     app.use(version1 + "/dishes", dish_route_1.default);
     app.use(version1 + "/users", user_route_1.default);
-    app.use(version1 + "/roles", role_route_1.default);
-    app.use(version1 + "/payments", payment_route_1.default);
     app.use(version1 + "/tables", table_route_1.default);
     app.use(version1 + "/discounts", discount_route_1.default);
     app.use(version1 + "/carts", cart_route_1.default);

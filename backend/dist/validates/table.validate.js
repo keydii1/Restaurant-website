@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.statusAndOrderTimeConsistency = exports.deletedValid = exports.finishedTimeValid = exports.orderTimeValid = exports.tableNameLength = exports.positionLength = exports.positionRequired = exports.statusValid = exports.maximumCapacityValid = exports.maximumCapacityRequired = exports.tableNumberUnique = exports.tableNumberValid = exports.tableNumberRequired = void 0;
+exports.finishedTimeValid = exports.orderTimeValid = exports.tableNameLength = exports.positionLength = exports.positionRequired = exports.statusValid = exports.maximumCapacityValid = exports.maximumCapacityRequired = exports.tableNumberUnique = exports.tableNumberValid = exports.tableNumberRequired = void 0;
 const table_model_1 = __importDefault(require("../models/table.model"));
 const tableNumberRequired = (req, res, next) => {
     if (req.body.tableNumber === undefined) {
@@ -151,25 +151,3 @@ const finishedTimeValid = (req, res, next) => {
     next();
 };
 exports.finishedTimeValid = finishedTimeValid;
-const deletedValid = (req, res, next) => {
-    if (req.body.deleted !== undefined) {
-        if (typeof req.body.deleted !== "boolean") {
-            return res.status(400).json({ message: "deleted must be a boolean" });
-        }
-    }
-    next();
-};
-exports.deletedValid = deletedValid;
-const statusAndOrderTimeConsistency = (req, res, next) => {
-    if (req.body.status === "occupied") {
-        if (req.body.orderTime === undefined ||
-            req.body.orderTime === null ||
-            req.body.orderTime === "") {
-            return res
-                .status(400)
-                .json({ message: "orderTime is required when status is 'occupied'" });
-        }
-    }
-    next();
-};
-exports.statusAndOrderTimeConsistency = statusAndOrderTimeConsistency;

@@ -79,12 +79,31 @@ paths:
             schema:
               $ref: "#/components/schemas/RegisterBody"
       responses:
-        "201":
+        "200":
           description: Đăng ký thành công
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SuccessAuthentication"
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "User registered successfully"
+                  statusCode:
+                    type: integer
+                    example: 200
+                  metadata:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: "690f65074d5fb8590ae9c0f6"
+                      username:
+                        type: string
+                        example: "hohoangson"
+                      email:
+                        type: string
+                        example: "hoson2k5@gmail.com"
         "400":
           $ref: "#/components/responses/BadRequestError"
 
@@ -132,14 +151,21 @@ paths:
                 email:
                   type: string
                   format: email
-                  example: user@example.com
+                  example: "hoson2k5@gmail.com"
       responses:
         "200":
           description: OTP đã được gửi
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SuccessResponse"
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "OTP sent to email successfully"
+                  statusCode:
+                    type: integer
+                    example: 200
         "400":
           $ref: "#/components/responses/BadRequestError"
 
@@ -162,6 +188,7 @@ paths:
                 email:
                   type: string
                   format: email
+                  example: "hoson2k5@gmail.com"
                 otp:
                   type: string
                   example: "123456"
@@ -171,7 +198,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SuccessResponse"
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "OTP verified successfully"
+                  statusCode:
+                    type: integer
+                    example: 200
         "400":
           $ref: "#/components/responses/BadRequestError"
 
@@ -189,21 +223,34 @@ paths:
               type: object
               required:
                 - email
-                - password
+                - otp
+                - newPassword
               properties:
                 email:
                   type: string
                   format: email
-                password:
+                  example: "hoson2k5@gmail.com"
+                otp:
+                  type: string
+                  example: "123456"
+                newPassword:
                   type: string
                   format: password
+                  example: "NewPassword123!"
       responses:
         "200":
           description: Đặt lại mật khẩu thành công
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SuccessResponse"
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Password reset successfully"
+                  statusCode:
+                    type: integer
+                    example: 200
         "400":
           $ref: "#/components/responses/BadRequestError"
 
@@ -221,25 +268,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SuccessResponse"
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Logout successful"
+                  statusCode:
+                    type: integer
+                    example: 200
+                  metadata:
+                    type: object
+                    nullable: true
+                    example: null
 
   /users/refresh-token:
     post:
       tags:
         - users
       summary: Làm mới token
-      description: Tạo access token mới từ refresh token
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - refreshToken
-              properties:
-                refreshToken:
-                  type: string
+      description: Tạo access token mới từ refresh token (được lấy từ cookie)
       responses:
         "200":
           description: Token mới
@@ -248,8 +295,18 @@ paths:
               schema:
                 type: object
                 properties:
-                  accessToken:
+                  message:
                     type: string
+                    example: "Access token refreshed successfully"
+                  statusCode:
+                    type: integer
+                    example: 200
+                  metadata:
+                    type: object
+                    properties:
+                      accessToken:
+                        type: string
+                        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
         "401":
           $ref: "#/components/responses/UnauthorizedError"
 
@@ -448,19 +505,30 @@ paths:
           required: true
           schema:
             type: string
+          example: "69278bdb14e21390ef18de93"
         - in: path
           name: status
           required: true
           schema:
             type: string
             enum: [active, inactive]
+          example: "active"
       responses:
         "200":
           description: Cập nhật thành công
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SuccessResponse"
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Dish status updated successfully"
+                  statusCode:
+                    type: integer
+                    example: 200
+                  metadata:
+                    $ref: "#/components/schemas/Dish"
         "401":
           $ref: "#/components/responses/UnauthorizedError"
         "403":
@@ -480,24 +548,36 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - ids
+                - type
               properties:
                 ids:
-                  type: array
-                  items:
-                    type: string
+                  type: string
+                  example: "69278bdb14e21390ef18de93,69278bdc14e21390ef18de94"
+                  description: "Chuỗi các ID món ăn cách nhau bởi dấu phẩy"
                 type:
                   type: string
-                  enum: [change-status, delete]
-                status:
-                  type: string
-                  enum: [active, inactive]
+                  enum: [delete, active, inactive]
+                  example: "active"
       responses:
         "200":
           description: Cập nhật thành công
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SuccessResponse"
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Dishes activated successfully"
+                  statusCode:
+                    type: integer
+                    example: 200
+                  metadata:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Dish"
         "401":
           $ref: "#/components/responses/UnauthorizedError"
         "403":
@@ -624,19 +704,28 @@ paths:
           required: true
           schema:
             type: string
+          example: "69278a9914e21390ef18de8d"
         - in: path
           name: status
           required: true
           schema:
             type: string
             enum: [active, inactive]
+          example: "active"
       responses:
         "200":
           description: Cập nhật thành công
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SuccessResponse"
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Category status updated successfully"
+                  statusCode:
+                    type: integer
+                    example: 200
         "401":
           $ref: "#/components/responses/UnauthorizedError"
         "403":
@@ -656,24 +745,32 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - ids
+                - type
               properties:
                 ids:
-                  type: array
-                  items:
-                    type: string
+                  type: string
+                  example: "69278a9914e21390ef18de8d,69278a9a14e21390ef18de8e"
+                  description: "Chuỗi các ID danh mục cách nhau bởi dấu phẩy"
                 type:
                   type: string
-                  enum: [change-status, delete]
-                status:
-                  type: string
-                  enum: [active, inactive]
+                  enum: [delete, active, inactive]
+                  example: "active"
       responses:
         "200":
           description: Cập nhật thành công
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SuccessResponse"
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Categories activated successfully"
+                  statusCode:
+                    type: integer
+                    example: 200
         "401":
           $ref: "#/components/responses/UnauthorizedError"
         "403":
@@ -703,7 +800,7 @@ paths:
       tags:
         - carts
       summary: Thêm món vào giỏ hàng
-      description: Thêm món ăn vào giỏ hàng (Chỉ admin)
+      description: Thêm món ăn vào giỏ hàng
       security:
         - bearerAuth: []
       requestBody:
@@ -718,9 +815,11 @@ paths:
               properties:
                 dishId:
                   type: string
+                  example: "69278bdb14e21390ef18de93"
                 quantity:
                   type: integer
                   minimum: 1
+                  example: 2
       responses:
         "200":
           description: Thêm thành công
@@ -730,15 +829,13 @@ paths:
                 $ref: "#/components/schemas/CartResponse"
         "401":
           $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
 
   /carts/clear:
     delete:
       tags:
         - carts
       summary: Xóa toàn bộ giỏ hàng
-      description: Xóa tất cả món trong giỏ hàng (Chỉ admin)
+      description: Xóa tất cả món trong giỏ hàng
       security:
         - bearerAuth: []
       responses:
@@ -750,15 +847,13 @@ paths:
                 $ref: "#/components/schemas/SuccessResponse"
         "401":
           $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
 
   /carts/change:
     post:
       tags:
         - carts
       summary: Thay đổi số lượng món trong giỏ
-      description: Thay đổi số lượng hoặc xóa món khỏi giỏ hàng (Chỉ admin)
+      description: Thay đổi số lượng món trong giỏ hàng
       security:
         - bearerAuth: []
       requestBody:
@@ -773,9 +868,11 @@ paths:
               properties:
                 dishId:
                   type: string
+                  example: "69278bdb14e21390ef18de93"
                 quantity:
                   type: integer
-                  description: Đặt 0 để xóa món khỏi giỏ
+                  example: 3
+                  description: "Số lượng mới của món ăn"
       responses:
         "200":
           description: Cập nhật thành công
@@ -785,8 +882,36 @@ paths:
                 $ref: "#/components/schemas/CartResponse"
         "401":
           $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
+
+  /carts/remove:
+    post:
+      tags:
+        - carts
+      summary: Xóa một món khỏi giỏ hàng
+      description: Xóa một món ăn cụ thể khỏi giỏ hàng
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - dishId
+              properties:
+                dishId:
+                  type: string
+                  example: "69278bdb14e21390ef18de93"
+      responses:
+        "200":
+          description: Xóa thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
 
   # ===== BLOG ENDPOINTS =====
   /blogs:
@@ -1016,19 +1141,28 @@ paths:
           required: true
           schema:
             type: string
+          example: "692b3d4e6f78901bc23de456"
         - in: path
           name: status
           required: true
           schema:
             type: string
             enum: [available, occupied, reserved]
+          example: "reserved"
       responses:
         "200":
           description: Cập nhật thành công
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SuccessResponse"
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Table status updated successfully"
+                  statusCode:
+                    type: integer
+                    example: 200
         "401":
           $ref: "#/components/responses/UnauthorizedError"
         "403":
@@ -1202,16 +1336,20 @@ paths:
           required: true
           schema:
             type: string
+          example: "692d5f6g8h90123de45fg678"
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
+              required:
+                - status
               properties:
                 status:
                   type: string
                   enum: [Pending, Reviewed, Resolved]
+                  example: "Reviewed"
       responses:
         "200":
           description: Cập nhật thành công
@@ -1245,102 +1383,25 @@ paths:
               properties:
                 id:
                   type: string
+                  example: "692d5f6g8h90123de45fg678"
       responses:
         "200":
           description: Xóa thành công
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SuccessResponse"
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Contact deleted successfully"
+                  statusCode:
+                    type: integer
+                    example: 200
         "401":
           $ref: "#/components/responses/UnauthorizedError"
         "403":
           $ref: "#/components/responses/ForbiddenError"
-        "404":
-          $ref: "#/components/responses/NotFoundError"
-
-  # ===== ROLE ENDPOINTS =====
-  /roles:
-    get:
-      tags:
-        - roles
-      summary: Lấy danh sách vai trò
-      description: Lấy danh sách tất cả vai trò
-      responses:
-        "200":
-          description: Thành công
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/RolesResponse"
-
-  /roles/create:
-    post:
-      tags:
-        - roles
-      summary: Tạo vai trò mới
-      description: Tạo vai trò mới
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/RoleCreateBody"
-      responses:
-        "201":
-          description: Tạo thành công
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/RoleResponse"
-
-  /roles/edit/{id}:
-    patch:
-      tags:
-        - roles
-      summary: Cập nhật vai trò
-      description: Cập nhật thông tin vai trò
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/RoleUpdateBody"
-      responses:
-        "200":
-          description: Cập nhật thành công
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/RoleResponse"
-        "404":
-          $ref: "#/components/responses/NotFoundError"
-
-  /roles/delete/{id}:
-    delete:
-      tags:
-        - roles
-      summary: Xóa vai trò
-      description: Xóa vai trò
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Xóa thành công
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SuccessResponse"
         "404":
           $ref: "#/components/responses/NotFoundError"
 
@@ -1349,8 +1410,8 @@ paths:
     get:
       tags:
         - orders
-      summary: Lấy danh sách đơn hàng
-      description: Lấy danh sách đơn hàng của người dùng
+      summary: Lấy danh sách đơn hàng của người dùng
+      description: Lấy danh sách đơn hàng của người dùng hiện tại
       security:
         - bearerAuth: []
       responses:
@@ -1363,13 +1424,32 @@ paths:
         "401":
           $ref: "#/components/responses/UnauthorizedError"
 
-  # ===== PAYMENT ENDPOINTS =====
-  /payments:
+  /orders/all:
+    get:
+      tags:
+        - orders
+      summary: Lấy tất cả đơn hàng (Admin)
+      description: Lấy danh sách tất cả đơn hàng trong hệ thống (Chỉ admin)
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrdersResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+
+  /orders/create:
     post:
       tags:
-        - payments
-      summary: Tạo thanh toán
-      description: Tạo thanh toán mới (Chỉ admin)
+        - orders
+      summary: Tạo đơn hàng mới
+      description: Tạo đơn hàng mới từ giỏ hàng
       security:
         - bearerAuth: []
       requestBody:
@@ -1377,18 +1457,158 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/PaymentCreateBody"
+              $ref: "#/components/schemas/OrderCreateBody"
       responses:
         "201":
-          description: Tạo thanh toán thành công
+          description: Tạo đơn hàng thành công
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PaymentResponse"
+                $ref: "#/components/schemas/OrderResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+
+  /orders/detail/{id}:
+    get:
+      tags:
+        - orders
+      summary: Lấy chi tiết đơn hàng
+      description: Lấy thông tin chi tiết của một đơn hàng
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+  /orders/update/{id}:
+    patch:
+      tags:
+        - orders
+      summary: Cập nhật đơn hàng
+      description: Cập nhật thông tin đơn hàng (Admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderUpdateBody"
+      responses:
+        "200":
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderResponse"
         "401":
           $ref: "#/components/responses/UnauthorizedError"
         "403":
           $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+  /orders/update-status/{id}:
+    patch:
+      tags:
+        - orders
+      summary: Cập nhật trạng thái đơn hàng
+      description: Cập nhật trạng thái đơn hàng (Admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum: [pending, confirmed, completed, cancelled]
+                  example: "confirmed"
+      responses:
+        "200":
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+  /orders/update-payment/{id}:
+    patch:
+      tags:
+        - orders
+      summary: Cập nhật phương thức thanh toán
+      description: Cập nhật phương thức thanh toán của đơn hàng (Admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - typeOfPayment
+              properties:
+                typeOfPayment:
+                  type: string
+                  enum: [cash, card, momo]
+                  example: "momo"
+      responses:
+        "200":
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
 
 components:
   securitySchemes:
@@ -1408,15 +1628,15 @@ components:
       properties:
         username:
           type: string
-          example: John Doe
+          example: "John Doe"
         email:
           type: string
           format: email
-          example: user@example.com
+          example: "user@example.com"
         password:
           type: string
           format: password
-          example: password123
+          example: "Password123!"
         phoneNumber:
           type: string
           example: "+84123456789"
@@ -1437,11 +1657,11 @@ components:
         email:
           type: string
           format: email
-          example: user@example.com
+          example: "hoson2k5@gmail.com"
         password:
           type: string
           format: password
-          example: password123
+          example: "Password123!"
 
     User:
       type: object
@@ -1480,82 +1700,79 @@ components:
     UsersResponse:
       type: object
       properties:
-        code:
-          type: integer
-          example: 200
         message:
           type: string
-          example: Success
-        data:
+          example: "Success"
+        statusCode:
+          type: integer
+          example: 200
+        metadata:
           type: array
           items:
             $ref: "#/components/schemas/User"
       example:
-        code: 200
-        message: Success
-        data:
-          - _id: "64f1b2c3d4e5f6789a0b1c39"
-            username: "johndoe"
-            email: "johndoe@example.com"
-            avatar: "https://example.com/avatar.jpg"
-            address: "123 Main St"
-            phoneNumber: "+1234567890"
-            dateOfBirth: "1990-01-01"
+        message: "Success"
+        statusCode: 200
+        metadata:
+          - _id: "690f65074d5fb8590ae9c0f6"
+            username: "hohoangson"
+            email: "hoson2k5@gmail.com"
+            avatar: "https://res.cloudinary.com/dvxaznogb/image/upload/v1234567890/avatars/user.jpg"
+            address: "123 Đường ABC, Quận 1, TP.HCM"
+            phoneNumber: "+84123456789"
+            dateOfBirth: "2000-05-15"
             isAdmin: false
             loginMethod: "manual"
             googleId: null
-            refreshToken: "refresh_token_here"
-            createdAt: "2023-09-01T10:00:00.000Z"
-            updatedAt: "2023-09-01T10:00:00.000Z"
+            refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+            createdAt: "2024-11-05T08:30:00.000Z"
+            updatedAt: "2024-11-28T09:15:30.000Z"
 
     SuccessAuthentication:
       type: object
       properties:
-        code:
-          type: integer
-          example: 200
         message:
           type: string
-          example: Login successful
-        data:
+          example: "Login successful"
+        statusCode:
+          type: integer
+          example: 200
+        metadata:
           type: object
           properties:
             accessToken:
               type: string
-            refreshToken:
-              type: string
             user:
-              $ref: "#/components/schemas/User"
+              type: object
+              properties:
+                id:
+                  type: string
+                username:
+                  type: string
+                email:
+                  type: string
+                isAdmin:
+                  type: boolean
       example:
-        code: 200
-        message: Login successful
-        data:
-          accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-          refreshToken: "refresh_token_here"
+        message: "Login successful"
+        statusCode: 200
+        metadata:
+          accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MGY2NTA3NGQ1ZmI4NTkwYWU5YzBmNiIsImVtYWlsIjoiaG9zb24yazVAZ21haWwuY29tIiwidXNlcm5hbWUiOiJob2hvYW5nc29uIiwiaXNBZG1pbiI6ZmFsc2UsImlhdCI6MTczMjc4OTIzMCwiZXhwIjoxNzMyODc1NjMwfQ.abc123..."
           user:
-            _id: "64f1b2c3d4e5f6789a0b1c39"
-            username: "johndoe"
-            email: "johndoe@example.com"
-            avatar: "https://example.com/avatar.jpg"
-            address: "123 Main St"
-            phoneNumber: "+1234567890"
-            dateOfBirth: "1990-01-01"
+            id: "690f65074d5fb8590ae9c0f6"
+            username: "hohoangson"
+            email: "hoson2k5@gmail.com"
             isAdmin: false
-            loginMethod: "manual"
-            googleId: null
-            refreshToken: "refresh_token_here"
-            createdAt: "2023-09-01T10:00:00.000Z"
-            updatedAt: "2023-09-01T10:00:00.000Z"
 
     ErrorAuthentication:
       type: object
       properties:
-        code:
-          type: integer
-          example: 401
         message:
           type: string
-          example: Email or password is incorrect
+          example: "Password is incorrect"
+        statusCode:
+          type: integer
+          example: 400
 
     # ===== DISH SCHEMAS =====
     Dish:
@@ -1612,144 +1829,163 @@ components:
       properties:
         name:
           type: string
+          example: "Bún Bò Huế"
         description:
           type: string
+          example: "Món bún bò Huế đậm đà hương vị miền Trung"
         price:
           type: number
+          example: 50000
         discount:
           type: number
+          example: 0
         categoryId:
-          oneOf:
-            - type: string
-            - $ref: "#/components/schemas/Category"
+          type: string
+          example: "69278a9914e21390ef18de8d"
         image:
           type: string
           format: binary
         ingredients:
           type: string
-          description: JSON string array
+          description: "JSON string array của ingredients"
+          example: '["Thịt bò", "Bún", "Sả", "Mắm tôm"]'
         prepareTime:
           type: integer
+          example: 20
         bestSeller:
           type: boolean
+          example: false
+        rating:
+          type: number
+          example: 0
+        status:
+          type: string
+          enum: [active, inactive]
+          example: "active"
 
     DishUpdateBody:
       type: object
       properties:
         name:
           type: string
+          example: "Bún Bò Huế Đặc Biệt"
         description:
           type: string
+          example: "Món bún bò Huế đậm đà hương vị miền Trung với nhiều topping"
         price:
           type: number
+          example: 60000
         discount:
           type: number
+          example: 10
         categoryId:
-          oneOf:
-            - type: string
-            - $ref: "#/components/schemas/Category"
+          type: string
+          example: "69278a9914e21390ef18de8d"
         image:
           type: string
           format: binary
         status:
           type: string
           enum: [active, inactive]
+          example: "active"
         ingredients:
           type: string
-          description: JSON string array
+          description: "JSON string array của ingredients"
+          example: '["Thịt bò", "Chả bò", "Bún", "Sả", "Mắm tôm", "Rau sống"]'
         prepareTime:
           type: integer
+          example: 25
         bestSeller:
           type: boolean
+          example: true
+        rating:
+          type: number
+          example: 4.8
 
     DishesResponse:
       type: object
       properties:
-        code:
-          type: integer
-          example: 200
         message:
           type: string
-          example: Success
-        data:
+          example: "Dishes fetched successfully"
+        statusCode:
+          type: integer
+          example: 200
+        metadata:
           type: object
           properties:
             dishes:
               type: array
               items:
                 $ref: "#/components/schemas/Dish"
-            pagination:
-              type: object
-              properties:
-                page:
-                  type: integer
-                limit:
-                  type: integer
-                total:
-                  type: integer
+            totalPages:
+              type: integer
+            currentPage:
+              type: integer
       example:
-        code: 200
-        message: Success
-        data:
+        message: "Dishes fetched successfully"
+        statusCode: 200
+        metadata:
           dishes:
-            - _id: "64f1b2c3d4e5f6789a0b1c2d"
-              name: "Phở Bò"
-              description: "Món phở bò truyền thống"
-              price: 50000
-              discount: 10
-              image: "https://example.com/dish.jpg"
+            - _id: "69278bdb14e21390ef18de93"
+              name: "Phở Bò Tái"
+              description: "Món phở bò truyền thống với thịt bò tái mềm"
+              price: 45000
+              discount: 0
+              image: "https://res.cloudinary.com/dvxaznogb/image/upload/v1764198485/dishes_images/go7cltyjy1yv0crbmdai.jpg"
               categoryId:
-                _id: "64f1b2c3d4e5f6789a0b1c2e"
-                name: "Món chính"
+                _id: "69278a9914e21390ef18de8d"
+                name: "Món Chính"
               status: "active"
               finalPrice: 45000
               rating: 4.5
-              position: 1
               bestSeller: true
-              ingredients: ["bò", "phở", "rau"]
+              ingredients: ["Thịt bò", "Bánh phở", "Rau thơm"]
               prepareTime: 15
               deleted: false
-              createdAt: "2023-09-01T10:00:00.000Z"
-              updatedAt: "2023-09-01T10:00:00.000Z"
-          pagination:
-            page: 1
-            limit: 10
-            total: 50
+              createdAt: "2024-11-23T10:30:00.000Z"
+              updatedAt: "2024-11-28T14:20:15.000Z"
+          totalPages: 5
+          currentPage: 1
 
     DishResponse:
       type: object
       properties:
-        code:
-          type: integer
-          example: 200
         message:
           type: string
-          example: Success
-        data:
+          example: "Dish fetched successfully"
+        statusCode:
+          type: integer
+          example: 200
+        metadata:
           $ref: "#/components/schemas/Dish"
       example:
-        code: 200
-        message: Success
-        data:
-          _id: "64f1b2c3d4e5f6789a0b1c2d"
-          name: "Phở Bò"
-          description: "Món phở bò truyền thống"
-          price: 50000
-          discount: 10
-          image: "https://example.com/dish.jpg"
+        message: "Dish fetched successfully"
+        statusCode: 200
+        metadata:
+          _id: "69278bdb14e21390ef18de93"
+          name: "Phở Bò Tái"
+          description: "Món phở bò truyền thống với thịt bò tái mềm"
+          price: 45000
+          discount: 0
+          image: "https://res.cloudinary.com/dvxaznogb/image/upload/v1764198485/dishes_images/go7cltyjy1yv0crbmdai.jpg"
           categoryId:
-            _id: "64f1b2c3d4e5f6789a0b1c2e"
-            name: "Món chính"
+            _id: "69278a9914e21390ef18de8d"
+            name: "Món Chính"
+            description: "Các món ăn chính của nhà hàng"
+            status: "active"
+            images: "https://res.cloudinary.com/dvxaznogb/image/upload/v1764198000/categories/main.jpg"
+            createdAt: "2024-11-23T10:00:00.000Z"
+            updatedAt: "2024-11-28T14:00:00.000Z"
           status: "active"
           finalPrice: 45000
           rating: 4.5
-          position: 1
           bestSeller: true
-          ingredients: ["bò", "phở", "rau"]
+          ingredients: ["Thịt bò", "Bánh phở", "Rau thơm"]
           prepareTime: 15
           deleted: false
-          createdAt: "2023-09-01T10:00:00.000Z"
-          updatedAt: "2023-09-01T10:00:00.000Z"
+          createdAt: "2024-11-23T10:30:00.000Z"
+          updatedAt: "2024-11-28T14:20:15.000Z"
 
     # ===== CATEGORY SCHEMAS =====
     Category:
@@ -1764,8 +2000,6 @@ components:
         status:
           type: string
           enum: [active, inactive]
-        position:
-          type: integer
         images:
           type: string
         deleted:
@@ -1784,11 +2018,14 @@ components:
       properties:
         name:
           type: string
+          example: "Món Tráng Miệng"
         description:
           type: string
+          example: "Các món tráng miệng ngọt ngào"
         status:
           type: string
           enum: [active, inactive]
+          example: "active"
         images:
           type: string
           format: binary
@@ -1798,11 +2035,14 @@ components:
       properties:
         name:
           type: string
+          example: "Món Tráng Miệng Đặc Biệt"
         description:
           type: string
+          example: "Các món tráng miệng đặc biệt và hấp dẫn"
         status:
           type: string
           enum: [active, inactive]
+          example: "active"
         images:
           type: string
           format: binary
@@ -1810,54 +2050,52 @@ components:
     CategoriesResponse:
       type: object
       properties:
-        code:
-          type: integer
-          example: 200
         message:
           type: string
-          example: Success
-        data:
+          example: "Categories fetched successfully"
+        statusCode:
+          type: integer
+          example: 200
+        metadata:
           type: array
           items:
             $ref: "#/components/schemas/Category"
       example:
-        code: 200
-        message: Success
-        data:
-          - _id: "64f1b2c3d4e5f6789a0b1c2f"
-            name: "Món chính"
-            description: "Các món ăn chính"
+        message: "Categories fetched successfully"
+        statusCode: 200
+        metadata:
+          - _id: "69278a9914e21390ef18de8d"
+            name: "Món Chính"
+            description: "Các món ăn chính của nhà hàng"
             status: "active"
-            position: 1
-            images: "https://example.com/category.jpg"
+            images: "https://res.cloudinary.com/dvxaznogb/image/upload/v1764198000/categories/main.jpg"
             deleted: false
-            createdAt: "2023-09-01T10:00:00.000Z"
-            updatedAt: "2023-09-01T10:00:00.000Z"
+            createdAt: "2024-11-23T10:00:00.000Z"
+            updatedAt: "2024-11-28T14:00:00.000Z"
 
     CategoryResponse:
       type: object
       properties:
-        code:
-          type: integer
-          example: 200
         message:
           type: string
-          example: Success
-        data:
+          example: "Category created successfully"
+        statusCode:
+          type: integer
+          example: 200
+        metadata:
           $ref: "#/components/schemas/Category"
       example:
-        code: 200
-        message: Success
-        data:
-          _id: "64f1b2c3d4e5f6789a0b1c2f"
-          name: "Món chính"
-          description: "Các món ăn chính"
+        message: "Category created successfully"
+        statusCode: 200
+        metadata:
+          _id: "69278a9914e21390ef18de8d"
+          name: "Món Chính"
+          description: "Các món ăn chính của nhà hàng"
           status: "active"
-          position: 1
-          images: "https://example.com/category.jpg"
+          images: "https://res.cloudinary.com/dvxaznogb/image/upload/v1764198000/categories/main.jpg"
           deleted: false
-          createdAt: "2023-09-01T10:00:00.000Z"
-          updatedAt: "2023-09-01T10:00:00.000Z"
+          createdAt: "2024-11-23T10:00:00.000Z"
+          updatedAt: "2024-11-28T14:00:00.000Z"
 
     # ===== CART SCHEMAS =====
     Cart:
@@ -1946,8 +2184,10 @@ components:
       properties:
         title:
           type: string
+          example: "Top 10 món ăn Việt Nam được yêu thích nhất"
         content:
           type: string
+          example: "Khám phá những món ăn Việt Nam đặc sắc và được nhiều người yêu thích..."
         image:
           type: string
           format: binary
@@ -1957,8 +2197,10 @@ components:
       properties:
         title:
           type: string
+          example: "Top 10 món ăn Việt Nam được yêu thích nhất - Cập nhật 2024"
         content:
           type: string
+          example: "Khám phá những món ăn Việt Nam đặc sắc và được nhiều người yêu thích trong năm 2024..."
         image:
           type: string
           format: binary
@@ -1966,50 +2208,50 @@ components:
     BlogsResponse:
       type: object
       properties:
-        code:
-          type: integer
-          example: 200
         message:
           type: string
-          example: Success
-        data:
+          example: "Blogs fetched successfully"
+        statusCode:
+          type: integer
+          example: 200
+        metadata:
           type: array
           items:
             $ref: "#/components/schemas/Blog"
       example:
-        code: 200
-        message: Success
-        data:
-          - _id: "64f1b2c3d4e5f6789a0b1c32"
-            title: "Cách nấu phở bò"
-            image: "https://example.com/blog.jpg"
-            content: "Hướng dẫn chi tiết cách nấu phở bò..."
+        message: "Blogs fetched successfully"
+        statusCode: 200
+        metadata:
+          - _id: "692a1c3f5e67890ab12cd345"
+            title: "Cách nấu phở bò ngon đúng chuẩn"
+            image: "https://res.cloudinary.com/dvxaznogb/image/upload/v1764200000/blogs/pho-bo.jpg"
+            content: "Hướng dẫn chi tiết cách nấu phở bò thơm ngon với nước dùng đậm đà..."
             deleted: false
-            createdAt: "2023-09-01T10:00:00.000Z"
-            updatedAt: "2023-09-01T10:00:00.000Z"
+            createdAt: "2024-11-25T10:00:00.000Z"
+            updatedAt: "2024-11-28T15:00:00.000Z"
 
     BlogResponse:
       type: object
       properties:
-        code:
-          type: integer
-          example: 200
         message:
           type: string
-          example: Success
-        data:
+          example: "Blog created successfully"
+        statusCode:
+          type: integer
+          example: 200
+        metadata:
           $ref: "#/components/schemas/Blog"
       example:
-        code: 200
-        message: Success
-        data:
-          _id: "64f1b2c3d4e5f6789a0b1c32"
-          title: "Cách nấu phở bò"
-          image: "https://example.com/blog.jpg"
-          content: "Hướng dẫn chi tiết cách nấu phở bò..."
+        message: "Blog created successfully"
+        statusCode: 200
+        metadata:
+          _id: "692a1c3f5e67890ab12cd345"
+          title: "Cách nấu phở bò ngon đúng chuẩn"
+          image: "https://res.cloudinary.com/dvxaznogb/image/upload/v1764200000/blogs/pho-bo.jpg"
+          content: "Hướng dẫn chi tiết cách nấu phở bò thơm ngon với nước dùng đậm đà..."
           deleted: false
-          createdAt: "2023-09-01T10:00:00.000Z"
-          updatedAt: "2023-09-01T10:00:00.000Z"
+          createdAt: "2024-11-25T10:00:00.000Z"
+          updatedAt: "2024-11-28T15:00:00.000Z"
 
     # ===== TABLE SCHEMAS =====
     Table:
@@ -2028,8 +2270,6 @@ components:
           enum: [available, occupied, reserved]
         position:
           type: string
-        reserved:
-          type: boolean
         deleted:
           type: boolean
         orderTime:
@@ -2050,93 +2290,100 @@ components:
       required:
         - tableNumber
         - maximumCapacity
-        - status
         - position
       properties:
         tableNumber:
           type: integer
+          example: 5
         tableName:
           type: string
+          example: "Bàn VIP 01"
         maximumCapacity:
           type: integer
+          example: 6
         status:
           type: string
           enum: [available, occupied, reserved]
+          example: "available"
         position:
           type: string
+          example: "Tầng 2 - Góc cửa sổ"
 
     TableUpdateBody:
       type: object
       properties:
         tableNumber:
           type: integer
+          example: 5
         tableName:
           type: string
+          example: "Bàn VIP 01 - Premium"
         maximumCapacity:
           type: integer
+          example: 8
         status:
           type: string
           enum: [available, occupied, reserved]
+          example: "available"
         position:
           type: string
+          example: "Tầng 2 - Góc cửa sổ view đẹp"
 
     TablesResponse:
       type: object
       properties:
-        code:
-          type: integer
-          example: 200
         message:
           type: string
-          example: Success
-        data:
+          example: "Tables fetched successfully"
+        statusCode:
+          type: integer
+          example: 200
+        metadata:
           type: array
           items:
             $ref: "#/components/schemas/Table"
       example:
-        code: 200
-        message: Success
-        data:
-          - _id: "64f1b2c3d4e5f6789a0b1c33"
+        message: "Tables fetched successfully"
+        statusCode: 200
+        metadata:
+          - _id: "692b3d4e6f78901bc23de456"
             tableNumber: 1
-            tableName: "Bàn VIP"
-            maximumCapacity: 4
+            tableName: "Bàn VIP 01"
+            maximumCapacity: 6
             status: "available"
-            position: "Góc phòng"
-            reserved: false
+            position: "Tầng 1 - Góc phòng"
             deleted: false
-            orderTime: "2023-09-01T12:00:00.000Z"
-            finishedTime: "2023-09-01T14:00:00.000Z"
-            createdAt: "2023-09-01T10:00:00.000Z"
-            updatedAt: "2023-09-01T10:00:00.000Z"
+            orderTime: null
+            finishedTime: null
+            createdAt: "2024-11-20T08:00:00.000Z"
+            updatedAt: "2024-11-28T16:00:00.000Z"
 
     TableResponse:
       type: object
       properties:
-        code:
-          type: integer
-          example: 200
         message:
           type: string
-          example: Success
-        data:
+          example: "Table created successfully"
+        statusCode:
+          type: integer
+          example: 200
+        metadata:
           $ref: "#/components/schemas/Table"
       example:
-        code: 200
-        message: Success
-        data:
-          _id: "64f1b2c3d4e5f6789a0b1c33"
+        message: "Table created successfully"
+        statusCode: 200
+        metadata:
+          _id: "692b3d4e6f78901bc23de456"
           tableNumber: 1
-          tableName: "Bàn VIP"
-          maximumCapacity: 4
+          tableName: "Bàn VIP 01"
+          maximumCapacity: 6
           status: "available"
-          position: "Góc phòng"
-          reserved: false
+          position: "Tầng 1 - Góc phòng"
           deleted: false
-          orderTime: "2023-09-01T12:00:00.000Z"
-          finishedTime: "2023-09-01T14:00:00.000Z"
-          createdAt: "2023-09-01T10:00:00.000Z"
-          updatedAt: "2023-09-01T10:00:00.000Z"
+          orderTime: null
+          finishedTime: null
+          createdAt: "2024-11-20T08:00:00.000Z"
+          updatedAt: "2024-11-28T16:00:00.000Z"
 
     # ===== DISCOUNT SCHEMAS =====
     Discount:
@@ -2177,94 +2424,106 @@ components:
       properties:
         code:
           type: string
+          example: "SUMMER2024"
         description:
           type: string
+          example: "Giảm giá mùa hè 2024"
         percentage:
           type: number
           minimum: 0
           maximum: 100
+          example: 15
         validFrom:
           type: string
           format: date-time
+          example: "2024-06-01T00:00:00.000Z"
         validTo:
           type: string
           format: date-time
+          example: "2024-08-31T23:59:59.000Z"
         active:
           type: boolean
+          example: true
 
     DiscountUpdateBody:
       type: object
       properties:
         code:
           type: string
+          example: "SUMMER2024"
         description:
           type: string
+          example: "Giảm giá mùa hè 2024 - Ưu đãi đặc biệt"
         percentage:
           type: number
           minimum: 0
           maximum: 100
+          example: 20
         validFrom:
           type: string
           format: date-time
+          example: "2024-06-01T00:00:00.000Z"
         validTo:
           type: string
           format: date-time
+          example: "2024-09-30T23:59:59.000Z"
         active:
           type: boolean
+          example: true
 
     DiscountsResponse:
       type: object
       properties:
-        code:
-          type: integer
-          example: 200
         message:
           type: string
-          example: Success
-        data:
+          example: "Discounts fetched successfully"
+        statusCode:
+          type: integer
+          example: 200
+        metadata:
           type: array
           items:
             $ref: "#/components/schemas/Discount"
       example:
-        code: 200
-        message: Success
-        data:
-          - _id: "64f1b2c3d4e5f6789a0b1c34"
-            code: "DISCOUNT10"
-            description: "Giảm giá 10%"
-            percentage: 10
-            validFrom: "2023-09-01T00:00:00.000Z"
-            validTo: "2023-12-31T23:59:59.000Z"
+        message: "Discounts fetched successfully"
+        statusCode: 200
+        metadata:
+          - _id: "692c4e5f7g89012cd34ef567"
+            code: "SUMMER2024"
+            description: "Giảm giá mùa hè 2024"
+            percentage: 15
+            validFrom: "2024-06-01T00:00:00.000Z"
+            validTo: "2024-08-31T23:59:59.000Z"
             active: true
             deleted: false
-            createdAt: "2023-09-01T10:00:00.000Z"
-            updatedAt: "2023-09-01T10:00:00.000Z"
+            createdAt: "2024-05-15T09:00:00.000Z"
+            updatedAt: "2024-11-28T17:00:00.000Z"
 
     DiscountResponse:
       type: object
       properties:
-        code:
-          type: integer
-          example: 200
         message:
           type: string
-          example: Success
-        data:
+          example: "Discount created successfully"
+        statusCode:
+          type: integer
+          example: 200
+        metadata:
           $ref: "#/components/schemas/Discount"
       example:
-        code: 200
-        message: Success
-        data:
-          _id: "64f1b2c3d4e5f6789a0b1c34"
-          code: "DISCOUNT10"
-          description: "Giảm giá 10%"
-          percentage: 10
-          validFrom: "2023-09-01T00:00:00.000Z"
-          validTo: "2023-12-31T23:59:59.000Z"
+        message: "Discount created successfully"
+        statusCode: 200
+        metadata:
+          _id: "692c4e5f7g89012cd34ef567"
+          code: "SUMMER2024"
+          description: "Giảm giá mùa hè 2024"
+          percentage: 15
+          validFrom: "2024-06-01T00:00:00.000Z"
+          validTo: "2024-08-31T23:59:59.000Z"
           active: true
           deleted: false
-          createdAt: "2023-09-01T10:00:00.000Z"
-          updatedAt: "2023-09-01T10:00:00.000Z"
+          createdAt: "2024-05-15T09:00:00.000Z"
+          updatedAt: "2024-11-28T17:00:00.000Z"
 
     # ===== CONTACT SCHEMAS =====
     Contact:
@@ -2299,158 +2558,64 @@ components:
       properties:
         name:
           type: string
+          example: "Nguyễn Văn A"
         email:
           type: string
           format: email
+          example: "nguyenvana@gmail.com"
         message:
           type: string
+          example: "Tôi muốn đặt bàn cho 6 người vào tối thứ 7 tuần sau. Nhà hàng có bàn trống không?"
 
     ContactsResponse:
       type: object
       properties:
-        code:
-          type: integer
-          example: 200
         message:
           type: string
-          example: Success
-        data:
+          example: "Contacts fetched successfully"
+        statusCode:
+          type: integer
+          example: 200
+        metadata:
           type: array
           items:
             $ref: "#/components/schemas/Contact"
       example:
-        code: 200
-        message: Success
-        data:
-          - _id: "64f1b2c3d4e5f6789a0b1c35"
+        message: "Contacts fetched successfully"
+        statusCode: 200
+        metadata:
+          - _id: "692d5f6g8h90123de45fg678"
             name: "Nguyễn Văn A"
-            email: "nguyenvana@example.com"
-            message: "Tôi muốn đặt bàn"
+            email: "nguyenvana@gmail.com"
+            message: "Tôi muốn đặt bàn cho 6 người vào tối thứ 7 tuần sau"
             status: "Pending"
             deleted: false
-            createdAt: "2023-09-01T10:00:00.000Z"
-            updatedAt: "2023-09-01T10:00:00.000Z"
+            createdAt: "2024-11-28T10:00:00.000Z"
+            updatedAt: "2024-11-28T10:00:00.000Z"
 
     ContactResponse:
       type: object
       properties:
-        code:
-          type: integer
-          example: 200
         message:
           type: string
-          example: Success
-        data:
+          example: "Contact created successfully"
+        statusCode:
+          type: integer
+          example: 200
+        metadata:
           $ref: "#/components/schemas/Contact"
       example:
-        code: 200
-        message: Success
-        data:
-          _id: "64f1b2c3d4e5f6789a0b1c35"
+        message: "Contact created successfully"
+        statusCode: 200
+        metadata:
+          _id: "692d5f6g8h90123de45fg678"
           name: "Nguyễn Văn A"
-          email: "nguyenvana@example.com"
-          message: "Tôi muốn đặt bàn"
+          email: "nguyenvana@gmail.com"
+          message: "Tôi muốn đặt bàn cho 6 người vào tối thứ 7 tuần sau"
           status: "Pending"
           deleted: false
-          createdAt: "2023-09-01T10:00:00.000Z"
-          updatedAt: "2023-09-01T10:00:00.000Z"
-
-    # ===== ROLE SCHEMAS =====
-    Role:
-      type: object
-      properties:
-        _id:
-          type: string
-        name:
-          type: string
-        description:
-          type: string
-        permissions:
-          type: array
-          items:
-            type: string
-        deleted:
-          type: boolean
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-
-    RoleCreateBody:
-      type: object
-      required:
-        - name
-      properties:
-        name:
-          type: string
-        description:
-          type: string
-        permissions:
-          type: array
-          items:
-            type: string
-
-    RoleUpdateBody:
-      type: object
-      properties:
-        name:
-          type: string
-        description:
-          type: string
-        permissions:
-          type: array
-          items:
-            type: string
-
-    RolesResponse:
-      type: object
-      properties:
-        code:
-          type: integer
-          example: 200
-        message:
-          type: string
-          example: Success
-        data:
-          type: array
-          items:
-            $ref: "#/components/schemas/Role"
-      example:
-        code: 200
-        message: Success
-        data:
-          - _id: "64f1b2c3d4e5f6789a0b1c36"
-            name: "Admin"
-            description: "Quyền quản trị"
-            permissions: ["read", "write", "delete"]
-            deleted: false
-            createdAt: "2023-09-01T10:00:00.000Z"
-            updatedAt: "2023-09-01T10:00:00.000Z"
-
-    RoleResponse:
-      type: object
-      properties:
-        code:
-          type: integer
-          example: 200
-        message:
-          type: string
-          example: Success
-        data:
-          $ref: "#/components/schemas/Role"
-      example:
-        code: 200
-        message: Success
-        data:
-          _id: "64f1b2c3d4e5f6789a0b1c36"
-          name: "Admin"
-          description: "Quyền quản trị"
-          permissions: ["read", "write", "delete"]
-          deleted: false
-          createdAt: "2023-09-01T10:00:00.000Z"
-          updatedAt: "2023-09-01T10:00:00.000Z"
+          createdAt: "2024-11-28T10:00:00.000Z"
+          updatedAt: "2024-11-28T10:00:00.000Z"
 
     # ===== ORDER SCHEMAS =====
     Order:
@@ -2490,13 +2655,116 @@ components:
           type: string
           format: date-time
 
+    OrderCreateBody:
+      type: object
+      required:
+        - cartId
+        - totalPrice
+      properties:
+        cartId:
+          type: string
+          example: "69294c34f92f14b27154467d"
+        tableId:
+          type: string
+          example: "692b3d4e6f78901bc23de456"
+        deleveryAddress:
+          type: string
+          example: "123 Đường ABC, Quận 1, TP.HCM"
+        deliveryOptions:
+          type: string
+          enum: [delivery, pickup, "dine-in"]
+          example: "dine-in"
+        totalPrice:
+          type: number
+          example: 135000
+        typeOfPayment:
+          type: string
+          enum: [cash, card, momo]
+          example: "cash"
+
+    OrderUpdateBody:
+      type: object
+      properties:
+        tableId:
+          type: string
+          example: "692b3d4e6f78901bc23de456"
+        deleveryAddress:
+          type: string
+          example: "456 Đường XYZ, Quận 3, TP.HCM"
+        deliveryOptions:
+          type: string
+          enum: [delivery, pickup, "dine-in"]
+          example: "delivery"
+        totalPrice:
+          type: number
+          example: 150000
+        status:
+          type: string
+          enum: [pending, confirmed, completed, cancelled]
+          example: "confirmed"
+        typeOfPayment:
+          type: string
+          enum: [cash, card, momo]
+          example: "momo"
+
+    OrderResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Order created successfully"
+        statusCode:
+          type: integer
+          example: 201
+        metadata:
+          $ref: "#/components/schemas/Order"
+      example:
+        message: "Order created successfully"
+        statusCode: 201
+        metadata:
+          _id: "692f7h8i9j12345fg67hi890"
+          cartId:
+            _id: "69294c34f92f14b27154467d"
+            userId: "690f65074d5fb8590ae9c0f6"
+            items:
+              - dishId:
+                  _id: "69278bdb14e21390ef18de93"
+                  name: "Phở Bò Tái"
+                  price: 45000
+                  image: "https://res.cloudinary.com/dvxaznogb/image/upload/v1764198485/dishes_images/go7cltyjy1yv0crbmdai.jpg"
+                quantity: 2
+              - dishId:
+                  _id: "69278bdc14e21390ef18de94"
+                  name: "Bún Bò Huế"
+                  price: 50000
+                  image: "https://res.cloudinary.com/dvxaznogb/image/upload/v1764198500/dishes_images/abc123.jpg"
+                quantity: 1
+            totalPrice: 140000
+          userId:
+            _id: "690f65074d5fb8590ae9c0f6"
+            username: "hohoangson"
+            email: "hoson2k5@gmail.com"
+          tableId:
+            _id: "692b3d4e6f78901bc23de456"
+            tableNumber: 5
+            status: "reserved"
+          deleveryAddress: "123 Đường ABC, Quận 1, TP.HCM"
+          deliveryOptions: "dine-in"
+          totalPrice: 140000
+          status: "pending"
+          typeOfPayment: "cash"
+          createdAt: "2024-11-28T19:00:00.000Z"
+          updatedAt: "2024-11-28T19:00:00.000Z"
+
     OrdersResponse:
       type: object
       properties:
         message:
           type: string
+          example: "Fetch orders successfully"
         statusCode:
           type: integer
+          example: 200
         metadata:
           type: array
           items:
@@ -2505,84 +2773,47 @@ components:
         message: "Fetch orders successfully"
         statusCode: 200
         metadata:
-          - _id: "64f1b2c3d4e5f6789a0b1c37"
+          - _id: "692f7h8i9j12345fg67hi890"
             cartId:
-              _id: "64f1b2c3d4e5f6789a0b1c30"
-              userId: "64f1b2c3d4e5f6789a0b1c31"
+              _id: "69294c34f92f14b27154467d"
+              userId: "690f65074d5fb8590ae9c0f6"
               items:
                 - dishId:
                     _id: "69278bdb14e21390ef18de93"
                     name: "Phở Bò Tái"
                     price: 45000
                     image: "https://res.cloudinary.com/dvxaznogb/image/upload/v1764198485/dishes_images/go7cltyjy1yv0crbmdai.jpg"
-                  quantity: 1
-              totalPrice: 45000
+                  quantity: 2
+              totalPrice: 90000
             userId:
-              _id: "64f1b2c3d4e5f6789a0b1c31"
-              username: "johndoe"
-              email: "johndoe@example.com"
+              _id: "690f65074d5fb8590ae9c0f6"
+              username: "hohoangson"
+              email: "hoson2k5@gmail.com"
             tableId:
-              _id: "64f1b2c3d4e5f6789a0b1c33"
-              tableNumber: 1
-              status: "available"
+              _id: "692b3d4e6f78901bc23de456"
+              tableNumber: 5
+              status: "reserved"
             deleveryAddress: "123 Đường ABC, Quận 1, TP.HCM"
             deliveryOptions: "dine-in"
-            totalPrice: 150000
+            totalPrice: 90000
             status: "pending"
             typeOfPayment: "cash"
-            createdAt: "2023-09-01T10:00:00.000Z"
-            updatedAt: "2023-09-01T10:00:00.000Z"
-
-    # ===== PAYMENT SCHEMAS =====
-    PaymentCreateBody:
-      type: object
-      required:
-        - amount
-        - method
-      properties:
-        amount:
-          type: number
-        method:
-          type: string
-          enum: [cash, card, online]
-        orderId:
-          type: string
-
-    PaymentResponse:
-      type: object
-      properties:
-        code:
-          type: integer
-          example: 200
-        message:
-          type: string
-          example: Success
-        data:
-          type: object
-          properties:
-            paymentId:
-              type: string
-            status:
-              type: string
-      example:
-        code: 200
-        message: Success
-        data:
-          paymentId: "64f1b2c3d4e5f6789a0b1c38"
-          status: "completed"
+            createdAt: "2024-11-28T19:00:00.000Z"
+            updatedAt: "2024-11-28T19:00:00.000Z"
 
     # ===== COMMON SCHEMAS =====
     SuccessResponse:
       type: object
       properties:
-        code:
-          type: integer
-          example: 200
         message:
           type: string
-          example: Success
-        data:
+          example: "Success"
+        statusCode:
+          type: integer
+          example: 200
+        metadata:
           type: object
+          example: {}
 
   responses:
     UnauthorizedError:
@@ -2592,12 +2823,12 @@ components:
           schema:
             type: object
             properties:
-              code:
-                type: integer
-                example: 401
               message:
                 type: string
-                example: Unauthorized
+                example: "Unauthorized"
+              statusCode:
+                type: integer
+                example: 401
 
     ForbiddenError:
       description: Không có quyền truy cập
@@ -2606,12 +2837,12 @@ components:
           schema:
             type: object
             properties:
-              code:
-                type: integer
-                example: 403
               message:
                 type: string
-                example: Forbidden
+                example: "Forbidden"
+              statusCode:
+                type: integer
+                example: 403
 
     NotFoundError:
       description: Không tìm thấy tài nguyên
@@ -2620,12 +2851,12 @@ components:
           schema:
             type: object
             properties:
-              code:
-                type: integer
-                example: 404
               message:
                 type: string
-                example: Not found
+                example: "Not found"
+              statusCode:
+                type: integer
+                example: 404
 
     BadRequestError:
       description: Yêu cầu không hợp lệ
@@ -2634,9 +2865,9 @@ components:
           schema:
             type: object
             properties:
-              code:
-                type: integer
-                example: 400
               message:
                 type: string
-                example: Bad request
+                example: "Bad request"
+              statusCode:
+                type: integer
+                example: 400

@@ -49,5 +49,5 @@ router.post("/create", upload.single("images"), uploadCloud_middleware_1.uploadI
 router.patch("/edit/:id", upload.single("images"), uploadCloud_middleware_1.uploadImage, checkAuth_auth_1.authAdmin, categoryValidate.nameLength, categoryValidate.descriptionLength, categoryValidate.statusValid, controller.edit);
 router.delete("/delete/:id", checkAuth_auth_1.authAdmin, controller.Delete);
 router.patch("/change-multi", checkAuth_auth_1.authAdmin, controller.changeMulti);
-router.patch("/change-status/:id/:status", checkAuth_auth_1.authAdmin, controller.changeStatus);
+router.patch("/change-status/:id/:status", checkAuth_auth_1.authAdmin, categoryValidate.statusValid, controller.changeStatus);
 exports.default = router;
