@@ -59,8 +59,9 @@ export const uploadImage = async (
     }
 
     // Attach uploaded image URL to request body so controller can save it
-    // Don't overwrite req.body, just add image property
-    req.body.image = result.secure_url;
+    // Use the same field name as the upload field name (dynamic)
+    const fieldName = file.fieldname || "image";
+    req.body[fieldName] = result.secure_url;
 
     return next();
   } catch (error: any) {
