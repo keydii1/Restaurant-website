@@ -3,6 +3,7 @@ import Order from "../models/order.model";
 import { OK, Created } from "../core/success.response";
 import { BadRequestError } from "../core/error.response";
 import sendMailThankYou from "../utils/SendMail/sendMailThankyou";
+import socketService from "../services/socket.service";
 export const getAllOrders = async (req: Request, res: Response) => {
   try {
     const orders = await Order.find()
@@ -291,7 +292,55 @@ export const successfulPayment = async (req: Request, res: Response) => {
         status: "confirmed",
       }
     );
+
+    // Lấy thông tin order đầy đủ để gửi qua socket
+    const updatedOrder = await Order.findById(idOfOrder)
+      .populate("userId", "username email")
+      .populate("tableId", "tableNumber status")
+      .populate("cartId");
+
+    // Gửi thông báo qua Socket.IO đến admin
+    socketService.notifyPaymentSuccess({
+      orderId: idOfOrder,
+      email: email,
+      order: updatedOrder,
+      message: `Đơn hàng #${idOfOrder} đã thanh toán thành công!`,
+    });
+
     await sendMailThankYou(email.toString());
+    res.status(200).json({
+      message: "Payment successful",
+      order: updatedOrder,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// Test socket notification endpoint
+export const testSocketNotification = async (req: Request, res: Response) => {
+  try {
+    const { orderId, amount, email } = req.body;
+
+    // Gửi thông báo test qua Socket.IO
+    socketService.notifyPaymentSuccess({
+      orderId: orderId || "TEST-" + Date.now(),
+      email: email || "test@example.com",
+      order: {
+        _id: orderId || "TEST-" + Date.now(),
+        totalPrice: amount || 150000,
+        status: "confirmed",
+        createdAt: new Date(),
+      },
+      message: `🧪 [TEST] Đơn hàng #${orderId || "TEST"} đã thanh toán ${
+        amount || 150000
+      }đ!`,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Test notification sent successfully!",
+    });
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }

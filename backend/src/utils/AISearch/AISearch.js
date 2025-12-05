@@ -24,8 +24,7 @@ async function AiSearchKeyword(question) {
         `;
 
     const result = await model.generateContent(prompt);
-    let text = result.response.text();
-
+    let text = await result.response.text();
     // Dọn markdown nếu có
     text = text.replace(/```json|```/g, "").trim();
 

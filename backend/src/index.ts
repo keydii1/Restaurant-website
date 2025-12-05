@@ -9,6 +9,8 @@ import swaggerUi from "swagger-ui-express";
 import yaml from "yaml";
 import fs from "fs";
 import path from "path";
+import { createServer } from "http";
+import socketService from "./services/socket.service";
 const fileRestaurantSwagger = fs.readFileSync(
   path.resolve("restaurant_swagger.yaml"),
   "utf8"
@@ -45,8 +47,22 @@ app.use(
   swaggerUi.serve,
   swaggerUi.setup(restaurantSwagger)
 );
+
+// Serve static files for socket test page
+app.use("/views", express.static(path.join(__dirname, "../views")));
+
+// Socket test page route
+app.get("/socket-test", (req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, "../views/socket_test.html"));
+});
+
 routerAppVer1(app); // Routes
 
-app.listen(PORT, () => {
+// Create HTTP server and initialize Socket.IO
+const httpServer = createServer(app);
+socketService.initialize(httpServer);
+
+httpServer.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
+  console.log(`Socket.IO is ready for connections`);
 });
