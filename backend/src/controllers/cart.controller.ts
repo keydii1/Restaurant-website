@@ -3,6 +3,7 @@ import Cart from "../models/cart.model";
 import Dish from "../models/dish.model";
 import { OK } from "../core/success.response";
 import { BadRequestError } from "../core/error.response";
+
 export const getCart = async (req: Request, res: Response) => {
   try {
     const accesstoken = (req as any).accessToken;
@@ -22,6 +23,23 @@ export const getCart = async (req: Request, res: Response) => {
     }).send(res);
   } catch (error) {
     return new BadRequestError("Error fetching cart").send(res);
+  }
+};
+export const getAllcartByUser = async (req: Request, res: Response) => {
+  try {
+    const accesstoken = (req as any).accessToken;
+    const userId = accesstoken.id;
+    const carts = await Cart.find({
+      userId: userId,
+    })
+      .populate("items.dishId", "name price image")
+      .populate("userId", "username email");
+    return new OK({
+      message: "Fetch all carts by user successfully",
+      metadata: carts,
+    }).send(res);
+  } catch (error) {
+    return new BadRequestError("Error fetching carts").send(res);
   }
 };
 export const addToCart = async (req: Request, res: Response) => {
