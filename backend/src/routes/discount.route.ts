@@ -22,7 +22,6 @@ router.patch(
   "/edit/:id",
   authAdmin,
   discountValidate.codeLength,
-  discountValidate.codeUnique,
   discountValidate.percentageValid,
   discountValidate.dateValid,
   controllers.editDiscount

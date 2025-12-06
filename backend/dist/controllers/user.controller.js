@@ -45,7 +45,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.googleAuthCallback = exports.googleAuth = exports.refreshToken = exports.logout = exports.resetPassword = exports.verifyOtp = exports.forgotPassword = exports.login = exports.register = exports.getUsers = void 0;
+exports.googleAuthCallback = exports.googleAuth = exports.refreshToken = exports.logout = exports.resetPassword = exports.verifyOtp = exports.forgotPassword = exports.login = exports.editProfile = exports.register = exports.getUsers = void 0;
 const user_model_1 = __importDefault(require("../models/user.model"));
 const otp_model_1 = __importDefault(require("../models/otp.model"));
 const GenerateHelper = __importStar(require("../helpers/generate.helper"));
@@ -88,6 +88,22 @@ const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.register = register;
+const editProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const accesstoken = req.accessToken;
+        const userId = accesstoken.id;
+        yield user_model_1.default.updateOne({ _id: userId }, { $set: req.body });
+        const updatedUser = yield user_model_1.default.findById(userId).select("username email phone avatar");
+        return new success_response_1.OK({
+            message: "Profile updated successfully",
+            metadata: updatedUser,
+        }).send(res);
+    }
+    catch (error) {
+        return new error_response_1.BadRequestError().send(res);
+    }
+});
+exports.editProfile = editProfile;
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { email, password } = req.body;

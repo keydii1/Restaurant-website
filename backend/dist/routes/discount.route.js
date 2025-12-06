@@ -42,5 +42,5 @@ router.get("/", checkAuth_auth_1.auth, controllers.getCurrentDiscounts);
 router.get("/all", checkAuth_auth_1.authAdmin, controllers.getAllDiscounts);
 router.post("/create", checkAuth_auth_1.authAdmin, discountValidate.codeRequired, discountValidate.codeLength, discountValidate.codeUnique, discountValidate.percentageRequired, discountValidate.percentageValid, discountValidate.dateRequired, discountValidate.dateValid, controllers.createDiscount);
 router.delete("/delete/:id", checkAuth_auth_1.authAdmin, controllers.deleteDiscount);
-router.patch("/edit/:id", checkAuth_auth_1.authAdmin, discountValidate.codeLength, discountValidate.codeUnique, discountValidate.percentageValid, discountValidate.dateValid, controllers.editDiscount);
+router.patch("/edit/:id", checkAuth_auth_1.authAdmin, discountValidate.codeLength, discountValidate.percentageValid, discountValidate.dateValid, controllers.editDiscount);
 exports.default = router;

@@ -53,6 +53,26 @@ export const register = async (req: Request, res: Response) => {
   }
 };
 
+export const editProfile = async (req: Request, res: Response) => {
+  try {
+    const accesstoken = (req as any).accessToken;
+    const userId = accesstoken.id;
+
+    // Update user profile
+    await User.updateOne({ _id: userId }, { $set: req.body });
+    const updatedUser = await User.findById(userId).select(
+      "username email phone avatar"
+    );
+
+    return new OK({
+      message: "Profile updated successfully",
+      metadata: updatedUser,
+    }).send(res);
+  } catch (error) {
+    return new BadRequestError().send(res);
+  }
+};
+
 export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
