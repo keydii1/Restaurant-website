@@ -2,7 +2,7 @@ import { Router } from "express";
 import * as controller from "../controllers/user.controller";
 import * as userValidate from "../validates/user.validate";
 const router = Router();
-import { authAdmin } from "../auth/checkAuth.auth";
+import { authAdmin, auth } from "../auth/checkAuth.auth";
 import { uploadImage } from "../middlewares/uploadCloud.middleware";
 import multer from "multer";
 const upload = multer({ dest: "uploads/" });
@@ -25,12 +25,16 @@ router.post(
   userValidate.emailValid,
   controller.forgotPassword
 );
+
+router.patch("/edit-profile", auth, controller.editProfile);
+
 router.post("/verify-otp", controller.verifyOtp);
 router.patch(
   "/reset-password",
   userValidate.passwordRequirements,
   controller.resetPassword
 );
+router.get("/edit");
 router.get("/logout", controller.logout);
 router.post("/refresh-token", controller.refreshToken);
 router.get("/auth/google", controller.googleAuth);
