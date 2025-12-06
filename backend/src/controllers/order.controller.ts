@@ -276,6 +276,7 @@ export const createPayment = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 export const successfulPayment = async (req: Request, res: Response) => {
   try {
     const idOfOrder = req.query.id;

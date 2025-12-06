@@ -7,6 +7,7 @@ export interface ICart extends Document {
     quantity: number;
   }[];
   totalPrice: number;
+  status: string;
 }
 
 const cartSchema = new Schema<ICart>(
@@ -19,6 +20,7 @@ const cartSchema = new Schema<ICart>(
       },
     ],
     totalPrice: { type: Number, required: true },
+    status: { type: String, required: true, default: "active" },
   },
   { timestamps: true, collection: "carts" }
 );

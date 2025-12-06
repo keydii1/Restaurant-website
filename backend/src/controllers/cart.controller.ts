@@ -9,6 +9,7 @@ export const getCart = async (req: Request, res: Response) => {
     const userId = accesstoken.id;
     const cart = await Cart.findOne({
       userId: userId,
+      status: "active",
     })
       .populate("items.dishId", "name price image")
       .populate("userId", "username email");
@@ -29,7 +30,7 @@ export const addToCart = async (req: Request, res: Response) => {
     const accesstoken = (req as any).accessToken;
     const userId = accesstoken.id;
     const { dishId, quantity } = req.body;
-    let cart = await Cart.findOne({ userId: userId });
+    let cart = await Cart.findOne({ userId: userId, status: "active" });
     const dish = await Dish.findOne({
       _id: dishId,
     }).select("price");
@@ -42,9 +43,13 @@ export const addToCart = async (req: Request, res: Response) => {
         userId: userId,
         items: [{ dishId, quantity }],
         totalPrice: totalPriceOfCurrentItem,
+        status: "active",
       });
       await cart.save();
-      const information = await Cart.findOne({ userId: userId })
+      const information = await Cart.findOne({
+        userId: userId,
+        status: "active",
+      })
         .populate("items.dishId", "name price image")
         .populate("userId", "username email");
       return new OK({
@@ -59,7 +64,10 @@ export const addToCart = async (req: Request, res: Response) => {
         existingItem.quantity += quantity;
         cart.totalPrice += totalPriceOfCurrentItem;
         await cart.save();
-        const information = await Cart.findOne({ userId: userId })
+        const information = await Cart.findOne({
+          userId: userId,
+          status: "active",
+        })
           .populate("items.dishId", "name price image")
           .populate("userId", "username email");
         return new OK({
@@ -70,7 +78,10 @@ export const addToCart = async (req: Request, res: Response) => {
       cart.items.push({ dishId, quantity });
       cart.totalPrice += totalPriceOfCurrentItem;
       await cart.save();
-      const information = await Cart.findOne({ userId: userId })
+      const information = await Cart.findOne({
+        userId: userId,
+        status: "active",
+      })
         .populate("items.dishId", "name price image")
         .populate("userId", "username email");
       return new OK({
@@ -87,7 +98,10 @@ export const clearCart = async (req: Request, res: Response) => {
   try {
     const accesstoken = (req as any).accessToken;
     const userId = accesstoken.id;
-    await Cart.deleteOne({ userId: userId });
+    await Cart.updateOne(
+      { userId: userId, status: "active" },
+      { status: "cleared" }
+    );
     return new OK({
       message: "Cart cleared successfully",
     }).send(res);
@@ -103,7 +117,7 @@ export const changeOneItemFromCart = async (req: Request, res: Response) => {
     const userId = accesstoken.id;
     const { dishId, quantity } = req.body;
 
-    const cart = await Cart.findOne({ userId });
+    const cart = await Cart.findOne({ userId: userId, status: "active" });
     if (!cart) {
       return res.status(404).json({ message: "You do not have a cart" });
     }
@@ -123,7 +137,7 @@ export const changeOneItemFromCart = async (req: Request, res: Response) => {
     cart.totalPrice =
       cart.totalPrice - oldTotalPriceOfItem + newTotalPriceOfItem;
     await cart.save();
-    const information = await Cart.findOne({ userId })
+    const information = await Cart.findOne({ userId: userId, status: "active" })
       .populate("items.dishId", "name price image")
       .populate("userId", "username email");
     return new OK({
@@ -140,7 +154,7 @@ export const removeOneItemFromCart = async (req: Request, res: Response) => {
     const accesstoken = (req as any).accessToken;
     const userId = accesstoken.id;
     const dishId = req.body.dishId;
-    const cart = await Cart.findOne({ userId });
+    const cart = await Cart.findOne({ userId: userId, status: "active" });
     if (!cart) {
       return res.status(404).json({ message: "You do not have a cart" });
     }
@@ -152,7 +166,7 @@ export const removeOneItemFromCart = async (req: Request, res: Response) => {
     cart.totalPrice -= finalPrice;
     cart.items = cart.items.filter((i) => i.dishId.toString() !== dishId);
     await cart.save();
-    const infomation = await Cart.findOne({ userId })
+    const infomation = await Cart.findOne({ userId: userId, status: "active" })
       .populate("items.dishId", "name price image")
       .populate("userId", "username email");
     return new OK({

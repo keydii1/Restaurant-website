@@ -14,10 +14,8 @@ class SocketService {
         credentials: true,
       },
     });
-
     this.io.on("connection", (socket: Socket) => {
       console.log(`🔌 Client connected: ${socket.id}`);
-
       // Admin join room để nhận thông báo
       socket.on("admin:join", () => {
         socket.join("admin-room");
@@ -25,7 +23,7 @@ class SocketService {
         console.log(`👤 Admin joined: ${socket.id}`);
       });
 
-      // Admin rời room
+      // Admin rời roo
       socket.on("admin:leave", () => {
         socket.leave("admin-room");
         this.adminSockets.delete(socket.id);
