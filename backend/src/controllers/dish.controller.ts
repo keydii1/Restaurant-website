@@ -18,7 +18,6 @@ export const getDishes = async (req: Request, res: Response) => {
       deleted: false,
     };
     const filterStatus = req.query.status as string;
-    const filterKeyword = req.query.keyword as string;
     const sortKey = req.query.sortKey as string;
     const sortValue = req.query.sortValue as string;
     //  start status
@@ -27,10 +26,6 @@ export const getDishes = async (req: Request, res: Response) => {
     }
     // end status
     // start keyword
-    if (filterKeyword) {
-      const keywordRegex = new RegExp(filterKeyword, "i"); // Case-insensitive regex
-      findCondition.name = keywordRegex;
-    }
     // end keyword
     // sort
 
@@ -62,6 +57,25 @@ export const getDishes = async (req: Request, res: Response) => {
         totalPages: objectPagination.totalPages,
         currentPage: objectPagination.currentPage,
       },
+    }).send(res);
+  } catch (error) {
+    return new BadRequestError().send(res);
+  }
+};
+export const getSearchedDish = async (req: Request, res: Response) => {
+  try {
+    const keyword = req.query.keyword as string;
+    if (!keyword) {
+      return new BadRequestError("Keyword is required").send(res);
+    }
+    const keywordRegex = new RegExp(keyword, "i"); // Case-insensitive regex
+    const dishes = await Dish.find({
+      name: { $regex: keywordRegex },
+      deleted: false,
+    }).populate("categoryId", "name");
+    return new OK({
+      message: "Dishes fetched successfully",
+      metadata: dishes,
     }).send(res);
   } catch (error) {
     return new BadRequestError().send(res);

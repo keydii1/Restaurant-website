@@ -20,7 +20,7 @@ router.get("/", controller.getDishes);
 router.patch("/change-status/:id/:status", authAdmin, controller.changeStatus);
 router.patch("/change-multi", authAdmin, controller.changeMulti);
 router.delete("/delete/:id", authAdmin, controller.deleteDish);
-
+router.get("/search", controller.getSearchedDish);
 router.post(
   "/create",
   authAdmin,
