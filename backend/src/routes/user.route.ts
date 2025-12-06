@@ -25,7 +25,7 @@ router.post(
   userValidate.emailValid,
   controller.forgotPassword
 );
-
+router.get("profile", auth, controller.getProfile);
 router.patch("/edit-profile", auth, controller.editProfile);
 
 router.post("/verify-otp", controller.verifyOtp);

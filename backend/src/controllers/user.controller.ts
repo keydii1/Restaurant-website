@@ -52,7 +52,27 @@ export const register = async (req: Request, res: Response) => {
     return new BadRequestError().send(res);
   }
 };
+export const getProfile = async (req: Request, res: Response) => {
+  try {
+    const accesstoken = (req as any).accessToken;
+    const userId = accesstoken.id;
 
+    const user = await User.findById(userId).select(
+      "username email phone avatar dateOfBirth address"
+    );
+
+    if (!user) {
+      return new BadRequestError("User not found").send(res);
+    }
+
+    return new OK({
+      message: "Profile fetched successfully",
+      metadata: user,
+    }).send(res);
+  } catch (error) {
+    return new BadRequestError().send(res);
+  }
+};
 export const editProfile = async (req: Request, res: Response) => {
   try {
     const accesstoken = (req as any).accessToken;

@@ -45,7 +45,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.googleAuthCallback = exports.googleAuth = exports.refreshToken = exports.logout = exports.resetPassword = exports.verifyOtp = exports.forgotPassword = exports.login = exports.editProfile = exports.register = exports.getUsers = void 0;
+exports.googleAuthCallback = exports.googleAuth = exports.refreshToken = exports.logout = exports.resetPassword = exports.verifyOtp = exports.forgotPassword = exports.login = exports.editProfile = exports.getProfile = exports.register = exports.getUsers = void 0;
 const user_model_1 = __importDefault(require("../models/user.model"));
 const otp_model_1 = __importDefault(require("../models/otp.model"));
 const GenerateHelper = __importStar(require("../helpers/generate.helper"));
@@ -88,6 +88,24 @@ const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.register = register;
+const getProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const accesstoken = req.accessToken;
+        const userId = accesstoken.id;
+        const user = yield user_model_1.default.findById(userId).select("username email phone avatar dateOfBirth address");
+        if (!user) {
+            return new error_response_1.BadRequestError("User not found").send(res);
+        }
+        return new success_response_1.OK({
+            message: "Profile fetched successfully",
+            metadata: user,
+        }).send(res);
+    }
+    catch (error) {
+        return new error_response_1.BadRequestError().send(res);
+    }
+});
+exports.getProfile = getProfile;
 const editProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const accesstoken = req.accessToken;
