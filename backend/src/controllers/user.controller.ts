@@ -81,7 +81,7 @@ export const editProfile = async (req: Request, res: Response) => {
     // Update user profile
     await User.updateOne({ _id: userId }, { $set: req.body });
     const updatedUser = await User.findById(userId).select(
-      "username email phone avatar dateOfBirth address"
+      "username email phoneNumber avatar dateOfBirth address"
     );
 
     return new OK({

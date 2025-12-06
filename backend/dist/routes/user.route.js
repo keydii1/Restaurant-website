@@ -48,7 +48,7 @@ router.get("/", checkAuth_auth_1.authAdmin, controller.getUsers);
 router.post("/register", upload.single("avatar"), uploadCloud_middleware_1.uploadImage, userValidate.usernameNotEmpty, userValidate.emailValid, userValidate.emailExistCheck, userValidate.usernameExistCheck, userValidate.phoneExistCheck, userValidate.passwordRequirements, controller.register);
 router.post("/login", userValidate.emailValid, controller.login);
 router.post("/forgot-password", userValidate.emailValid, controller.forgotPassword);
-router.get("profile", checkAuth_auth_1.auth, controller.getProfile);
+router.get("/profile", checkAuth_auth_1.auth, controller.getProfile);
 router.patch("/edit-profile", checkAuth_auth_1.auth, controller.editProfile);
 router.post("/verify-otp", controller.verifyOtp);
 router.patch("/reset-password", userValidate.passwordRequirements, controller.resetPassword);

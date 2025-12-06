@@ -111,7 +111,7 @@ const editProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         const accesstoken = req.accessToken;
         const userId = accesstoken.id;
         yield user_model_1.default.updateOne({ _id: userId }, { $set: req.body });
-        const updatedUser = yield user_model_1.default.findById(userId).select("username email phone avatar dateOfBirth address");
+        const updatedUser = yield user_model_1.default.findById(userId).select("username email phoneNumber avatar dateOfBirth address");
         return new success_response_1.OK({
             message: "Profile updated successfully",
             metadata: updatedUser,
