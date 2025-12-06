@@ -46,6 +46,8 @@ const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
 const yaml_1 = __importDefault(require("yaml"));
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
+const http_1 = require("http");
+const socket_service_1 = __importDefault(require("./services/socket.service"));
 const fileRestaurantSwagger = fs_1.default.readFileSync(path_1.default.resolve("restaurant_swagger.yaml"), "utf8");
 const restaurantSwagger = yaml_1.default.parse(fileRestaurantSwagger);
 dotenv_1.default.config();
@@ -62,7 +64,14 @@ app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.json({ limit: "50mb" }));
 app.use(express_1.default.urlencoded({ limit: "50mb", extended: true }));
 app.use("/restaurant/api/v1/docs", swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(restaurantSwagger));
+app.use("/views", express_1.default.static(path_1.default.join(__dirname, "../views")));
+app.get("/socket-test", (req, res) => {
+    res.sendFile(path_1.default.join(__dirname, "../views/socket_test.html"));
+});
 (0, index_route_1.default)(app);
-app.listen(PORT, () => {
+const httpServer = (0, http_1.createServer)(app);
+socket_service_1.default.initialize(httpServer);
+httpServer.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);
+    console.log(`Socket.IO is ready for connections`);
 });

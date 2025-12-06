@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getDishDetail = exports.edit = exports.create = exports.deleteDish = exports.changeMulti = exports.changeStatus = exports.getDishes = void 0;
+exports.getDishDetail = exports.edit = exports.create = exports.deleteDish = exports.changeMulti = exports.changeStatus = exports.getSearchedDish = exports.getDishes = void 0;
 const dish_model_1 = __importDefault(require("../models/dish.model"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const pagination_helper_1 = __importDefault(require("../helpers/pagination.helper"));
@@ -25,15 +25,10 @@ const getDishes = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             deleted: false,
         };
         const filterStatus = req.query.status;
-        const filterKeyword = req.query.keyword;
         const sortKey = req.query.sortKey;
         const sortValue = req.query.sortValue;
         if (filterStatus) {
             findCondition.status = filterStatus;
-        }
-        if (filterKeyword) {
-            const keywordRegex = new RegExp(filterKeyword, "i");
-            findCondition.name = keywordRegex;
         }
         let sortCondition = {};
         if (sortKey && sortValue) {
@@ -63,6 +58,27 @@ const getDishes = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getDishes = getDishes;
+const getSearchedDish = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const keyword = req.query.keyword;
+        if (!keyword) {
+            return new error_response_1.BadRequestError("Keyword is required").send(res);
+        }
+        const keywordRegex = new RegExp(keyword, "i");
+        const dishes = yield dish_model_1.default.find({
+            name: { $regex: keywordRegex },
+            deleted: false,
+        }).populate("categoryId", "name");
+        return new success_response_1.OK({
+            message: "Dishes fetched successfully",
+            metadata: dishes,
+        }).send(res);
+    }
+    catch (error) {
+        return new error_response_1.BadRequestError().send(res);
+    }
+});
+exports.getSearchedDish = getSearchedDish;
 const changeStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const dishId = req.params.id;

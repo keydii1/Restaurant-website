@@ -10,6 +10,7 @@ const cartSchema = new mongoose_1.Schema({
         },
     ],
     totalPrice: { type: Number, required: true },
+    status: { type: String, required: true, default: "active" },
 }, { timestamps: true, collection: "carts" });
 const Cart = (0, mongoose_1.model)("Cart", cartSchema);
 exports.default = Cart;

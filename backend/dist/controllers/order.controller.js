@@ -12,11 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.successfulPayment = exports.createPayment = exports.updatePaymentStatus = exports.updateOrderStatus = exports.updateOrder = exports.createOrder = exports.GetOrderDetail = exports.getOrders = exports.getAllOrders = void 0;
+exports.testSocketNotification = exports.successfulPayment = exports.createPayment = exports.updatePaymentStatus = exports.updateOrderStatus = exports.updateOrder = exports.createOrder = exports.GetOrderDetail = exports.getOrders = exports.getAllOrders = void 0;
 const order_model_1 = __importDefault(require("../models/order.model"));
 const success_response_1 = require("../core/success.response");
 const error_response_1 = require("../core/error.response");
 const sendMailThankyou_1 = __importDefault(require("../utils/SendMail/sendMailThankyou"));
+const socket_service_1 = __importDefault(require("../services/socket.service"));
 const getAllOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const orders = yield order_model_1.default.find()
@@ -289,10 +290,48 @@ const successfulPayment = (req, res) => __awaiter(void 0, void 0, void 0, functi
         }, {
             status: "confirmed",
         });
+        const updatedOrder = yield order_model_1.default.findById(idOfOrder)
+            .populate("userId", "username email")
+            .populate("tableId", "tableNumber status")
+            .populate("cartId");
+        socket_service_1.default.notifyPaymentSuccess({
+            orderId: idOfOrder,
+            email: email,
+            order: updatedOrder,
+            message: `Đơn hàng #${idOfOrder} đã thanh toán thành công!`,
+        });
         yield (0, sendMailThankyou_1.default)(email.toString());
+        res.status(200).json({
+            message: "Payment successful",
+            order: updatedOrder,
+        });
     }
     catch (error) {
         res.status(500).json({ message: "Internal server error" });
     }
 });
 exports.successfulPayment = successfulPayment;
+const testSocketNotification = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { orderId, amount, email } = req.body;
+        socket_service_1.default.notifyPaymentSuccess({
+            orderId: orderId || "TEST-" + Date.now(),
+            email: email || "test@example.com",
+            order: {
+                _id: orderId || "TEST-" + Date.now(),
+                totalPrice: amount || 150000,
+                status: "confirmed",
+                createdAt: new Date(),
+            },
+            message: `🧪 [TEST] Đơn hàng #${orderId || "TEST"} đã thanh toán ${amount || 150000}đ!`,
+        });
+        res.status(200).json({
+            success: true,
+            message: "Test notification sent successfully!",
+        });
+    }
+    catch (error) {
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+exports.testSocketNotification = testSocketNotification;

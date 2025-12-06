@@ -46,4 +46,5 @@ router.patch("/edit/:id/status", checkAuth_auth_1.authAdmin, controller.updateOr
 router.patch("/edit/:id/payment", checkAuth_auth_1.authAdmin, controller.updatePaymentStatus);
 router.post("/create-payment", controller.createPayment);
 router.get("/result", controller.successfulPayment);
+router.post("/test-socket", controller.testSocketNotification);
 exports.default = router;

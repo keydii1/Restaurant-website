@@ -379,6 +379,52 @@ paths:
         "401":
           $ref: "#/components/responses/UnauthorizedError"
 
+  /dishes/search:
+    get:
+      tags:
+        - dishes
+      summary: Tìm kiếm món ăn
+      description: Tìm kiếm món ăn theo từ khóa (tên món)
+      parameters:
+        - in: query
+          name: keyword
+          required: true
+          schema:
+            type: string
+          description: Từ khóa tìm kiếm (tên món ăn)
+          example: "pizza"
+      responses:
+        "200":
+          description: Tìm kiếm thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Dishes fetched successfully"
+                  statusCode:
+                    type: integer
+                    example: 200
+                  metadata:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Dish"
+        "400":
+          description: Thiếu từ khóa tìm kiếm
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Keyword is required"
+                  statusCode:
+                    type: integer
+                    example: 400
+
   /dishes/create:
     post:
       tags:

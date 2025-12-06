@@ -23,6 +23,7 @@ const getCart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const userId = accesstoken.id;
         const cart = yield cart_model_1.default.findOne({
             userId: userId,
+            status: "active",
         })
             .populate("items.dishId", "name price image")
             .populate("userId", "username email");
@@ -45,7 +46,7 @@ const addToCart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const accesstoken = req.accessToken;
         const userId = accesstoken.id;
         const { dishId, quantity } = req.body;
-        let cart = yield cart_model_1.default.findOne({ userId: userId });
+        let cart = yield cart_model_1.default.findOne({ userId: userId, status: "active" });
         const dish = yield dish_model_1.default.findOne({
             _id: dishId,
         }).select("price");
@@ -58,9 +59,13 @@ const addToCart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 userId: userId,
                 items: [{ dishId, quantity }],
                 totalPrice: totalPriceOfCurrentItem,
+                status: "active",
             });
             yield cart.save();
-            const information = yield cart_model_1.default.findOne({ userId: userId })
+            const information = yield cart_model_1.default.findOne({
+                userId: userId,
+                status: "active",
+            })
                 .populate("items.dishId", "name price image")
                 .populate("userId", "username email");
             return new success_response_1.OK({
@@ -74,7 +79,10 @@ const addToCart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 existingItem.quantity += quantity;
                 cart.totalPrice += totalPriceOfCurrentItem;
                 yield cart.save();
-                const information = yield cart_model_1.default.findOne({ userId: userId })
+                const information = yield cart_model_1.default.findOne({
+                    userId: userId,
+                    status: "active",
+                })
                     .populate("items.dishId", "name price image")
                     .populate("userId", "username email");
                 return new success_response_1.OK({
@@ -85,7 +93,10 @@ const addToCart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             cart.items.push({ dishId, quantity });
             cart.totalPrice += totalPriceOfCurrentItem;
             yield cart.save();
-            const information = yield cart_model_1.default.findOne({ userId: userId })
+            const information = yield cart_model_1.default.findOne({
+                userId: userId,
+                status: "active",
+            })
                 .populate("items.dishId", "name price image")
                 .populate("userId", "username email");
             return new success_response_1.OK({
@@ -103,7 +114,7 @@ const clearCart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const accesstoken = req.accessToken;
         const userId = accesstoken.id;
-        yield cart_model_1.default.deleteOne({ userId: userId });
+        yield cart_model_1.default.updateOne({ userId: userId, status: "active" }, { status: "cleared" });
         return new success_response_1.OK({
             message: "Cart cleared successfully",
         }).send(res);
@@ -119,7 +130,7 @@ const changeOneItemFromCart = (req, res) => __awaiter(void 0, void 0, void 0, fu
         const accesstoken = req.accessToken;
         const userId = accesstoken.id;
         const { dishId, quantity } = req.body;
-        const cart = yield cart_model_1.default.findOne({ userId });
+        const cart = yield cart_model_1.default.findOne({ userId: userId, status: "active" });
         if (!cart) {
             return res.status(404).json({ message: "You do not have a cart" });
         }
@@ -137,7 +148,7 @@ const changeOneItemFromCart = (req, res) => __awaiter(void 0, void 0, void 0, fu
         cart.totalPrice =
             cart.totalPrice - oldTotalPriceOfItem + newTotalPriceOfItem;
         yield cart.save();
-        const information = yield cart_model_1.default.findOne({ userId })
+        const information = yield cart_model_1.default.findOne({ userId: userId, status: "active" })
             .populate("items.dishId", "name price image")
             .populate("userId", "username email");
         return new success_response_1.OK({
@@ -155,7 +166,7 @@ const removeOneItemFromCart = (req, res) => __awaiter(void 0, void 0, void 0, fu
         const accesstoken = req.accessToken;
         const userId = accesstoken.id;
         const dishId = req.body.dishId;
-        const cart = yield cart_model_1.default.findOne({ userId });
+        const cart = yield cart_model_1.default.findOne({ userId: userId, status: "active" });
         if (!cart) {
             return res.status(404).json({ message: "You do not have a cart" });
         }
@@ -165,7 +176,7 @@ const removeOneItemFromCart = (req, res) => __awaiter(void 0, void 0, void 0, fu
         cart.totalPrice -= finalPrice;
         cart.items = cart.items.filter((i) => i.dishId.toString() !== dishId);
         yield cart.save();
-        const infomation = yield cart_model_1.default.findOne({ userId })
+        const infomation = yield cart_model_1.default.findOne({ userId: userId, status: "active" })
             .populate("items.dishId", "name price image")
             .populate("userId", "username email");
         return new success_response_1.OK({
