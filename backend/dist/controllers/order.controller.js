@@ -22,7 +22,7 @@ const getAllOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     try {
         const orders = yield order_model_1.default.find()
             .populate("userId", "username email")
-            .populate("tableId", "tableNumber status")
+            .populate("tableId", "tableNumber status position orderTime")
             .populate({
             path: "cartId",
             populate: {
@@ -45,7 +45,7 @@ const getOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const userId = req.accessToken.id;
         const orders = yield order_model_1.default.find({ userId: userId })
             .populate("userId", "username email")
-            .populate("tableId", "tableNumber status")
+            .populate("tableId", "tableNumber status position orderTime")
             .populate({
             path: "cartId",
             populate: {
@@ -68,7 +68,7 @@ const GetOrderDetail = (req, res) => __awaiter(void 0, void 0, void 0, function*
         const { id } = req.params;
         const order = yield order_model_1.default.findById(id)
             .populate("userId", "username email")
-            .populate("tableId", "tableNumber status")
+            .populate("tableId", "tableNumber status position orderTime")
             .populate({
             path: "cartId",
             populate: {
@@ -97,7 +97,7 @@ const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         yield newOrder.save();
         const populatedOrder = yield order_model_1.default.findById(newOrder._id)
             .populate("userId", "username email")
-            .populate("tableId", "tableNumber status")
+            .populate("tableId", "tableNumber status position orderTime")
             .populate({
             path: "cartId",
             populate: {
@@ -121,7 +121,7 @@ const updateOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         yield order_model_1.default.updateOne({ _id: id }, { $set: req.body });
         const updatedOrder = yield order_model_1.default.findById(id)
             .populate("userId", "username email")
-            .populate("tableId", "tableNumber status")
+            .populate("tableId", "tableNumber status position orderTime")
             .populate({
             path: "cartId",
             populate: {
@@ -153,7 +153,7 @@ const updateOrderStatus = (req, res) => __awaiter(void 0, void 0, void 0, functi
         yield order_model_1.default.updateOne({ _id: id }, { status: status });
         const updatedOrder = yield order_model_1.default.findById(id)
             .populate("userId", "username email")
-            .populate("tableId", "tableNumber status")
+            .populate("tableId", "tableNumber status position orderTime")
             .populate({
             path: "cartId",
             populate: {
@@ -185,7 +185,7 @@ const updatePaymentStatus = (req, res) => __awaiter(void 0, void 0, void 0, func
         yield order_model_1.default.updateOne({ _id: id }, { $set: { typeOfPayment } });
         const updatedOrder = yield order_model_1.default.findById(id)
             .populate("userId", "username email")
-            .populate("tableId", "tableNumber status")
+            .populate("tableId", "tableNumber status position orderTime")
             .populate({
             path: "cartId",
             populate: {
@@ -334,7 +334,7 @@ const successfulPayment = (req, res) => __awaiter(void 0, void 0, void 0, functi
         });
         const updatedOrder = yield order_model_1.default.findById(idOfOrder)
             .populate("userId", "username email")
-            .populate("tableId", "tableNumber status")
+            .populate("tableId", "tableNumber status position orderTime")
             .populate({
             path: "cartId",
             populate: {

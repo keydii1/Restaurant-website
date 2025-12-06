@@ -8,7 +8,7 @@ export const getAllOrders = async (req: Request, res: Response) => {
   try {
     const orders = await Order.find()
       .populate("userId", "username email")
-      .populate("tableId", "tableNumber status")
+      .populate("tableId", "tableNumber status position orderTime")
       .populate({
         path: "cartId",
         populate: {
@@ -30,7 +30,7 @@ export const getOrders = async (req: Request, res: Response) => {
     const userId = (req as any).accessToken.id;
     const orders = await Order.find({ userId: userId })
       .populate("userId", "username email")
-      .populate("tableId", "tableNumber status")
+      .populate("tableId", "tableNumber status position orderTime")
       .populate({
         path: "cartId",
         populate: {
@@ -52,7 +52,7 @@ export const GetOrderDetail = async (req: Request, res: Response) => {
     const { id } = req.params;
     const order = await Order.findById(id)
       .populate("userId", "username email")
-      .populate("tableId", "tableNumber status")
+      .populate("tableId", "tableNumber status position orderTime")
       .populate({
         path: "cartId",
         populate: {
@@ -80,7 +80,7 @@ export const createOrder = async (req: Request, res: Response) => {
     await newOrder.save();
     const populatedOrder = await Order.findById(newOrder._id)
       .populate("userId", "username email")
-      .populate("tableId", "tableNumber status")
+      .populate("tableId", "tableNumber status position orderTime")
       .populate({
         path: "cartId",
         populate: {
@@ -103,7 +103,7 @@ export const updateOrder = async (req: Request, res: Response) => {
     await Order.updateOne({ _id: id }, { $set: req.body });
     const updatedOrder = await Order.findById(id)
       .populate("userId", "username email")
-      .populate("tableId", "tableNumber status")
+      .populate("tableId", "tableNumber status position orderTime")
       .populate({
         path: "cartId",
         populate: {
@@ -134,7 +134,7 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
     await Order.updateOne({ _id: id }, { status: status });
     const updatedOrder = await Order.findById(id)
       .populate("userId", "username email")
-      .populate("tableId", "tableNumber status")
+      .populate("tableId", "tableNumber status position orderTime")
       .populate({
         path: "cartId",
         populate: {
@@ -166,7 +166,7 @@ export const updatePaymentStatus = async (req: Request, res: Response) => {
     await Order.updateOne({ _id: id }, { $set: { typeOfPayment } });
     const updatedOrder = await Order.findById(id)
       .populate("userId", "username email")
-      .populate("tableId", "tableNumber status")
+      .populate("tableId", "tableNumber status position orderTime")
       .populate({
         path: "cartId",
         populate: {
@@ -339,7 +339,7 @@ export const successfulPayment = async (req: Request, res: Response) => {
     // Lấy thông tin order đầy đủ để gửi qua socket
     const updatedOrder = await Order.findById(idOfOrder)
       .populate("userId", "username email")
-      .populate("tableId", "tableNumber status")
+      .populate("tableId", "tableNumber status position orderTime")
       .populate({
         path: "cartId",
         populate: {
