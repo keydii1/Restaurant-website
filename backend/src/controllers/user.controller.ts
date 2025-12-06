@@ -58,7 +58,7 @@ export const getProfile = async (req: Request, res: Response) => {
     const userId = accesstoken.id;
 
     const user = await User.findById(userId).select(
-      "username email phone avatar dateOfBirth address"
+      "username email phoneNumber avatar dateOfBirth address"
     );
 
     if (!user) {

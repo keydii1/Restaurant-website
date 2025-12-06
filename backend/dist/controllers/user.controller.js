@@ -92,7 +92,7 @@ const getProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     try {
         const accesstoken = req.accessToken;
         const userId = accesstoken.id;
-        const user = yield user_model_1.default.findById(userId).select("username email phone avatar dateOfBirth address");
+        const user = yield user_model_1.default.findById(userId).select("username email phoneNumber avatar dateOfBirth address");
         if (!user) {
             return new error_response_1.BadRequestError("User not found").send(res);
         }
