@@ -51,7 +51,6 @@ router.post("/forgot-password", userValidate.emailValid, controller.forgotPasswo
 router.patch("/edit-profile", checkAuth_auth_1.auth, controller.editProfile);
 router.post("/verify-otp", controller.verifyOtp);
 router.patch("/reset-password", userValidate.passwordRequirements, controller.resetPassword);
-router.get("/edit");
 router.get("/logout", controller.logout);
 router.post("/refresh-token", controller.refreshToken);
 router.get("/auth/google", controller.googleAuth);

@@ -34,7 +34,6 @@ router.patch(
   userValidate.passwordRequirements,
   controller.resetPassword
 );
-router.get("/edit");
 router.get("/logout", controller.logout);
 router.post("/refresh-token", controller.refreshToken);
 router.get("/auth/google", controller.googleAuth);
