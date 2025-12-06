@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.removeOneItemFromCart = exports.changeOneItemFromCart = exports.clearCart = exports.addToCart = exports.getCart = void 0;
+exports.removeOneItemFromCart = exports.changeOneItemFromCart = exports.clearCart = exports.addToCart = exports.getAllcartByUser = exports.getCart = void 0;
 const cart_model_1 = __importDefault(require("../models/cart.model"));
 const dish_model_1 = __importDefault(require("../models/dish.model"));
 const success_response_1 = require("../core/success.response");
@@ -40,6 +40,25 @@ const getCart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getCart = getCart;
+const getAllcartByUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const accesstoken = req.accessToken;
+        const userId = accesstoken.id;
+        const carts = yield cart_model_1.default.find({
+            userId: userId,
+        })
+            .populate("items.dishId", "name price image")
+            .populate("userId", "username email");
+        return new success_response_1.OK({
+            message: "Fetch all carts by user successfully",
+            metadata: carts,
+        }).send(res);
+    }
+    catch (error) {
+        return new error_response_1.BadRequestError("Error fetching carts").send(res);
+    }
+});
+exports.getAllcartByUser = getAllcartByUser;
 const addToCart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         req.body.quantity = Number(req.body.quantity);
