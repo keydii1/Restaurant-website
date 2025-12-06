@@ -9,7 +9,13 @@ export const getAllOrders = async (req: Request, res: Response) => {
     const orders = await Order.find()
       .populate("userId", "username email")
       .populate("tableId", "tableNumber status")
-      .populate("cartId");
+      .populate({
+        path: "cartId",
+        populate: {
+          path: "items.dishId",
+          select: "name price image",
+        },
+      });
     return new OK({
       message: "Fetch all orders successfully",
       metadata: orders,
@@ -25,7 +31,13 @@ export const getOrders = async (req: Request, res: Response) => {
     const orders = await Order.find({ userId: userId })
       .populate("userId", "username email")
       .populate("tableId", "tableNumber status")
-      .populate("cartId");
+      .populate({
+        path: "cartId",
+        populate: {
+          path: "items.dishId",
+          select: "name price image",
+        },
+      });
     return new OK({
       message: "Fetch orders successfully",
       metadata: orders,
@@ -41,7 +53,13 @@ export const GetOrderDetail = async (req: Request, res: Response) => {
     const order = await Order.findById(id)
       .populate("userId", "username email")
       .populate("tableId", "tableNumber status")
-      .populate("cartId");
+      .populate({
+        path: "cartId",
+        populate: {
+          path: "items.dishId",
+          select: "name price image",
+        },
+      });
     if (!order) {
       return new BadRequestError("Order not found").send(res);
     }
@@ -63,7 +81,13 @@ export const createOrder = async (req: Request, res: Response) => {
     const populatedOrder = await Order.findById(newOrder._id)
       .populate("userId", "username email")
       .populate("tableId", "tableNumber status")
-      .populate("cartId");
+      .populate({
+        path: "cartId",
+        populate: {
+          path: "items.dishId",
+          select: "name price image",
+        },
+      });
     return new Created({
       message: "Order created successfully",
       metadata: populatedOrder,
@@ -80,7 +104,13 @@ export const updateOrder = async (req: Request, res: Response) => {
     const updatedOrder = await Order.findById(id)
       .populate("userId", "username email")
       .populate("tableId", "tableNumber status")
-      .populate("cartId");
+      .populate({
+        path: "cartId",
+        populate: {
+          path: "items.dishId",
+          select: "name price image",
+        },
+      });
     if (!updatedOrder) {
       return new BadRequestError("Order not found").send(res);
     }
@@ -105,7 +135,13 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
     const updatedOrder = await Order.findById(id)
       .populate("userId", "username email")
       .populate("tableId", "tableNumber status")
-      .populate("cartId");
+      .populate({
+        path: "cartId",
+        populate: {
+          path: "items.dishId",
+          select: "name price image",
+        },
+      });
     if (!updatedOrder) {
       return new BadRequestError("Order not found").send(res);
     }
@@ -131,7 +167,13 @@ export const updatePaymentStatus = async (req: Request, res: Response) => {
     const updatedOrder = await Order.findById(id)
       .populate("userId", "username email")
       .populate("tableId", "tableNumber status")
-      .populate("cartId");
+      .populate({
+        path: "cartId",
+        populate: {
+          path: "items.dishId",
+          select: "name price image",
+        },
+      });
     if (!updatedOrder) {
       return new BadRequestError("Order not found").send(res);
     }
@@ -298,7 +340,13 @@ export const successfulPayment = async (req: Request, res: Response) => {
     const updatedOrder = await Order.findById(idOfOrder)
       .populate("userId", "username email")
       .populate("tableId", "tableNumber status")
-      .populate("cartId");
+      .populate({
+        path: "cartId",
+        populate: {
+          path: "items.dishId",
+          select: "name price image",
+        },
+      });
 
     // Gửi thông báo qua Socket.IO đến admin
     socketService.notifyPaymentSuccess({

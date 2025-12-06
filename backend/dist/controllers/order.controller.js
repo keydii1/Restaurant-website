@@ -23,7 +23,13 @@ const getAllOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         const orders = yield order_model_1.default.find()
             .populate("userId", "username email")
             .populate("tableId", "tableNumber status")
-            .populate("cartId");
+            .populate({
+            path: "cartId",
+            populate: {
+                path: "items.dishId",
+                select: "name price image",
+            },
+        });
         return new success_response_1.OK({
             message: "Fetch all orders successfully",
             metadata: orders,
@@ -40,7 +46,13 @@ const getOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const orders = yield order_model_1.default.find({ userId: userId })
             .populate("userId", "username email")
             .populate("tableId", "tableNumber status")
-            .populate("cartId");
+            .populate({
+            path: "cartId",
+            populate: {
+                path: "items.dishId",
+                select: "name price image",
+            },
+        });
         return new success_response_1.OK({
             message: "Fetch orders successfully",
             metadata: orders,
@@ -57,7 +69,13 @@ const GetOrderDetail = (req, res) => __awaiter(void 0, void 0, void 0, function*
         const order = yield order_model_1.default.findById(id)
             .populate("userId", "username email")
             .populate("tableId", "tableNumber status")
-            .populate("cartId");
+            .populate({
+            path: "cartId",
+            populate: {
+                path: "items.dishId",
+                select: "name price image",
+            },
+        });
         if (!order) {
             return new error_response_1.BadRequestError("Order not found").send(res);
         }
@@ -80,7 +98,13 @@ const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         const populatedOrder = yield order_model_1.default.findById(newOrder._id)
             .populate("userId", "username email")
             .populate("tableId", "tableNumber status")
-            .populate("cartId");
+            .populate({
+            path: "cartId",
+            populate: {
+                path: "items.dishId",
+                select: "name price image",
+            },
+        });
         return new success_response_1.Created({
             message: "Order created successfully",
             metadata: populatedOrder,
@@ -98,7 +122,13 @@ const updateOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         const updatedOrder = yield order_model_1.default.findById(id)
             .populate("userId", "username email")
             .populate("tableId", "tableNumber status")
-            .populate("cartId");
+            .populate({
+            path: "cartId",
+            populate: {
+                path: "items.dishId",
+                select: "name price image",
+            },
+        });
         if (!updatedOrder) {
             return new error_response_1.BadRequestError("Order not found").send(res);
         }
@@ -124,7 +154,13 @@ const updateOrderStatus = (req, res) => __awaiter(void 0, void 0, void 0, functi
         const updatedOrder = yield order_model_1.default.findById(id)
             .populate("userId", "username email")
             .populate("tableId", "tableNumber status")
-            .populate("cartId");
+            .populate({
+            path: "cartId",
+            populate: {
+                path: "items.dishId",
+                select: "name price image",
+            },
+        });
         if (!updatedOrder) {
             return new error_response_1.BadRequestError("Order not found").send(res);
         }
@@ -150,7 +186,13 @@ const updatePaymentStatus = (req, res) => __awaiter(void 0, void 0, void 0, func
         const updatedOrder = yield order_model_1.default.findById(id)
             .populate("userId", "username email")
             .populate("tableId", "tableNumber status")
-            .populate("cartId");
+            .populate({
+            path: "cartId",
+            populate: {
+                path: "items.dishId",
+                select: "name price image",
+            },
+        });
         if (!updatedOrder) {
             return new error_response_1.BadRequestError("Order not found").send(res);
         }
@@ -293,7 +335,13 @@ const successfulPayment = (req, res) => __awaiter(void 0, void 0, void 0, functi
         const updatedOrder = yield order_model_1.default.findById(idOfOrder)
             .populate("userId", "username email")
             .populate("tableId", "tableNumber status")
-            .populate("cartId");
+            .populate({
+            path: "cartId",
+            populate: {
+                path: "items.dishId",
+                select: "name price image",
+            },
+        });
         socket_service_1.default.notifyPaymentSuccess({
             orderId: idOfOrder,
             email: email,
