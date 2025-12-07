@@ -254,14 +254,107 @@ paths:
         "400":
           $ref: "#/components/responses/BadRequestError"
 
+  /users/profile:
+    get:
+      tags:
+        - users
+      summary: Lấy thông tin profile
+      description: Lấy thông tin profile của người dùng hiện tại
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Profile fetched successfully"
+                  statusCode:
+                    type: integer
+                    example: 200
+                  metadata:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                        example: "690f65074d5fb8590ae9c0f6"
+                      username:
+                        type: string
+                        example: "hohoangson"
+                      email:
+                        type: string
+                        example: "hoson2k5@gmail.com"
+                      phoneNumber:
+                        type: string
+                        example: "+84123456789"
+                      avatar:
+                        type: string
+                        example: "https://res.cloudinary.com/..."
+                      dateOfBirth:
+                        type: string
+                        format: date
+                      address:
+                        type: string
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+
+  /users/edit-profile:
+    patch:
+      tags:
+        - users
+      summary: Cập nhật profile
+      description: Cập nhật thông tin profile của người dùng hiện tại
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: "hohoangson_updated"
+                phoneNumber:
+                  type: string
+                  example: "+84987654321"
+                address:
+                  type: string
+                  example: "456 New Street"
+                dateOfBirth:
+                  type: string
+                  format: date
+                  example: "2000-05-15"
+      responses:
+        "200":
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Profile updated successfully"
+                  statusCode:
+                    type: integer
+                    example: 200
+                  metadata:
+                    type: object
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+
   /users/logout:
     get:
       tags:
         - users
       summary: Đăng xuất
       description: Đăng xuất khỏi hệ thống
-      security:
-        - bearerAuth: []
       responses:
         "200":
           description: Đăng xuất thành công
@@ -346,9 +439,7 @@ paths:
       tags:
         - dishes
       summary: Lấy danh sách món ăn
-      description: Lấy danh sách tất cả món ăn với phân trang
-      security:
-        - bearerAuth: []
+      description: Lấy danh sách tất cả món ăn với phân trang (Public)
       parameters:
         - in: query
           name: page
@@ -361,14 +452,19 @@ paths:
             type: integer
             default: 10
         - in: query
-          name: category
-          schema:
-            type: string
-        - in: query
           name: status
           schema:
             type: string
             enum: [active, inactive]
+        - in: query
+          name: sortKey
+          schema:
+            type: string
+        - in: query
+          name: sortValue
+          schema:
+            type: string
+            enum: [asc, desc]
       responses:
         "200":
           description: Thành công
@@ -376,8 +472,31 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DishesResponse"
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
+
+  /dishes/all:
+    get:
+      tags:
+        - dishes
+      summary: Lấy tất cả món ăn
+      description: Lấy tất cả món ăn không phân trang (Public)
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Dishes fetched successfully"
+                  statusCode:
+                    type: integer
+                    example: 200
+                  metadata:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Dish"
 
   /dishes/search:
     get:
@@ -635,9 +754,7 @@ paths:
       tags:
         - categories
       summary: Lấy danh sách danh mục
-      description: Lấy danh sách tất cả danh mục
-      security:
-        - bearerAuth: []
+      description: Lấy danh sách tất cả danh mục (Public)
       responses:
         "200":
           description: Thành công
@@ -645,8 +762,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CategoriesResponse"
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
 
   /categories/create:
     post:
@@ -894,7 +1009,7 @@ paths:
         "401":
           $ref: "#/components/responses/UnauthorizedError"
 
-  /carts/change:
+  /carts/edit:
     post:
       tags:
         - carts
@@ -929,8 +1044,8 @@ paths:
         "401":
           $ref: "#/components/responses/UnauthorizedError"
 
-  /carts/remove:
-    post:
+  /carts/delete-item:
+    delete:
       tags:
         - carts
       summary: Xóa một món khỏi giỏ hàng
@@ -965,9 +1080,7 @@ paths:
       tags:
         - blogs
       summary: Lấy danh sách blog
-      description: Lấy danh sách tất cả blog
-      security:
-        - bearerAuth: []
+      description: Lấy danh sách tất cả blog (Public)
       responses:
         "200":
           description: Thành công
@@ -975,8 +1088,37 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BlogsResponse"
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
+
+  /blogs/detail/{id}:
+    get:
+      tags:
+        - blogs
+      summary: Lấy chi tiết blog
+      description: Lấy thông tin chi tiết của một blog (Public)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Blog detail fetched successfully"
+                  statusCode:
+                    type: integer
+                    example: 200
+                  metadata:
+                    $ref: "#/components/schemas/Blog"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
 
   /blogs/create:
     post:
@@ -1173,7 +1315,7 @@ paths:
         "404":
           $ref: "#/components/responses/NotFoundError"
 
-  /tables/change-status/{id}/{status}:
+  /tables/change-status/{id}:
     patch:
       tags:
         - tables
@@ -1188,13 +1330,19 @@ paths:
           schema:
             type: string
           example: "692b3d4e6f78901bc23de456"
-        - in: path
-          name: status
-          required: true
-          schema:
-            type: string
-            enum: [available, occupied, reserved]
-          example: "reserved"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum: [available, occupied, reserved]
+                  example: "reserved"
       responses:
         "200":
           description: Cập nhật thành công
@@ -1209,6 +1357,8 @@ paths:
                   statusCode:
                     type: integer
                     example: 200
+                  metadata:
+                    $ref: "#/components/schemas/Table"
         "401":
           $ref: "#/components/responses/UnauthorizedError"
         "403":
@@ -1219,8 +1369,8 @@ paths:
     get:
       tags:
         - discounts
-      summary: Lấy danh sách mã giảm giá
-      description: Lấy danh sách tất cả mã giảm giá
+      summary: Lấy danh sách mã giảm giá hiện tại
+      description: Lấy danh sách mã giảm giá chưa bị xóa
       security:
         - bearerAuth: []
       responses:
@@ -1232,6 +1382,37 @@ paths:
                 $ref: "#/components/schemas/DiscountsResponse"
         "401":
           $ref: "#/components/responses/UnauthorizedError"
+
+  /discounts/all:
+    get:
+      tags:
+        - discounts
+      summary: Lấy tất cả mã giảm giá (Admin)
+      description: Lấy tất cả mã giảm giá kể cả đã xóa (Chỉ admin)
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "All discounts fetched successfully"
+                  statusCode:
+                    type: integer
+                    example: 200
+                  metadata:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Discount"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
 
   /discounts/create:
     post:
@@ -1410,7 +1591,7 @@ paths:
         "404":
           $ref: "#/components/responses/NotFoundError"
 
-  /contacts/delete:
+  /contacts/delete/{id}:
     delete:
       tags:
         - contacts
@@ -1418,18 +1599,13 @@ paths:
       description: Xóa liên hệ (Chỉ admin)
       security:
         - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - id
-              properties:
-                id:
-                  type: string
-                  example: "692d5f6g8h90123de45fg678"
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          example: "692d5f6g8h90123de45fg678"
       responses:
         "200":
           description: Xóa thành công
@@ -1456,24 +1632,6 @@ paths:
     get:
       tags:
         - orders
-      summary: Lấy danh sách đơn hàng của người dùng
-      description: Lấy danh sách đơn hàng của người dùng hiện tại
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: Thành công
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/OrdersResponse"
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-
-  /orders/all:
-    get:
-      tags:
-        - orders
       summary: Lấy tất cả đơn hàng (Admin)
       description: Lấy danh sách tất cả đơn hàng trong hệ thống (Chỉ admin)
       security:
@@ -1489,6 +1647,24 @@ paths:
           $ref: "#/components/responses/UnauthorizedError"
         "403":
           $ref: "#/components/responses/ForbiddenError"
+
+  /orders/my-orders:
+    get:
+      tags:
+        - orders
+      summary: Lấy danh sách đơn hàng của người dùng
+      description: Lấy danh sách đơn hàng của người dùng hiện tại
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrdersResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
 
   /orders/create:
     post:
@@ -1540,12 +1716,12 @@ paths:
         "404":
           $ref: "#/components/responses/NotFoundError"
 
-  /orders/update/{id}:
+  /orders/edit/{id}:
     patch:
       tags:
         - orders
       summary: Cập nhật đơn hàng
-      description: Cập nhật thông tin đơn hàng (Admin)
+      description: Cập nhật thông tin đơn hàng
       security:
         - bearerAuth: []
       parameters:
@@ -1569,12 +1745,10 @@ paths:
                 $ref: "#/components/schemas/OrderResponse"
         "401":
           $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
         "404":
           $ref: "#/components/responses/NotFoundError"
 
-  /orders/update-status/{id}:
+  /orders/edit/{id}/status:
     patch:
       tags:
         - orders
@@ -1615,7 +1789,7 @@ paths:
         "404":
           $ref: "#/components/responses/NotFoundError"
 
-  /orders/update-payment/{id}:
+  /orders/edit/{id}/payment:
     patch:
       tags:
         - orders
@@ -1653,6 +1827,89 @@ paths:
           $ref: "#/components/responses/UnauthorizedError"
         "403":
           $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+  /orders/create-payment:
+    post:
+      tags:
+        - orders
+      summary: Tạo thanh toán MoMo
+      description: Tạo yêu cầu thanh toán qua MoMo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id
+                - email
+              properties:
+                id:
+                  type: string
+                  description: ID của đơn hàng
+                  example: "692f7h8i9j12345fg67hi890"
+                email:
+                  type: string
+                  format: email
+                  example: "hoson2k5@gmail.com"
+      responses:
+        "200":
+          description: Tạo thanh toán thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Create MoMo payment successfully"
+                  data:
+                    type: object
+                    properties:
+                      payUrl:
+                        type: string
+                        example: "https://test-payment.momo.vn/..."
+                      orderId:
+                        type: string
+                      requestId:
+                        type: string
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+  /orders/result:
+    get:
+      tags:
+        - orders
+      summary: Kết quả thanh toán MoMo
+      description: Xử lý callback kết quả thanh toán từ MoMo
+      parameters:
+        - in: query
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID của đơn hàng
+        - in: query
+          name: email
+          required: true
+          schema:
+            type: string
+          description: Email người dùng
+      responses:
+        "200":
+          description: Thanh toán thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Payment successful"
+                  order:
+                    $ref: "#/components/schemas/Order"
         "404":
           $ref: "#/components/responses/NotFoundError"
 
