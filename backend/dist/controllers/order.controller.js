@@ -106,14 +106,14 @@ const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
                 select: "name price image",
             },
         });
-        socket_service_1.default.notifyNewOrder({
-            orderId: newOrder._id,
-            email: ((_a = populatedOrder === null || populatedOrder === void 0 ? void 0 : populatedOrder.userId) === null || _a === void 0 ? void 0 : _a.email) || "",
-            order: populatedOrder,
-            message: `Đơn hàng mới #${newOrder._id}!`,
-        });
         if (req.body.typeOfPayment === "cash") {
-            yield (0, sendMailThankyou_1.default)(((_b = populatedOrder === null || populatedOrder === void 0 ? void 0 : populatedOrder.userId) === null || _b === void 0 ? void 0 : _b.email) || "");
+            yield (0, sendMailThankyou_1.default)(((_a = populatedOrder === null || populatedOrder === void 0 ? void 0 : populatedOrder.userId) === null || _a === void 0 ? void 0 : _a.email) || "");
+            socket_service_1.default.notifyNewOrder({
+                orderId: newOrder._id,
+                email: ((_b = populatedOrder === null || populatedOrder === void 0 ? void 0 : populatedOrder.userId) === null || _b === void 0 ? void 0 : _b.email) || "",
+                order: populatedOrder,
+                message: `Đơn hàng mới #${newOrder._id}!`,
+            });
         }
         return new success_response_1.Created({
             message: "Order created successfully",

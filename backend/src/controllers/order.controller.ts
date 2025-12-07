@@ -88,20 +88,15 @@ export const createOrder = async (req: Request, res: Response) => {
           select: "name price image",
         },
       });
-
-    // 🆕 Gửi socket notification cho tất cả đơn hàng mới (COD và MoMo)
-    socketService.notifyNewOrder({
-      orderId: newOrder._id,
-      email: (populatedOrder?.userId as any)?.email || "",
-      order: populatedOrder,
-      message: `Đơn hàng mới #${newOrder._id}!`,
-    });
-
-    // Chỉ gửi email cảm ơn cho đơn COD (cash) - MoMo sẽ gửi sau khi thanh toán thành công
     if (req.body.typeOfPayment === "cash") {
       await sendMailThankYou((populatedOrder?.userId as any)?.email || "");
+      socketService.notifyNewOrder({
+        orderId: newOrder._id,
+        email: (populatedOrder?.userId as any)?.email || "",
+        order: populatedOrder,
+        message: `Đơn hàng mới #${newOrder._id}!`,
+      });
     }
-
     return new Created({
       message: "Order created successfully",
       metadata: populatedOrder,
