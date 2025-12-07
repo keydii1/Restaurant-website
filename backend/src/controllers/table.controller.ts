@@ -45,17 +45,8 @@ export const editTable = async (req: Request, res: Response) => {
     const tableId = req.params.id;
     const updatedData = req.body;
     const table = await Table.findOne({ _id: tableId, deleted: false });
-    const allTable = await Table.find({ deleted: false });
     if (!table) {
       return res.status(404).json({ message: "Table not found" });
-    }
-    for (const t of allTable) {
-      if (t.tableNumber === updatedData.tableNumber)
-        return new BadRequestError("Table number already exists").send(res);
-
-      if (t.position === updatedData.position) {
-        return new BadRequestError("Table position already exists").send(res);
-      }
     }
     await Table.updateOne({ _id: tableId }, updatedData);
     return new OK({

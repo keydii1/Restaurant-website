@@ -36,216 +36,217 @@ function sendMailReject(email, customerName, reason) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <style>
-          /* Vietnamese family restaurant style - warm and welcoming */
           body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #fef8f0;
+            background-color: #fef3c7;
             margin: 0;
             padding: 20px 0;
-            color: #2d2d2d;
+            color: #1c1917;
           }
           .container {
             max-width: 600px;
             margin: 0 auto;
             background-color: #ffffff;
-            border-radius: 12px;
+            border-radius: 16px;
             overflow: hidden;
-            border: 2px solid #ff6b35;
-            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.15);
+            box-shadow: 0 20px 50px rgba(217, 119, 6, 0.15);
           }
           .header {
-            background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%);
-            padding: 35px 30px;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            padding: 40px 30px;
             text-align: center;
-            position: relative;
           }
-          .header::before {
-            content: '📋';
-            font-size: 50px;
-            display: block;
+          .logo-icon {
+            font-size: 48px;
             margin-bottom: 12px;
           }
           .brand {
-            font-family: 'Arial Black', 'Arial Bold', sans-serif;
-            font-size: 32px;
+            font-family: 'Georgia', serif;
+            font-size: 28px;
             color: #ffffff;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
             margin: 0;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            font-weight: 700;
           }
           .subtitle {
-            color: #fff8e1;
-            font-size: 14px;
+            color: #fef3c7;
+            font-size: 13px;
             margin-top: 8px;
-            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
           }
           .content {
-            padding: 35px 30px;
-            line-height: 1.7;
-            background-color: #fffbf5;
+            padding: 40px 35px;
+            background-color: #fffbeb;
           }
           .notice-badge {
-            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
-            border: 3px solid #ff9800;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #d97706;
             border-radius: 12px;
             padding: 20px;
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
+          }
+          .notice-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
           }
           .notice-title {
-            font-size: 22px;
-            color: #e65100;
+            font-size: 18px;
+            color: #92400e;
             font-weight: 700;
             margin: 0;
           }
           .greeting {
             font-size: 18px;
-            color: #ff6b35;
+            color: #92400e;
             margin-bottom: 20px;
             font-weight: 600;
           }
           .message {
-            font-size: 16px;
-            color: #4a4a4a;
-            margin-bottom: 25px;
+            font-size: 15px;
+            color: #44403c;
+            margin-bottom: 20px;
             line-height: 1.8;
           }
           .reason-box {
-            background-color: #fff9f0;
-            border-left: 4px solid #ff9800;
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
             padding: 20px 25px;
             margin: 25px 0;
-            border-radius: 6px;
+            border-radius: 0 8px 8px 0;
           }
           .reason-title {
-            font-size: 16px;
-            color: #e65100;
+            font-size: 14px;
+            color: #dc2626;
             font-weight: 700;
             margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
           }
           .reason-text {
-            font-size: 15px;
-            color: #424242;
+            font-size: 14px;
+            color: #57534e;
             line-height: 1.7;
           }
           .alternatives {
-            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
-            border: 2px solid #4CAF50;
-            border-radius: 10px;
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border: 2px solid #10b981;
+            border-radius: 12px;
             padding: 25px;
             margin: 25px 0;
           }
           .alternatives-title {
-            font-size: 18px;
-            color: #2e7d32;
+            font-size: 16px;
+            color: #065f46;
             font-weight: 700;
-            margin-bottom: 15px;
+            margin-bottom: 18px;
             text-align: center;
           }
           .alternative-item {
-            font-size: 15px;
-            color: #424242;
+            font-size: 14px;
+            color: #44403c;
             margin: 12px 0;
-            padding-left: 30px;
+            padding-left: 28px;
             position: relative;
+            line-height: 1.6;
           }
           .alternative-item::before {
             content: '💡';
             position: absolute;
             left: 0;
-            font-size: 18px;
+            font-size: 14px;
           }
           .contact-box {
-            background: linear-gradient(135deg, #fff5e6 0%, #ffe4cc 100%);
-            border: 2px dashed #ff6b35;
-            border-radius: 10px;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
             padding: 25px;
             text-align: center;
             margin: 25px 0;
           }
           .contact-title {
-            font-size: 18px;
-            color: #ff6b35;
+            font-size: 16px;
+            color: #92400e;
             font-weight: 700;
             margin-bottom: 15px;
           }
           .contact-info {
-            font-size: 16px;
-            color: #4a4a4a;
-            margin: 10px 0;
+            font-size: 14px;
+            color: #44403c;
+            margin: 8px 0;
           }
           .contact-highlight {
-            color: #d94d1a;
+            color: #d97706;
             font-weight: 700;
-            font-size: 18px;
+            font-size: 16px;
           }
           .divider {
-            height: 2px;
-            background: linear-gradient(to right, transparent, #ff6b35, transparent);
-            margin: 25px 0;
-          }
-          .footer {
-            padding: 25px 30px;
-            text-align: center;
-            font-size: 14px;
-            color: #666;
-            border-top: 2px solid #ffe4cc;
-            background-color: #fffbf5;
-          }
-          .footer-brand {
-            color: #ff6b35;
-            font-weight: 700;
-            font-size: 18px;
-          }
-          .footer-info {
-            margin-top: 10px;
-            font-size: 13px;
-            color: #999;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #fbbf24, transparent);
+            margin: 30px 0;
           }
           .apology {
             text-align: center;
-            font-style: italic;
-            color: #666;
-            font-size: 15px;
-            margin-top: 20px;
+            color: #78716c;
+            font-size: 14px;
+            line-height: 1.8;
+            padding: 15px;
+            background: #fafaf9;
+            border-radius: 8px;
           }
-
-          /* Responsive design */
+          .footer {
+            background: linear-gradient(135deg, #78350f 0%, #92400e 100%);
+            padding: 30px;
+            text-align: center;
+          }
+          .footer-brand {
+            color: #fbbf24;
+            font-weight: 700;
+            font-size: 18px;
+            font-family: 'Georgia', serif;
+            letter-spacing: 2px;
+          }
+          .footer-info {
+            margin-top: 12px;
+            font-size: 12px;
+            color: #fef3c7;
+            line-height: 1.8;
+          }
           @media only screen and (max-width: 480px) {
-            .container { margin: 0 10px; border-radius: 8px; }
-            .brand { font-size: 26px; letter-spacing: 1px; }
-            .notice-title { font-size: 18px; }
+            .container { margin: 0 10px; }
+            .brand { font-size: 24px; }
             .content { padding: 25px 20px; }
             .alternatives, .contact-box { padding: 20px 15px; }
-            .footer { padding: 20px 15px; }
           }
         </style>
       </head>
       <body>
         <div class="container">
           <div class="header">
+            <div class="logo-icon">📋</div>
             <h1 class="brand">TS RESTAURANT</h1>
-            <div class="subtitle">Món Ăn Gia Đình • Hương Vị Việt Nam</div>
+            <div class="subtitle">Hương Vị Việt Nam</div>
           </div>
           <div class="content">
             <div class="notice-badge">
-              <h2 class="notice-title">⚠️ Thông Báo Quan Trọng</h2>
+              <div class="notice-icon">⚠️</div>
+              <h2 class="notice-title">Thông Báo Quan Trọng</h2>
             </div>
 
-            <div class="greeting">Kính gửi ${customerName}! 👋</div>
+            <div class="greeting">Kính chào ${customerName}!</div>
             
             <div class="message">
-              Trước tiên, chúng tôi xin chân thành cảm ơn Quý khách đã quan tâm và lựa chọn 
-              <strong style="color: #ff6b35;">TS Restaurant</strong> cho bữa ăn của mình.
+              Cảm ơn Quý khách đã quan tâm và lựa chọn 
+              <strong style="color: #d97706;">TS Restaurant</strong> cho bữa ăn của mình.
             </div>
 
             <div class="message">
-              Rất tiếc, chúng tôi không thể xác nhận yêu cầu đặt bàn của Quý khách vào thời điểm này 
-              vì những lý do sau:
+              Rất tiếc, chúng tôi không thể xác nhận yêu cầu đặt bàn của Quý khách vào thời điểm này:
             </div>
 
             <div class="reason-box">
-              <div class="reason-title">📌 Lý Do:</div>
+              <div class="reason-title">📌 Lý Do</div>
               <div class="reason-text">
                 ${reason ||
                     "Nhà hàng đã hết chỗ trống trong khung giờ Quý khách mong muốn. Chúng tôi nhận được rất nhiều yêu cầu đặt bàn và xin lỗi vì sự bất tiện này."}
@@ -253,18 +254,18 @@ function sendMailReject(email, customerName, reason) {
             </div>
 
             <div class="alternatives">
-              <div class="alternatives-title">🌟 Gợi Ý Thay Thế 🌟</div>
+              <div class="alternatives-title">🌟 Gợi Ý Thay Thế</div>
               <div class="alternative-item">
-                <strong>Đặt bàn khung giờ khác:</strong> Chúng tôi có thể sắp xếp cho Quý khách vào các khung giờ khác trong ngày
+                <strong>Đặt bàn khung giờ khác:</strong> Chúng tôi có thể sắp xếp cho Quý khách vào các khung giờ khác
               </div>
               <div class="alternative-item">
-                <strong>Chọn ngày khác:</strong> Vui lòng xem xét đặt bàn vào ngày khác phù hợp với lịch trình
+                <strong>Chọn ngày khác:</strong> Vui lòng xem xét đặt bàn vào ngày khác phù hợp
               </div>
               <div class="alternative-item">
                 <strong>Đặt món mang về:</strong> Quý khách có thể đặt món ăn mang về để thưởng thức tại nhà
               </div>
               <div class="alternative-item">
-                <strong>Đặt bàn sớm:</strong> Liên hệ trước để được tư vấn và đặt bàn cho các dịp đặc biệt
+                <strong>Đặt bàn sớm:</strong> Liên hệ trước để được tư vấn cho các dịp đặc biệt
               </div>
             </div>
 
@@ -276,24 +277,24 @@ function sendMailReject(email, customerName, reason) {
               <div class="contact-info">
                 Email: <span class="contact-highlight">contact@tsrestaurant.vn</span>
               </div>
-              <div class="contact-info" style="margin-top: 15px; font-size: 15px; color: #666;">
-                Đội ngũ của chúng tôi luôn sẵn sàng hỗ trợ và tư vấn<br/>
-                để tìm giải pháp phù hợp nhất cho Quý khách! 💝
+              <div class="contact-info" style="margin-top: 12px; font-size: 13px; color: #78716c;">
+                Đội ngũ của chúng tôi luôn sẵn sàng hỗ trợ Quý khách!
               </div>
             </div>
 
             <div class="divider"></div>
 
             <div class="apology">
-              Chúng tôi thành thật xin lỗi vì sự bất tiện này và rất mong<br/>
-              được phục vụ Quý khách trong thời gian sớm nhất! 🙏
+              Chúng tôi thành thật xin lỗi vì sự bất tiện này.<br/>
+              Rất mong được phục vụ Quý khách trong thời gian sớm nhất! 🙏
             </div>
           </div>
           <div class="footer">
-            Trân trọng,<br/>
-            <span class="footer-brand">TS RESTAURANT</span>
-            <div class="footer-info">🏠 Nhà hàng gia đình • ☎️ Hotline: 1900-xxxx</div>
-            <div class="footer-info">📍 Việt Nam • 💌 Phục vụ tận tâm</div>
+            <div class="footer-brand">TS RESTAURANT</div>
+            <div class="footer-info">
+              📍 Việt Nam • ☎️ 1900-xxxx<br/>
+              Phục vụ tận tâm • Hương vị đậm đà
+            </div>
           </div>
         </div>
       </body>

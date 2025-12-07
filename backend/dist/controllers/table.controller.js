@@ -62,16 +62,8 @@ const editTable = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const tableId = req.params.id;
         const updatedData = req.body;
         const table = yield table_model_1.default.findOne({ _id: tableId, deleted: false });
-        const allTable = yield table_model_1.default.find({ deleted: false });
         if (!table) {
             return res.status(404).json({ message: "Table not found" });
-        }
-        for (const t of allTable) {
-            if (t.tableNumber === updatedData.tableNumber)
-                return new error_response_1.BadRequestError("Table number already exists").send(res);
-            if (t.position === updatedData.position) {
-                return new error_response_1.BadRequestError("Table position already exists").send(res);
-            }
         }
         yield table_model_1.default.updateOne({ _id: tableId }, updatedData);
         return new success_response_2.OK({
