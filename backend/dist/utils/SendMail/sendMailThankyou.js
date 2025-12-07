@@ -36,183 +36,172 @@ function sendMailThankYou(email) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <style>
-          /* Vietnamese family restaurant style - warm and welcoming */
           body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #fef8f0;
+            background-color: #fef3c7;
             margin: 0;
             padding: 20px 0;
-            color: #2d2d2d;
+            color: #1c1917;
           }
           .container {
             max-width: 600px;
             margin: 0 auto;
             background-color: #ffffff;
-            border-radius: 12px;
+            border-radius: 16px;
             overflow: hidden;
-            border: 2px solid #ff6b35;
-            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.15);
+            box-shadow: 0 20px 50px rgba(217, 119, 6, 0.15);
           }
           .header {
-            background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
-            padding: 35px 30px;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            padding: 40px 30px;
             text-align: center;
-            position: relative;
           }
-          .header::before {
-            content: '🍽️';
-            font-size: 50px;
-            display: block;
+          .logo-icon {
+            font-size: 48px;
             margin-bottom: 12px;
-            animation: bounce 2s infinite;
-          }
-          @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
           }
           .brand {
-            font-family: 'Arial Black', 'Arial Bold', sans-serif;
-            font-size: 32px;
+            font-family: 'Georgia', serif;
+            font-size: 28px;
             color: #ffffff;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
             margin: 0;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            font-weight: 700;
           }
           .subtitle {
-            color: #fff5e6;
-            font-size: 14px;
+            color: #fef3c7;
+            font-size: 13px;
             margin-top: 8px;
-            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
           }
           .content {
-            padding: 35px 30px;
-            line-height: 1.7;
-            background-color: #fffbf5;
+            padding: 40px 35px;
+            background-color: #fffbeb;
           }
           .title {
-            font-size: 26px;
-            color: #ff6b35;
-            margin-bottom: 20px;
+            font-size: 24px;
+            color: #92400e;
+            margin-bottom: 25px;
             font-weight: 700;
             text-align: center;
           }
           .message {
-            font-size: 16px;
-            color: #4a4a4a;
+            font-size: 15px;
+            color: #44403c;
             margin-bottom: 25px;
             line-height: 1.8;
             text-align: center;
           }
           .highlight {
-            color: #ff6b35;
+            color: #d97706;
             font-weight: 700;
           }
           .divider {
-            height: 2px;
-            background: linear-gradient(to right, transparent, #ff6b35, transparent);
+            height: 1px;
+            background: linear-gradient(to right, transparent, #fbbf24, transparent);
             margin: 30px 0;
           }
           .appreciation-card {
-            background: linear-gradient(135deg, #fff5e6 0%, #ffe4cc 100%);
-            border: 3px solid #ff6b35;
-            border-radius: 12px;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 3px solid #f59e0b;
+            border-radius: 16px;
             padding: 30px 25px;
             text-align: center;
             margin: 30px 0;
-            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.15);
-            position: relative;
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.12);
           }
-          .appreciation-card::before {
-            content: '"';
-            font-size: 60px;
-            color: #ffb380;
-            position: absolute;
-            top: -10px;
-            left: 20px;
-            font-family: Georgia, serif;
+          .appreciation-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
           }
           .appreciation-text {
-            font-size: 20px;
-            color: #d94d1a;
+            font-size: 18px;
+            color: #92400e;
             font-weight: 700;
-            margin: 10px 0;
             font-style: italic;
+            line-height: 1.6;
           }
           .features-box {
-            background-color: #fff9f0;
-            border-left: 4px solid #ff6b35;
-            padding: 20px 25px;
+            background: #ffffff;
+            border: 2px solid #fbbf24;
+            border-radius: 12px;
+            padding: 25px;
             margin: 25px 0;
-            border-radius: 6px;
+          }
+          .features-title {
+            font-size: 14px;
+            color: #92400e;
+            font-weight: 700;
+            margin-bottom: 18px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
           }
           .feature-item {
-            font-size: 15px;
-            color: #4a4a4a;
+            font-size: 14px;
+            color: #44403c;
             margin: 12px 0;
-            padding-left: 25px;
+            padding-left: 28px;
             position: relative;
+            line-height: 1.6;
           }
           .feature-item::before {
             content: '✓';
             position: absolute;
             left: 0;
-            color: #ff6b35;
+            color: #f59e0b;
             font-weight: 900;
-            font-size: 18px;
+            font-size: 16px;
           }
           .closing-message {
-            background: linear-gradient(135deg, #ffe4cc 0%, #fff5e6 100%);
-            border-radius: 8px;
+            background: #fafaf9;
+            border-radius: 10px;
             padding: 20px;
             text-align: center;
             margin-top: 25px;
-            font-size: 15px;
-            color: #4a4a4a;
+            font-size: 14px;
+            color: #57534e;
             line-height: 1.8;
           }
           .footer {
-            padding: 25px 30px;
+            background: linear-gradient(135deg, #78350f 0%, #92400e 100%);
+            padding: 30px;
             text-align: center;
-            font-size: 14px;
-            color: #666;
-            border-top: 2px solid #ffe4cc;
-            background-color: #fffbf5;
           }
           .footer-brand {
-            color: #ff6b35;
+            color: #fbbf24;
             font-weight: 700;
             font-size: 18px;
-            display: block;
-            margin-bottom: 10px;
+            font-family: 'Georgia', serif;
+            letter-spacing: 2px;
           }
           .footer-info {
-            margin: 8px 0;
-            font-size: 13px;
-            color: #999;
+            margin-top: 12px;
+            font-size: 12px;
+            color: #fef3c7;
+            line-height: 1.8;
           }
           .social-icons {
             margin-top: 15px;
-            font-size: 20px;
+            font-size: 18px;
+            letter-spacing: 8px;
           }
-
-          /* Responsive design */
           @media only screen and (max-width: 480px) {
-            .container { margin: 0 10px; border-radius: 8px; }
-            .brand { font-size: 26px; letter-spacing: 1px; }
-            .header::before { font-size: 42px; }
-            .title { font-size: 22px; }
-            .message { font-size: 15px; }
-            .appreciation-text { font-size: 18px; }
+            .container { margin: 0 10px; }
+            .brand { font-size: 24px; }
+            .title { font-size: 20px; }
+            .appreciation-text { font-size: 16px; }
             .content { padding: 25px 20px; }
-            .footer { padding: 20px 15px; }
           }
         </style>
       </head>
       <body>
         <div class="container">
           <div class="header">
+            <div class="logo-icon">🍜</div>
             <h1 class="brand">TS RESTAURANT</h1>
-            <div class="subtitle">Món Ăn Gia Đình • Hương Vị Việt Nam</div>
+            <div class="subtitle">Hương Vị Việt Nam</div>
           </div>
           <div class="content">
             <div class="title">Chân Thành Cảm Ơn! ❤️</div>
@@ -224,11 +213,12 @@ function sendMailThankYou(email) {
             <div class="divider"></div>
 
             <div class="appreciation-card">
-              <p class="appreciation-text">Quý khách là niềm vinh dự của chúng tôi</p>
-              <div style="font-size: 30px; margin-top: 10px;">🙏 💝</div>
+              <div class="appreciation-icon">🙏</div>
+              <p class="appreciation-text">"Quý khách là niềm vinh dự của chúng tôi"</p>
             </div>
 
             <div class="features-box">
+              <div class="features-title">Cam Kết Của Chúng Tôi</div>
               <div class="feature-item">
                 <strong>Món ăn gia đình</strong> được chế biến từ nguyên liệu tươi ngon
               </div>
@@ -244,25 +234,23 @@ function sendMailThankYou(email) {
             </div>
 
             <div class="closing-message">
-              Sự hài lòng của Quý khách là động lực lớn nhất để TS Restaurant ngày càng hoàn thiện hơn. 
-              Chúng tôi rất mong được tiếp tục phục vụ Quý khách trong những lần ghé thăm tới 
-              và luôn sẵn sàng lắng nghe mọi ý kiến đóng góp để cải thiện chất lượng phục vụ.
+              Sự hài lòng của Quý khách là động lực lớn nhất để TS Restaurant ngày càng hoàn thiện. 
+              Chúng tôi rất mong được tiếp tục phục vụ Quý khách trong những lần ghé thăm tới!
             </div>
 
             <div class="divider"></div>
 
-            <div class="message" style="font-size: 15px; color: #666; font-style: italic;">
+            <div class="message" style="font-size: 14px; color: #78716c;">
               Hẹn gặp lại Quý khách rất sớm! 🌟
             </div>
           </div>
           <div class="footer">
-            <span class="footer-brand">🍜 TS RESTAURANT 🍜</span>
-            <div class="footer-info">🏠 Nhà hàng gia đình - Món ăn truyền thống</div>
-            <div class="footer-info">☎️ Hotline: 1900-xxxx • 📧 Email: contact@tsrestaurant.vn</div>
-            <div class="footer-info">📍 Việt Nam • 🕐 Phục vụ 7 ngày/tuần</div>
-            <div class="social-icons">
-              📱 💬 🌐
+            <div class="footer-brand">TS RESTAURANT</div>
+            <div class="footer-info">
+              📍 Việt Nam • ☎️ 1900-xxxx<br/>
+              Phục vụ tận tâm • Hương vị đậm đà
             </div>
+            <div class="social-icons">📱💬🌐</div>
           </div>
         </div>
       </body>

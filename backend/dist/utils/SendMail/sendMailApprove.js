@@ -36,235 +36,265 @@ function sendMailApprove(email, customerName, bookingDetails) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <style>
-          /* Vietnamese family restaurant style - warm and welcoming */
           body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #fef8f0;
+            background-color: #fef3c7;
             margin: 0;
             padding: 20px 0;
-            color: #2d2d2d;
+            color: #1c1917;
           }
           .container {
             max-width: 600px;
             margin: 0 auto;
             background-color: #ffffff;
-            border-radius: 12px;
+            border-radius: 16px;
             overflow: hidden;
-            border: 2px solid #ff6b35;
-            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.15);
+            box-shadow: 0 20px 50px rgba(217, 119, 6, 0.15);
           }
           .header {
-            background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
-            padding: 35px 30px;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            padding: 40px 30px;
             text-align: center;
-            position: relative;
           }
-          .header::before {
-            content: '✅';
-            font-size: 50px;
-            display: block;
+          .logo-icon {
+            font-size: 48px;
             margin-bottom: 12px;
           }
           .brand {
-            font-family: 'Arial Black', 'Arial Bold', sans-serif;
-            font-size: 32px;
+            font-family: 'Georgia', serif;
+            font-size: 28px;
             color: #ffffff;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
             margin: 0;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            font-weight: 700;
           }
           .subtitle {
-            color: #e8f5e9;
-            font-size: 14px;
+            color: #fef3c7;
+            font-size: 13px;
             margin-top: 8px;
-            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
           }
           .content {
-            padding: 35px 30px;
-            line-height: 1.7;
-            background-color: #fffbf5;
+            padding: 40px 35px;
+            background-color: #fffbeb;
           }
           .success-badge {
-            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
-            border: 3px solid #4CAF50;
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border: 2px solid #10b981;
             border-radius: 12px;
             padding: 20px;
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
+          }
+          .success-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
           }
           .success-title {
-            font-size: 24px;
-            color: #2e7d32;
+            font-size: 20px;
+            color: #065f46;
             font-weight: 700;
             margin: 0;
           }
           .greeting {
             font-size: 18px;
-            color: #ff6b35;
+            color: #92400e;
             margin-bottom: 20px;
             font-weight: 600;
           }
           .message {
-            font-size: 16px;
-            color: #4a4a4a;
+            font-size: 15px;
+            color: #44403c;
             margin-bottom: 25px;
             line-height: 1.8;
           }
-          .booking-details {
-            background-color: #fff9f0;
-            border: 2px solid #ffe4cc;
-            border-radius: 10px;
-            padding: 25px;
+          .booking-card {
+            background: #ffffff;
+            border: 2px solid #fbbf24;
+            border-radius: 12px;
+            overflow: hidden;
             margin: 25px 0;
+          }
+          .booking-header {
+            background: #fef3c7;
+            padding: 15px 20px;
+            border-bottom: 2px solid #fbbf24;
+          }
+          .booking-header-title {
+            font-size: 14px;
+            color: #92400e;
+            font-weight: 700;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+          }
+          .booking-body {
+            padding: 20px;
           }
           .detail-row {
             display: flex;
             padding: 12px 0;
-            border-bottom: 1px solid #ffe4cc;
+            border-bottom: 1px solid #fef3c7;
           }
           .detail-row:last-child {
             border-bottom: none;
           }
+          .detail-icon {
+            font-size: 18px;
+            margin-right: 12px;
+          }
           .detail-label {
-            font-weight: 700;
-            color: #ff6b35;
-            min-width: 140px;
-            font-size: 15px;
+            font-weight: 600;
+            color: #78716c;
+            min-width: 100px;
+            font-size: 14px;
           }
           .detail-value {
-            color: #4a4a4a;
-            font-size: 15px;
-            flex: 1;
+            color: #1c1917;
+            font-size: 14px;
+            font-weight: 500;
           }
           .info-box {
-            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-            border-left: 4px solid #2196F3;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 4px solid #f59e0b;
             padding: 20px;
             margin: 25px 0;
-            border-radius: 6px;
+            border-radius: 0 8px 8px 0;
           }
           .info-title {
-            font-size: 16px;
-            color: #1565c0;
-            font-weight: 700;
-            margin-bottom: 12px;
-          }
-          .info-text {
             font-size: 14px;
-            color: #424242;
+            color: #92400e;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+          }
+          .info-item {
+            font-size: 14px;
+            color: #44403c;
             line-height: 1.7;
-            margin: 8px 0;
+            margin: 10px 0;
+            padding-left: 20px;
+            position: relative;
+          }
+          .info-item::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: #f59e0b;
+            font-weight: 900;
           }
           .divider {
-            height: 2px;
-            background: linear-gradient(to right, transparent, #ff6b35, transparent);
-            margin: 25px 0;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #fbbf24, transparent);
+            margin: 30px 0;
           }
           .footer {
-            padding: 25px 30px;
+            background: linear-gradient(135deg, #78350f 0%, #92400e 100%);
+            padding: 30px;
             text-align: center;
-            font-size: 14px;
-            color: #666;
-            border-top: 2px solid #ffe4cc;
-            background-color: #fffbf5;
           }
           .footer-brand {
-            color: #ff6b35;
+            color: #fbbf24;
             font-weight: 700;
             font-size: 18px;
+            font-family: 'Georgia', serif;
+            letter-spacing: 2px;
           }
           .footer-info {
-            margin-top: 10px;
-            font-size: 13px;
-            color: #999;
+            margin-top: 12px;
+            font-size: 12px;
+            color: #fef3c7;
+            line-height: 1.8;
           }
-
-          /* Responsive design */
           @media only screen and (max-width: 480px) {
-            .container { margin: 0 10px; border-radius: 8px; }
-            .brand { font-size: 26px; letter-spacing: 1px; }
-            .success-title { font-size: 20px; }
+            .container { margin: 0 10px; }
+            .brand { font-size: 24px; }
             .content { padding: 25px 20px; }
-            .booking-details { padding: 20px 15px; }
             .detail-row { flex-direction: column; }
-            .detail-label { margin-bottom: 5px; }
-            .footer { padding: 20px 15px; }
+            .detail-label { margin-bottom: 4px; }
           }
         </style>
       </head>
       <body>
         <div class="container">
           <div class="header">
+            <div class="logo-icon">🍜</div>
             <h1 class="brand">TS RESTAURANT</h1>
-            <div class="subtitle">Món Ăn Gia Đình • Hương Vị Việt Nam</div>
+            <div class="subtitle">Hương Vị Việt Nam</div>
           </div>
           <div class="content">
             <div class="success-badge">
-              <h2 class="success-title">🎉 Đặt Bàn Thành Công! 🎉</h2>
+              <div class="success-icon">✅</div>
+              <h2 class="success-title">Đặt Bàn Thành Công!</h2>
             </div>
 
-            <div class="greeting">Kính gửi ${customerName}! 👋</div>
+            <div class="greeting">Kính chào ${customerName}!</div>
             
             <div class="message">
-              Chúng tôi rất vui mừng thông báo rằng yêu cầu đặt bàn của Quý khách tại <strong style="color: #ff6b35;">TS Restaurant</strong> 
-              đã được <strong style="color: #4CAF50;">XÁC NHẬN THÀNH CÔNG</strong>! ✨
+              Chúng tôi vui mừng thông báo yêu cầu đặt bàn của Quý khách tại 
+              <strong style="color: #d97706;">TS Restaurant</strong> đã được 
+              <strong style="color: #059669;">xác nhận thành công</strong>.
             </div>
 
-            <div class="booking-details">
-              <div class="detail-row">
-                <div class="detail-label">👤 Khách hàng:</div>
-                <div class="detail-value">${customerName}</div>
+            <div class="booking-card">
+              <div class="booking-header">
+                <h3 class="booking-header-title">📋 Thông Tin Đặt Bàn</h3>
               </div>
-              <div class="detail-row">
-                <div class="detail-label">📧 Email:</div>
-                <div class="detail-value">${email}</div>
-              </div>
-              ${bookingDetails
+              <div class="booking-body">
+                <div class="detail-row">
+                  <span class="detail-icon">👤</span>
+                  <span class="detail-label">Khách hàng:</span>
+                  <span class="detail-value">${customerName}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-icon">📧</span>
+                  <span class="detail-label">Email:</span>
+                  <span class="detail-value">${email}</span>
+                </div>
+                ${bookingDetails
                     ? `
-              <div class="detail-row">
-                <div class="detail-label">📅 Ngày đặt:</div>
-                <div class="detail-value">${bookingDetails.date || "Đang cập nhật"}</div>
-              </div>
-              <div class="detail-row">
-                <div class="detail-label">🕐 Giờ đến:</div>
-                <div class="detail-value">${bookingDetails.time || "Đang cập nhật"}</div>
-              </div>
-              <div class="detail-row">
-                <div class="detail-label">👥 Số người:</div>
-                <div class="detail-value">${bookingDetails.guests || "Đang cập nhật"} người</div>
-              </div>
-              `
+                <div class="detail-row">
+                  <span class="detail-icon">📅</span>
+                  <span class="detail-label">Ngày đặt:</span>
+                  <span class="detail-value">${bookingDetails.date || "Đang cập nhật"}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-icon">🕐</span>
+                  <span class="detail-label">Giờ đến:</span>
+                  <span class="detail-value">${bookingDetails.time || "Đang cập nhật"}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-icon">👥</span>
+                  <span class="detail-label">Số người:</span>
+                  <span class="detail-value">${bookingDetails.guests || "Đang cập nhật"} người</span>
+                </div>
+                `
                     : ""}
+              </div>
             </div>
 
             <div class="info-box">
-              <div class="info-title">📋 Thông Tin Quan Trọng:</div>
-              <div class="info-text">
-                ✓ Vui lòng đến trước giờ đặt bàn <strong>10-15 phút</strong> để được phục vụ tốt nhất
-              </div>
-              <div class="info-text">
-                ✓ Nếu có thay đổi, vui lòng liên hệ với chúng tôi trước <strong>24 giờ</strong>
-              </div>
-              <div class="info-text">
-                ✓ Bàn sẽ được giữ trong vòng <strong>15 phút</strong> sau giờ đặt
-              </div>
-              <div class="info-text">
-                ✓ Hotline: <strong style="color: #ff6b35;">1900-xxxx</strong>
-              </div>
+              <div class="info-title">� Lưu Ý Quan Trọng</div>
+              <div class="info-item">Vui lòng đến trước giờ đặt bàn <strong>10-15 phút</strong></div>
+              <div class="info-item">Nếu có thay đổi, liên hệ trước <strong>24 giờ</strong></div>
+              <div class="info-item">Bàn được giữ trong vòng <strong>15 phút</strong> sau giờ đặt</div>
+              <div class="info-item">Hotline: <strong style="color: #d97706;">1900-xxxx</strong></div>
             </div>
 
             <div class="divider"></div>
 
-            <div class="message" style="text-align: center; font-size: 15px; color: #666;">
-              Chúng tôi cam kết mang đến cho Quý khách những món ăn gia đình đậm đà, 
-              không gian ấm cúng và dịch vụ tận tâm nhất! 💖
+            <div class="message" style="text-align: center; font-size: 14px; color: #78716c;">
+              Cảm ơn Quý khách đã tin tưởng TS Restaurant. Chúng tôi mong được phục vụ Quý khách!
             </div>
           </div>
           <div class="footer">
-            Trân trọng,<br/>
-            <span class="footer-brand">TS RESTAURANT</span>
-            <div class="footer-info">🏠 Nhà hàng gia đình • ☎️ Hotline: 1900-xxxx</div>
-            <div class="footer-info">📍 Việt Nam • 💌 Phục vụ tận tâm</div>
+            <div class="footer-brand">TS RESTAURANT</div>
+            <div class="footer-info">
+              📍 Việt Nam • ☎️ 1900-xxxx<br/>
+              Phục vụ tận tâm • Hương vị đậm đà
+            </div>
           </div>
         </div>
       </body>

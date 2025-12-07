@@ -30,162 +30,166 @@ export default async function sendMailForgotPassword(
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <style>
-          /* Vietnamese family restaurant style - warm and welcoming */
           body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #fef8f0; /* soft peachy cream */
+            background-color: #fef3c7;
             margin: 0;
             padding: 20px 0;
-            color: #2d2d2d;
+            color: #1c1917;
           }
           .container {
             max-width: 600px;
             margin: 0 auto;
             background-color: #ffffff;
-            border-radius: 12px;
+            border-radius: 16px;
             overflow: hidden;
-            border: 2px solid #ff6b35;
-            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.15);
+            box-shadow: 0 20px 50px rgba(217, 119, 6, 0.15);
           }
           .header {
-            background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
-            padding: 35px 30px;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            padding: 40px 30px;
             text-align: center;
-            position: relative;
           }
-          .header::before {
-            content: '🍜';
-            font-size: 42px;
-            display: block;
-            margin-bottom: 10px;
+          .logo-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
           }
           .brand {
-            font-family: 'Arial Black', 'Arial Bold', sans-serif;
-            font-size: 32px;
+            font-family: 'Georgia', serif;
+            font-size: 28px;
             color: #ffffff;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
             margin: 0;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            font-weight: 700;
           }
           .subtitle {
-            color: #fff5e6;
-            font-size: 14px;
+            color: #fef3c7;
+            font-size: 13px;
             margin-top: 8px;
-            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
           }
           .content {
-            padding: 35px 30px;
-            line-height: 1.7;
-            background-color: #fffbf5;
+            padding: 40px 35px;
+            background-color: #fffbeb;
           }
           .greeting {
             font-size: 18px;
-            color: #ff6b35;
+            color: #92400e;
             margin-bottom: 20px;
             font-weight: 600;
           }
           .instruction {
             font-size: 15px;
-            color: #4a4a4a;
+            color: #44403c;
             margin-bottom: 28px;
             line-height: 1.8;
           }
           .otp-container {
-            background: linear-gradient(135deg, #fff5e6 0%, #ffe4cc 100%);
-            border: 3px dashed #ff6b35;
-            border-radius: 10px;
-            padding: 25px 20px;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 3px solid #f59e0b;
+            border-radius: 16px;
+            padding: 30px 20px;
             text-align: center;
-            margin: 25px 0;
-            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.12);
+            margin: 30px 0;
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.15);
           }
           .otp-label {
-            font-size: 13px;
-            color: #ff6b35;
+            font-size: 12px;
+            color: #92400e;
             text-transform: uppercase;
             font-weight: 700;
-            letter-spacing: 1.5px;
-            margin-bottom: 12px;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+          }
+          .otp-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
           }
           .otp {
             font-family: 'Courier New', Courier, monospace;
-            font-size: 36px;
-            color: #d94d1a;
-            letter-spacing: 8px;
+            font-size: 42px;
+            color: #92400e;
+            letter-spacing: 10px;
             font-weight: 900;
-            margin: 10px 0;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            margin: 15px 0;
+            background: #ffffff;
+            padding: 15px 25px;
+            border-radius: 10px;
+            display: inline-block;
+            border: 2px dashed #fbbf24;
           }
           .warning-box {
-            background-color: #fff9f0;
-            border-left: 4px solid #ffa500;
-            padding: 15px 20px;
-            margin: 20px 0;
-            border-radius: 6px;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 4px solid #d97706;
+            padding: 18px 20px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
           }
           .warning-text {
             font-size: 14px;
-            color: #666;
+            color: #78716c;
             margin: 0;
             line-height: 1.6;
           }
           .note {
             font-size: 13px;
-            color: #888;
+            color: #a8a29e;
             text-align: center;
-            margin-top: 20px;
-            font-style: italic;
-          }
-          .footer {
-            padding: 25px 30px;
-            text-align: center;
-            font-size: 14px;
-            color: #666;
-            border-top: 2px solid #ffe4cc;
-            background-color: #fffbf5;
-          }
-          .footer-brand {
-            color: #ff6b35;
-            font-weight: 700;
-            font-size: 16px;
-          }
-          .footer-info {
-            margin-top: 10px;
-            font-size: 13px;
-            color: #999;
+            margin-top: 25px;
+            padding: 15px;
+            background: #fafaf9;
+            border-radius: 8px;
           }
           .divider {
-            height: 2px;
-            background: linear-gradient(to right, transparent, #ff6b35, transparent);
-            margin: 25px 0;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #fbbf24, transparent);
+            margin: 30px 0;
           }
-
-          /* Responsive design */
+          .footer {
+            background: linear-gradient(135deg, #78350f 0%, #92400e 100%);
+            padding: 30px;
+            text-align: center;
+          }
+          .footer-brand {
+            color: #fbbf24;
+            font-weight: 700;
+            font-size: 18px;
+            font-family: 'Georgia', serif;
+            letter-spacing: 2px;
+          }
+          .footer-info {
+            margin-top: 12px;
+            font-size: 12px;
+            color: #fef3c7;
+            line-height: 1.8;
+          }
           @media only screen and (max-width: 480px) {
-            .container { margin: 0 10px; border-radius: 8px; }
-            .brand { font-size: 26px; letter-spacing: 1px; }
-            .header::before { font-size: 36px; }
-            .otp { font-size: 28px; letter-spacing: 6px; }
+            .container { margin: 0 10px; }
+            .brand { font-size: 24px; }
+            .otp { font-size: 32px; letter-spacing: 6px; }
             .content { padding: 25px 20px; }
-            .footer { padding: 20px 15px; }
           }
         </style>
       </head>
       <body>
         <div class="container">
           <div class="header">
+            <div class="logo-icon">🔐</div>
             <h1 class="brand">TS RESTAURANT</h1>
-            <div class="subtitle">Món Ăn Gia Đình • Hương Vị Việt Nam</div>
+            <div class="subtitle">Hương Vị Việt Nam</div>
           </div>
           <div class="content">
-            <div class="greeting">Xin chào Quý khách! 👋</div>
+            <div class="greeting">Xin chào Quý khách!</div>
             <div class="instruction">
-              Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn tại <strong>TS Restaurant</strong>. 
+              Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn tại 
+              <strong style="color: #d97706;">TS Restaurant</strong>. 
               Vui lòng sử dụng mã xác thực bên dưới để tiếp tục:
             </div>
 
             <div class="otp-container">
-              <div class="otp-label">🔐 Mã Xác Thực</div>
+              <div class="otp-icon">🔑</div>
+              <div class="otp-label">Mã Xác Thực Của Bạn</div>
               <div class="otp">${otp}</div>
             </div>
 
@@ -199,14 +203,15 @@ export default async function sendMailForgotPassword(
             <div class="divider"></div>
 
             <div class="note">
-              Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email hoặc liên hệ với chúng tôi để được hỗ trợ.
+              Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này hoặc liên hệ với chúng tôi để được hỗ trợ.
             </div>
           </div>
           <div class="footer">
-            Trân trọng,<br/>
-            <span class="footer-brand">TS RESTAURANT</span>
-            <div class="footer-info">🏠 Nhà hàng gia đình • ☎️ Hotline: 1900-xxxx</div>
-            <div class="footer-info">📍 Việt Nam • 💌 Phục vụ tận tâm</div>
+            <div class="footer-brand">TS RESTAURANT</div>
+            <div class="footer-info">
+              📍 Việt Nam • ☎️ 1900-xxxx<br/>
+              Phục vụ tận tâm • Hương vị đậm đà
+            </div>
           </div>
         </div>
       </body>
