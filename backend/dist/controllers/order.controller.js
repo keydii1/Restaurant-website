@@ -97,7 +97,7 @@ const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         newOrder.userId = userId;
         yield newOrder.save();
         const populatedOrder = yield order_model_1.default.findById(newOrder._id)
-            .populate("userId", "username email")
+            .populate("userId", "username email phoneNumber")
             .populate("tableId", "tableNumber status position orderTime")
             .populate({
             path: "cartId",
@@ -350,7 +350,7 @@ const successfulPayment = (req, res) => __awaiter(void 0, void 0, void 0, functi
             payed: true,
         });
         const updatedOrder = yield order_model_1.default.findById(idOfOrder)
-            .populate("userId", "username email")
+            .populate("userId", "username email phoneNumber")
             .populate("tableId", "tableNumber status position orderTime")
             .populate({
             path: "cartId",

@@ -79,7 +79,7 @@ export const createOrder = async (req: Request, res: Response) => {
     newOrder.userId = userId;
     await newOrder.save();
     const populatedOrder = await Order.findById(newOrder._id)
-      .populate("userId", "username email")
+      .populate("userId", "username email phoneNumber")
       .populate("tableId", "tableNumber status position orderTime")
       .populate({
         path: "cartId",
@@ -357,7 +357,7 @@ export const successfulPayment = async (req: Request, res: Response) => {
 
     // Lấy thông tin order đầy đủ để gửi qua socket
     const updatedOrder = await Order.findById(idOfOrder)
-      .populate("userId", "username email")
+      .populate("userId", "username email phoneNumber")
       .populate("tableId", "tableNumber status position orderTime")
       .populate({
         path: "cartId",
