@@ -81,6 +81,20 @@ export const getSearchedDish = async (req: Request, res: Response) => {
     return new BadRequestError().send(res);
   }
 };
+export const getAllDishes = async (req: Request, res: Response) => {
+  try {
+    const dishes = await Dish.find({ deleted: false }).populate(
+      "categoryId",
+      "name"
+    );
+    return new OK({
+      message: "Dishes fetched successfully",
+      metadata: dishes,
+    }).send(res);
+  } catch (error) {
+    return new BadRequestError().send(res);
+  }
+};
 export const changeStatus = async (req: Request, res: Response) => {
   try {
     const dishId = req.params.id;

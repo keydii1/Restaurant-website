@@ -36,6 +36,7 @@ router.post(
   dishValidate.descriptionValid,
   controller.create
 );
+router.get("/all", controller.getAllDishes);
 router.patch(
   "/edit/:id",
   authAdmin,
