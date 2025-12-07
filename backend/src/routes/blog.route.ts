@@ -30,5 +30,6 @@ router.patch(
   blogValidate.contentLength,
   controller.edit
 );
+router.get("/detail/:id", controller.getBlogDetail);
 router.delete("/delete/:id", authAdmin, controller.DeleteBlog);
 export default router;

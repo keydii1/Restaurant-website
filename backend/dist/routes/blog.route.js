@@ -47,5 +47,6 @@ const router = (0, express_1.Router)();
 router.get("/", controller.getBlogs);
 router.post("/create", checkAuth_auth_1.authAdmin, upload.single("image"), uploadCloud_middleware_1.uploadImage, blogValidate.titleRequired, blogValidate.titleLength, blogValidate.contentRequired, blogValidate.contentLength, controller.create);
 router.patch("/edit/:id", checkAuth_auth_1.authAdmin, upload.single("image"), uploadCloud_middleware_1.uploadImage, blogValidate.titleRequired, blogValidate.titleLength, blogValidate.contentRequired, blogValidate.contentLength, controller.edit);
+router.get("/detail/:id", controller.getBlogDetail);
 router.delete("/delete/:id", checkAuth_auth_1.authAdmin, controller.DeleteBlog);
 exports.default = router;

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DeleteBlog = exports.edit = exports.create = exports.getBlogs = void 0;
+exports.DeleteBlog = exports.edit = exports.create = exports.getBlogDetail = exports.getBlogs = void 0;
 const blog_model_1 = __importDefault(require("../models/blog.model"));
 const success_response_1 = require("../core/success.response");
 const error_response_1 = require("../core/error.response");
@@ -29,6 +29,20 @@ const getBlogs = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getBlogs = getBlogs;
+const getBlogDetail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const id = req.params.id;
+        const blog = yield blog_model_1.default.findOne({ _id: id, deleted: false });
+        return new success_response_1.OK({
+            message: "Blog detail fetched successfully",
+            metadata: blog,
+        }).send(res);
+    }
+    catch (error) {
+        return new error_response_1.BadRequestError().send(res);
+    }
+});
+exports.getBlogDetail = getBlogDetail;
 const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const newBlog = new blog_model_1.default(req.body);

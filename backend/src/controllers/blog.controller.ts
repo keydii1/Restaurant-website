@@ -14,7 +14,18 @@ export const getBlogs = async (req: Request, res: Response) => {
     return new BadRequestError().send(res);
   }
 };
-
+export const getBlogDetail = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    const blog = await Blog.findOne({ _id: id, deleted: false });
+    return new OK({
+      message: "Blog detail fetched successfully",
+      metadata: blog,
+    }).send(res);
+  } catch (error) {
+    return new BadRequestError().send(res);
+  }
+};
 export const create = async (req: Request, res: Response) => {
   try {
     const newBlog = new Blog(req.body);
