@@ -18,19 +18,6 @@ router.post(
   controllers.createTable
 );
 router.delete("/delete/:id", authAdmin, controllers.deleteTable);
-router.patch(
-  "/edit/:id",
-  auth,
-  tableValidate.tableNumberValid,
-  tableValidate.maximumCapacityValid,
-  tableValidate.statusValid,
-  tableValidate.positionLength,
-  controllers.editTable
-);
-router.patch(
-  "/change-status/:id",
-  authAdmin,
-  tableValidate.statusValid,
-  controllers.changeTableStatus
-);
+router.patch("/edit/:id", auth, controllers.editTable);
+router.patch("/change-status/:id", authAdmin, controllers.changeTableStatus);
 export default router;

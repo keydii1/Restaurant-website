@@ -41,6 +41,6 @@ const checkAuth_auth_1 = require("../auth/checkAuth.auth");
 router.get("/", checkAuth_auth_1.auth, controllers.getAllTables);
 router.post("/create", checkAuth_auth_1.authAdmin, tableValidate.tableNumberRequired, tableValidate.tableNumberValid, tableValidate.tableNumberUnique, tableValidate.maximumCapacityRequired, tableValidate.maximumCapacityValid, tableValidate.statusValid, tableValidate.positionRequired, tableValidate.positionLength, controllers.createTable);
 router.delete("/delete/:id", checkAuth_auth_1.authAdmin, controllers.deleteTable);
-router.patch("/edit/:id", checkAuth_auth_1.auth, tableValidate.tableNumberValid, tableValidate.maximumCapacityValid, tableValidate.statusValid, tableValidate.positionLength, controllers.editTable);
-router.patch("/change-status/:id", checkAuth_auth_1.authAdmin, tableValidate.statusValid, controllers.changeTableStatus);
+router.patch("/edit/:id", checkAuth_auth_1.auth, controllers.editTable);
+router.patch("/change-status/:id", checkAuth_auth_1.authAdmin, controllers.changeTableStatus);
 exports.default = router;
