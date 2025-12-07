@@ -53,12 +53,15 @@ function sendMailThankYou(email) {
           }
           .header {
             background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            padding: 40px 30px;
             text-align: center;
           }
-          .logo-icon {
-            font-size: 48px;
-            margin-bottom: 12px;
+          .header-banner {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+          }
+          .header-content {
+            padding: 25px 30px;
           }
           .brand {
             font-family: 'Georgia', serif;
@@ -199,9 +202,11 @@ function sendMailThankYou(email) {
       <body>
         <div class="container">
           <div class="header">
-            <div class="logo-icon">🍜</div>
-            <h1 class="brand">TS RESTAURANT</h1>
-            <div class="subtitle">Hương Vị Việt Nam</div>
+            <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&h=200&fit=crop" alt="TS Restaurant" class="header-banner"/>
+            <div class="header-content">
+              <h1 class="brand">TS RESTAURANT</h1>
+              <div class="subtitle">Hương Vị Việt Nam</div>
+            </div>
           </div>
           <div class="content">
             <div class="title">Chân Thành Cảm Ơn! ❤️</div>
@@ -213,7 +218,7 @@ function sendMailThankYou(email) {
             <div class="divider"></div>
 
             <div class="appreciation-card">
-              <div class="appreciation-icon">🙏</div>
+              <div class="appreciation-icon">💖</div>
               <p class="appreciation-text">"Quý khách là niềm vinh dự của chúng tôi"</p>
             </div>
 
