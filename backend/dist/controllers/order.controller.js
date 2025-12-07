@@ -90,6 +90,7 @@ const GetOrderDetail = (req, res) => __awaiter(void 0, void 0, void 0, function*
 });
 exports.GetOrderDetail = GetOrderDetail;
 const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
     try {
         const userId = req.accessToken.id;
         const newOrder = new order_model_1.default(req.body);
@@ -105,6 +106,15 @@ const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
                 select: "name price image",
             },
         });
+        socket_service_1.default.notifyNewOrder({
+            orderId: newOrder._id,
+            email: ((_a = populatedOrder === null || populatedOrder === void 0 ? void 0 : populatedOrder.userId) === null || _a === void 0 ? void 0 : _a.email) || "",
+            order: populatedOrder,
+            message: `Đơn hàng mới #${newOrder._id}!`,
+        });
+        if (req.body.typeOfPayment === "cash") {
+            yield (0, sendMailThankyou_1.default)(((_b = populatedOrder === null || populatedOrder === void 0 ? void 0 : populatedOrder.userId) === null || _b === void 0 ? void 0 : _b.email) || "");
+        }
         return new success_response_1.Created({
             message: "Order created successfully",
             metadata: populatedOrder,
@@ -164,6 +174,12 @@ const updateOrderStatus = (req, res) => __awaiter(void 0, void 0, void 0, functi
         if (!updatedOrder) {
             return new error_response_1.BadRequestError("Order not found").send(res);
         }
+        socket_service_1.default.notifyOrderStatusUpdate({
+            orderId: id,
+            status: status,
+            order: updatedOrder,
+            message: `Trạng thái đơn hàng #${id} đã được cập nhật thành: ${status}`,
+        });
         return new success_response_1.OK({
             message: "Order status updated successfully",
             metadata: updatedOrder,
@@ -331,6 +347,7 @@ const successfulPayment = (req, res) => __awaiter(void 0, void 0, void 0, functi
             _id: idOfOrder,
         }, {
             status: "confirmed",
+            payed: true,
         });
         const updatedOrder = yield order_model_1.default.findById(idOfOrder)
             .populate("userId", "username email")

@@ -88,6 +88,20 @@ export const createOrder = async (req: Request, res: Response) => {
           select: "name price image",
         },
       });
+
+    // 🆕 Gửi socket notification cho tất cả đơn hàng mới (COD và MoMo)
+    socketService.notifyNewOrder({
+      orderId: newOrder._id,
+      email: (populatedOrder?.userId as any)?.email || "",
+      order: populatedOrder,
+      message: `Đơn hàng mới #${newOrder._id}!`,
+    });
+
+    // Chỉ gửi email cảm ơn cho đơn COD (cash) - MoMo sẽ gửi sau khi thanh toán thành công
+    if (req.body.typeOfPayment === "cash") {
+      await sendMailThankYou((populatedOrder?.userId as any)?.email || "");
+    }
+
     return new Created({
       message: "Order created successfully",
       metadata: populatedOrder,
@@ -145,6 +159,15 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
     if (!updatedOrder) {
       return new BadRequestError("Order not found").send(res);
     }
+
+    // Gửi socket notification khi cập nhật trạng thái đơn hàng
+    socketService.notifyOrderStatusUpdate({
+      orderId: id,
+      status: status,
+      order: updatedOrder,
+      message: `Trạng thái đơn hàng #${id} đã được cập nhật thành: ${status}`,
+    });
+
     return new OK({
       message: "Order status updated successfully",
       metadata: updatedOrder,
@@ -333,6 +356,7 @@ export const successfulPayment = async (req: Request, res: Response) => {
       },
       {
         status: "confirmed",
+        payed: true,
       }
     );
 
@@ -356,6 +380,7 @@ export const successfulPayment = async (req: Request, res: Response) => {
       message: `Đơn hàng #${idOfOrder} đã thanh toán thành công!`,
     });
 
+    // Gửi email cảm ơn cho đơn MoMo sau khi thanh toán thành công
     await sendMailThankYou(email.toString());
     res.status(200).json({
       message: "Payment successful",
