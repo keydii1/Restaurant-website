@@ -56,6 +56,7 @@ router.patch("/change-multi", checkAuth_auth_1.authAdmin, controller.changeMulti
 router.delete("/delete/:id", checkAuth_auth_1.authAdmin, controller.deleteDish);
 router.get("/search", controller.getSearchedDish);
 router.post("/create", checkAuth_auth_1.authAdmin, upload.single("image"), uploadCloud_middleware_1.uploadImage, dishValidate.nameNotEmpty, dishValidate.nameNotMoreThan100Chars, dishValidate.categoryExistCheck, dishValidate.priceValid, dishValidate.discountValid, dishValidate.ratingValid, dishValidate.prepareTimeValid, dishValidate.descriptionValid, controller.create);
+router.get("/all", controller.getAllDishes);
 router.patch("/edit/:id", checkAuth_auth_1.authAdmin, upload.single("image"), uploadCloud_middleware_1.uploadImage, dishValidate.nameNotMoreThan100Chars, dishValidate.priceValid, dishValidate.discountValid, dishValidate.ratingValid, dishValidate.prepareTimeValid, dishValidate.descriptionValid, controller.edit);
 router.get("/detail/:id", checkAuth_auth_1.auth, controller.getDishDetail);
 exports.default = router;

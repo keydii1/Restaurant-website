@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getDishDetail = exports.edit = exports.create = exports.deleteDish = exports.changeMulti = exports.changeStatus = exports.getSearchedDish = exports.getDishes = void 0;
+exports.getDishDetail = exports.edit = exports.create = exports.deleteDish = exports.changeMulti = exports.changeStatus = exports.getAllDishes = exports.getSearchedDish = exports.getDishes = void 0;
 const dish_model_1 = __importDefault(require("../models/dish.model"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const pagination_helper_1 = __importDefault(require("../helpers/pagination.helper"));
@@ -79,6 +79,19 @@ const getSearchedDish = (req, res) => __awaiter(void 0, void 0, void 0, function
     }
 });
 exports.getSearchedDish = getSearchedDish;
+const getAllDishes = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const dishes = yield dish_model_1.default.find({ deleted: false }).populate("categoryId", "name");
+        return new success_response_1.OK({
+            message: "Dishes fetched successfully",
+            metadata: dishes,
+        }).send(res);
+    }
+    catch (error) {
+        return new error_response_1.BadRequestError().send(res);
+    }
+});
+exports.getAllDishes = getAllDishes;
 const changeStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const dishId = req.params.id;
