@@ -22,7 +22,6 @@ router.patch(
   "/edit/:id",
   auth,
   tableValidate.tableNumberValid,
-  tableValidate.tableNumberUnique,
   tableValidate.maximumCapacityValid,
   tableValidate.statusValid,
   tableValidate.positionLength,
