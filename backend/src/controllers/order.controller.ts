@@ -7,7 +7,7 @@ import socketService from "../services/socket.service";
 export const getAllOrders = async (req: Request, res: Response) => {
   try {
     const orders = await Order.find()
-      .populate("userId", "username email")
+      .populate("userId", "username email phoneNumber")
       .populate("tableId", "tableNumber status position orderTime")
       .populate({
         path: "cartId",
@@ -29,7 +29,7 @@ export const getOrders = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).accessToken.id;
     const orders = await Order.find({ userId: userId })
-      .populate("userId", "username email")
+      .populate("userId", "username email phoneNumber")
       .populate("tableId", "tableNumber status position orderTime")
       .populate({
         path: "cartId",
@@ -51,7 +51,7 @@ export const GetOrderDetail = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const order = await Order.findById(id)
-      .populate("userId", "username email")
+      .populate("userId", "username email phoneNumber")
       .populate("tableId", "tableNumber status position orderTime")
       .populate({
         path: "cartId",
@@ -111,7 +111,7 @@ export const updateOrder = async (req: Request, res: Response) => {
     const { id } = req.params;
     await Order.updateOne({ _id: id }, { $set: req.body });
     const updatedOrder = await Order.findById(id)
-      .populate("userId", "username email")
+      .populate("userId", "username email phoneNumber")
       .populate("tableId", "tableNumber status position orderTime")
       .populate({
         path: "cartId",
@@ -142,7 +142,7 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
     }
     await Order.updateOne({ _id: id }, { status: status });
     const updatedOrder = await Order.findById(id)
-      .populate("userId", "username email")
+      .populate("userId", "username email phoneNumber")
       .populate("tableId", "tableNumber status position orderTime")
       .populate({
         path: "cartId",

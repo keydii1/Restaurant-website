@@ -21,7 +21,7 @@ const socket_service_1 = __importDefault(require("../services/socket.service"));
 const getAllOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const orders = yield order_model_1.default.find()
-            .populate("userId", "username email")
+            .populate("userId", "username email phoneNumber")
             .populate("tableId", "tableNumber status position orderTime")
             .populate({
             path: "cartId",
@@ -44,7 +44,7 @@ const getOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const userId = req.accessToken.id;
         const orders = yield order_model_1.default.find({ userId: userId })
-            .populate("userId", "username email")
+            .populate("userId", "username email phoneNumber")
             .populate("tableId", "tableNumber status position orderTime")
             .populate({
             path: "cartId",
@@ -67,7 +67,7 @@ const GetOrderDetail = (req, res) => __awaiter(void 0, void 0, void 0, function*
     try {
         const { id } = req.params;
         const order = yield order_model_1.default.findById(id)
-            .populate("userId", "username email")
+            .populate("userId", "username email phoneNumber")
             .populate("tableId", "tableNumber status position orderTime")
             .populate({
             path: "cartId",
@@ -130,7 +130,7 @@ const updateOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         const { id } = req.params;
         yield order_model_1.default.updateOne({ _id: id }, { $set: req.body });
         const updatedOrder = yield order_model_1.default.findById(id)
-            .populate("userId", "username email")
+            .populate("userId", "username email phoneNumber")
             .populate("tableId", "tableNumber status position orderTime")
             .populate({
             path: "cartId",
@@ -162,7 +162,7 @@ const updateOrderStatus = (req, res) => __awaiter(void 0, void 0, void 0, functi
         }
         yield order_model_1.default.updateOne({ _id: id }, { status: status });
         const updatedOrder = yield order_model_1.default.findById(id)
-            .populate("userId", "username email")
+            .populate("userId", "username email phoneNumber")
             .populate("tableId", "tableNumber status position orderTime")
             .populate({
             path: "cartId",
