@@ -12,59 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.changeTableStatus = exports.editTable = exports.deleteTable = exports.createTable = exports.getAllTables = exports.getAvailableTables = void 0;
+exports.changeTableStatus = exports.editTable = exports.deleteTable = exports.createTable = exports.getAllTables = void 0;
 const table_model_1 = __importDefault(require("../models/table.model"));
-const order_model_1 = __importDefault(require("../models/order.model"));
 const success_response_1 = require("../core/success.response");
 const error_response_1 = require("../core/error.response");
 const success_response_2 = require("../core/success.response");
-const getAvailableTables = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { date, startTime, endTime } = req.query;
-        if (!date || !startTime || !endTime) {
-            const tables = yield table_model_1.default.find({ deleted: false });
-            return new success_response_2.OK({
-                message: "Fetched all tables successfully",
-                metadata: tables,
-            }).send(res);
-        }
-        const requestedStart = new Date(`${date}T${startTime}:00`);
-        const requestedEnd = new Date(`${date}T${endTime}:00`);
-        const conflictingOrders = yield order_model_1.default.find({
-            deliveryOptions: "dine-in",
-            status: { $nin: ["cancelled", "completed"] },
-            tableId: { $exists: true },
-            $or: [
-                {
-                    bookingTime: { $lt: requestedEnd },
-                },
-            ],
-        }).populate("tableId");
-        const conflictingTableIds = new Set();
-        for (const order of conflictingOrders) {
-            if (!order.tableId)
-                continue;
-            const orderStart = new Date(order.bookingTime || order.timeOrdered || new Date());
-            const orderEnd = order.tableId.finishedTime
-                ? new Date(order.tableId.finishedTime)
-                : new Date(orderStart.getTime() + 2 * 60 * 60 * 1000);
-            if (orderStart < requestedEnd && orderEnd > requestedStart) {
-                conflictingTableIds.add(order.tableId._id.toString());
-            }
-        }
-        const allTables = yield table_model_1.default.find({ deleted: false });
-        const tablesWithAvailability = allTables.map((table) => (Object.assign(Object.assign({}, table.toObject()), { isAvailable: !conflictingTableIds.has(table._id.toString()) })));
-        return new success_response_2.OK({
-            message: "Fetched tables with availability successfully",
-            metadata: tablesWithAvailability,
-        }).send(res);
-    }
-    catch (error) {
-        console.error("Error fetching available tables:", error);
-        return new error_response_1.BadRequestError("Error fetching available tables").send(res);
-    }
-});
-exports.getAvailableTables = getAvailableTables;
 const getAllTables = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const tables = yield table_model_1.default.find({ deleted: false });
