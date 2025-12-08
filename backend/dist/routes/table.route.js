@@ -39,6 +39,7 @@ const tableValidate = __importStar(require("../validates/table.validate"));
 const router = (0, express_1.Router)();
 const checkAuth_auth_1 = require("../auth/checkAuth.auth");
 router.get("/", checkAuth_auth_1.auth, controllers.getAllTables);
+router.get("/available", checkAuth_auth_1.auth, controllers.getAvailableTables);
 router.post("/create", checkAuth_auth_1.authAdmin, tableValidate.tableNumberRequired, tableValidate.tableNumberValid, tableValidate.tableNumberUnique, tableValidate.maximumCapacityRequired, tableValidate.maximumCapacityValid, tableValidate.statusValid, tableValidate.positionRequired, tableValidate.positionLength, controllers.createTable);
 router.delete("/delete/:id", checkAuth_auth_1.authAdmin, controllers.deleteTable);
 router.patch("/edit/:id", checkAuth_auth_1.auth, controllers.editTable);

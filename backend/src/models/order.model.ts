@@ -9,7 +9,6 @@ export interface IOrder extends Document {
   status: string;
   typeOfPayment?: string;
   bookingTime?: Date;
-
   timeOrdered?: Date;
 }
 const orderSchema = new Schema<IOrder>(

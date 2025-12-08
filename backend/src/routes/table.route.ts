@@ -4,6 +4,7 @@ import * as tableValidate from "../validates/table.validate";
 const router = Router();
 import { auth, authAdmin } from "../auth/checkAuth.auth";
 router.get("/", auth, controllers.getAllTables);
+router.get("/available", auth, controllers.getAvailableTables);
 router.post(
   "/create",
   authAdmin,
