@@ -559,16 +559,34 @@ paths:
             schema:
               $ref: "#/components/schemas/DishCreateBody"
       responses:
-        "201":
+        "200":
           description: Tạo thành công
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DishResponse"
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Dish created successfully"
+                  data:
+                    $ref: "#/components/schemas/Dish"
         "401":
           $ref: "#/components/responses/UnauthorizedError"
         "403":
           $ref: "#/components/responses/ForbiddenError"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal server error"
+                  error:
+                    type: string
 
   /dishes/detail/{id}:
     get:
@@ -620,13 +638,31 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DishResponse"
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Dish updated successfully"
+                  data:
+                    $ref: "#/components/schemas/Dish"
         "401":
           $ref: "#/components/responses/UnauthorizedError"
         "403":
           $ref: "#/components/responses/ForbiddenError"
         "404":
           $ref: "#/components/responses/NotFoundError"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal server error"
+                  error:
+                    type: string
 
   /dishes/delete/{id}:
     delete:
@@ -1528,9 +1564,7 @@ paths:
       tags:
         - contacts
       summary: Tạo liên hệ mới
-      description: Gửi form liên hệ
-      security:
-        - bearerAuth: []
+      description: Gửi form liên hệ (Public - không yêu cầu đăng nhập)
       requestBody:
         required: true
         content:
@@ -1538,7 +1572,7 @@ paths:
             schema:
               $ref: "#/components/schemas/ContactCreateBody"
       responses:
-        "201":
+        "200":
           description: Gửi thành công
           content:
             application/json:
@@ -1546,8 +1580,6 @@ paths:
                 $ref: "#/components/schemas/ContactResponse"
         "400":
           $ref: "#/components/responses/BadRequestError"
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
 
   /contacts/edit/{id}:
     patch:
@@ -1912,6 +1944,57 @@ paths:
                     $ref: "#/components/schemas/Order"
         "404":
           $ref: "#/components/responses/NotFoundError"
+
+  /orders/test-socket:
+    post:
+      tags:
+        - orders
+      summary: Test Socket Notification
+      description: Gửi thông báo test qua Socket.IO (Development only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                orderId:
+                  type: string
+                  description: ID của đơn hàng test
+                  example: "692f7h8i9j12345fg67hi890"
+                amount:
+                  type: number
+                  description: Số tiền test
+                  example: 150000
+                email:
+                  type: string
+                  format: email
+                  description: Email test
+                  example: "test@example.com"
+      responses:
+        "200":
+          description: Gửi thông báo thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Test notification sent successfully!"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal server error"
 
 components:
   securitySchemes:
@@ -2423,6 +2506,10 @@ components:
                 type: integer
         totalPrice:
           type: number
+        status:
+          type: string
+          enum: [active, cleared]
+          description: Trạng thái giỏ hàng
         createdAt:
           type: string
           format: date-time
@@ -2455,6 +2542,7 @@ components:
                 image: "https://res.cloudinary.com/dvxaznogb/image/upload/v1764198485/dishes_images/go7cltyjy1yv0crbmdai.jpg"
               quantity: 1
           totalPrice: 45000
+          status: "active"
           createdAt: "2025-11-28T07:16:04.430Z"
           updatedAt: "2025-11-28T07:16:04.430Z"
 
@@ -2951,6 +3039,9 @@ components:
         typeOfPayment:
           type: string
           enum: [cash, card, momo]
+        payed:
+          type: boolean
+          description: Trạng thái đã thanh toán (dùng cho MoMo)
         createdAt:
           type: string
           format: date-time
