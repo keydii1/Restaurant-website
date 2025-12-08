@@ -33,6 +33,9 @@ const orderSchema = new mongoose_1.Schema({
         type: String,
         enum: ["cash", "card", "momo"],
     },
+    bookingTime: {
+        type: Date,
+    },
     timeOrdered: { type: Date, default: Date.now },
 }, { timestamps: true, collection: "orders" });
 const Order = (0, mongoose_1.model)("Order", orderSchema);

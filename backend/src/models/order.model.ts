@@ -8,6 +8,8 @@ export interface IOrder extends Document {
   totalPrice: number;
   status: string;
   typeOfPayment?: string;
+  bookingTime?: Date;
+
   timeOrdered?: Date;
 }
 const orderSchema = new Schema<IOrder>(
@@ -42,6 +44,9 @@ const orderSchema = new Schema<IOrder>(
     typeOfPayment: {
       type: String,
       enum: ["cash", "card", "momo"],
+    },
+    bookingTime: {
+      type: Date,
     },
     timeOrdered: { type: Date, default: Date.now },
   },
