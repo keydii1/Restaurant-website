@@ -8,7 +8,10 @@ export const getAllOrders = async (req: Request, res: Response) => {
   try {
     const orders = await Order.find()
       .populate("userId", "username email phoneNumber")
-      .populate("tableId", "tableNumber status position orderTime")
+      .populate(
+        "tableId",
+        "tableNumber status position orderTime maximumCapacity"
+      )
       .populate({
         path: "cartId",
         populate: {

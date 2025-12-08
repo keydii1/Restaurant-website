@@ -22,7 +22,7 @@ const getAllOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     try {
         const orders = yield order_model_1.default.find()
             .populate("userId", "username email phoneNumber")
-            .populate("tableId", "tableNumber status position orderTime")
+            .populate("tableId", "tableNumber status position orderTime maximumCapacity")
             .populate({
             path: "cartId",
             populate: {
