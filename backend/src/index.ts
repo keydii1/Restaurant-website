@@ -62,6 +62,24 @@ routerAppVer1(app); // Routes
 const httpServer = createServer(app);
 socketService.initialize(httpServer);
 
+app.get("/", (req: Request, res: Response) => {
+  res.json({
+    message: "Welcome to the Restaurant API",
+    version: "1.0.0",
+    routes: {
+      categories: "/restaurant/api/v1/categories",
+      dishes: "/restaurant/api/v1/dishes",
+      users: "/restaurant/api/v1/users",
+      tables: "/restaurant/api/v1/tables",
+      discounts: "/restaurant/api/v1/discounts",
+      carts: "/restaurant/api/v1/carts",
+      blogs: "/restaurant/api/v1/blogs",
+      contacts: "/restaurant/api/v1/contacts",
+      orders: "/restaurant/api/v1/orders",
+    },
+    status: "Success",
+  });
+});
 httpServer.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
   console.log(`Socket.IO is ready for connections`);
